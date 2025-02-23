@@ -1,3 +1,4 @@
+@include('Products.frame')
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +10,7 @@
 <body>
     <h1 class="text-center text-primary">View Product</h1>
     <div class="container">
+    <div class="row col-md-6" style="margin-left:25%">
     <form method="POST" action="{{route('generate.pdf',['product'=>$product])}}">
     @csrf     
         <div class="input-group mb-3">
@@ -32,7 +34,9 @@
 
     </form>
     </div>
+    </div>
     <!-- Bootstrap JS & Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ 
 </body>
 </html>
