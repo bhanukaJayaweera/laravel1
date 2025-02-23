@@ -22,7 +22,7 @@
             <a class="nav-link active" aria-current="page" href="#">Home</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="#">Upload Excel</a>
+            <a class="nav-link" href="{{ route('product.upload') }}">Upload Excel</a>
             </li>
             
         </ul>
