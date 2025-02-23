@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ProductsImport;
 
 class ProductController extends Controller
 {
@@ -58,5 +60,21 @@ class ProductController extends Controller
     public function destroy(Product $product){
         $product->delete();
         return redirect(route('product.index'))->with('success','Product deleted successfully');
+    }
+
+    public function showUploadForm()
+    {
+        return view('Products.upload');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new ProductsImport, $request->file('file'));
+
+        return back()->with('success', 'Excel data imported successfully.');
     }
 }

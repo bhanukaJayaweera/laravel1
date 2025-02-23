@@ -34,6 +34,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/product/{product}/destroy',[ProductController::class,'destroy'])->name('product.destroy');
     Route::get('/product/{product}/view',[ProductController::class,'view'])->name('product.view');
     Route::post('/generatepdf',[ProductController::class,'generatepdf'])->name('generate.pdf');
+    Route::get('product/upload', [ProductController::class, 'showUploadForm'])->name('product.upload');
+    Route::post('/import', [ProductController::class, 'import'])->name('import');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
