@@ -1,3 +1,5 @@
+
+@include('Products.frame')
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,16 +10,19 @@
 </head>
 <body>
     <h1 class="text-center text-primary">Edit a Product</h1>
-    <div class="alert alert-danger" role="alert">
-        @if($errors -> any())
-        <ul>
-            @foreach($errors -> all() as $error)
-                <li>{{$error}}</li>
-            @endforeach
-        </ul>
-        @endif
-    </div>
     <div class="container">
+    <div class="row col-md-6" style="margin-left:25%">
+        <div class="alert alert-danger" role="alert">
+            @if($errors -> any())
+            <ul>
+                @foreach($errors -> all() as $error)
+                    <li>{{$error}}</li>
+                @endforeach
+            </ul>
+            @endif
+        </div>
+    </div>
+    <div class="row col-md-6" style="margin-left:25%">
     <form method="post" action="{{route('product.update',['product'=>$product])}}">
     @csrf
     @method('put')    
@@ -39,7 +44,8 @@
             <input type="submit" value="Edit Product" class="btn btn-success"/>
             <a type="button" href="{{route('product.index')}}" class="btn btn-danger">Back</a>
         </div>
-</div>
+    </div>
+    </div>
     </form>
     <!-- Bootstrap JS & Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
