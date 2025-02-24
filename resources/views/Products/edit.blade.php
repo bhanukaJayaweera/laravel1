@@ -12,7 +12,7 @@
     <h1 class="text-center text-primary">Edit a Product</h1>
     <div class="container">
     <div class="row col-md-6" style="margin-left:25%">
-        <div class="alert alert-danger" role="alert">
+        <!-- <div class="alert alert-danger" role="alert">
             @if($errors -> any())
             <ul>
                 @foreach($errors -> all() as $error)
@@ -20,6 +20,20 @@
                 @endforeach
             </ul>
             @endif
+        </div> -->
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>
+            @if($errors -> any())
+            <ul>
+                @foreach($errors -> all() as $error)
+                    <li>{{$error}}</li>
+                @endforeach
+            </ul>
+            @endif
+            </strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>         
         </div>
     </div>
     <div class="row col-md-6" style="margin-left:25%">
