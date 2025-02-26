@@ -116,9 +116,13 @@
    
     <div class="container" style="margin-left:28%">
         <div class="row col-md-9">
+        <form id="selectedProductsForm" method="POST" action="{{route('product.select')}}">
+        @csrf  
+        <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Get Selected Data</button>
         <table id="productTable" class="table table-striped table-bordered">
             <thead>
             <tr>
+                <th><input type="checkbox" id="selectAll"></th>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Quantity</th>
@@ -131,10 +135,13 @@
             <tbody>
             @foreach($products as $product)
                 <tr>
+                    <td><input type="checkbox" class="productCheckbox" name="product_ids[]" value="{{ $product->id }}"></td>
                     <td>{{$product->id}}</td>
                     <td>{{$product->name}}</td>
                     <td>{{$product->quantity}}</td>
-                    <td>{{$product->price}}</td>
+                    <td>{{$product->price}}</td>        
+            
+        </form>
                     <td>
                         <a class="btn btn-primary" href="{{route('product.view', ['product' => $product])}}">View</a>
                     </td>
@@ -150,9 +157,10 @@
                     </td>
                 </tr>
             @endforeach
-        </tody>
+        </tbody>
         </table>
-</div>
+       
+    </div>
     </div>
     <!-- Bootstrap JS & Popper.js -->
 
@@ -171,8 +179,31 @@
             "ordering": true,    // Enable Sorting
             "info": true         // Show Info
         });
+
+        $('#selectAll').on('change', function () {
+            $('.productCheckbox').prop('checked', this.checked);
+        });
+
+        // Get Selected Data
+        // $('#getSelectedRows').on('click', function () {
+        //     let selectedProducts = [];
+        //     $('.productCheckbox:checked').each(function () {
+        //         let row = $(this).closest('tr'); // Get row data
+        //         let product = {
+        //             id: row.find('td:eq(1)').text(),
+        //             name: row.find('td:eq(2)').text(),
+        //             category: row.find('td:eq(3)').text(),
+        //             price: row.find('td:eq(4)').text(),
+        //         };
+        //         selectedProducts.push(product);
+        //     });
+        // });
+
     });
+ 
 </script>
+
+
 </body>
 
 </html>

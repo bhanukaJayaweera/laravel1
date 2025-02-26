@@ -10,6 +10,19 @@
         body { font-family: Arial, sans-serif; }
         .container { width: 80%; margin: auto; }
         h2 { text-align: center; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black; /* Ensure borders are visible */
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -29,13 +42,21 @@
             </thead>
             <tbody class="table-group-divider">
             
-                <tr>
+                <!-- <tr>
                     <td>{{ $data['id'] ?? 'N/A' }}</td>
                     <td>{{ $data['name'] ?? 'N/A' }}</td>
                     <td>{{ $data['quantity'] ?? 'N/A' }}</td>
                     <td>{{ $data['price'] ?? 'N/A' }}</td>
+                </tr> -->
+                @foreach($products as $product)
+                <tr>
+                    <td>{{ $product->id }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td>{{ $product->quantity }}</td>
+                    <td>Rs {{ number_format($product->price, 2) }}</td>
                 </tr>
-            
+                @endforeach
+                
         </tody>
         </table>
     </div>

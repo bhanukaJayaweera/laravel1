@@ -38,11 +38,24 @@ class ProductController extends Controller
         return view('Products.view',['product' => $product]);
     }
 
-    public function generatepdf(Request $request){
-        $data = $request->all();
-        //$data = $request->all(); // Get form data
-    // Load view and pass form data
-        $pdf = Pdf::loadView('Products.pdf_template', compact('data'));
+    // public function generatepdf(Request $request){
+    //     $data = $request->all();
+    //     //$data = $request->all(); // Get form data
+    // // Load view and pass form data
+    //     $pdf = Pdf::loadView('Products.pdf_template', compact('data'));
+    // // Download PDF
+    //     return $pdf->download('generated.pdf');
+    // }
+
+    public function generatepdfSelect(Request $request){
+        $productIds = $request->input('product_ids');
+        if (!$productIds) {
+            return back()->with('error', 'No products selected!');
+        }
+    
+        $products = Product::whereIn('id', $productIds)->get();
+        // Load view with selected products
+        $pdf = PDF::loadView('Products.pdf_template', compact('products'));
     // Download PDF
         return $pdf->download('generated.pdf');
     }
@@ -77,4 +90,7 @@ class ProductController extends Controller
 
         return back()->with('success', 'Excel data imported successfully.');
     }
+
+    
+
 }
