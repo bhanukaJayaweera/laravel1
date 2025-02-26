@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+     <!-- DataTables CSS -->
+     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+    <script src="{{ asset('js/new.js') }}"></script>
     <title>Document</title>
 </head>
 <body>
@@ -46,18 +50,79 @@
         </div>
     </div>
     
-    <div class="container" style="margin-left:25%">
-        @if(session()->has('success'))
-            <div class="alert alert-warning d-flex align-items-center" role="alert" style="margin-left:3%">
-            <!-- <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> -->
+
+    <div class="container col-md-6" style="margin-left:30%">
+    @if(session()->has('success'))
+            <!-- <div class="alert alert-warning d-flex align-items-center" role="alert" style="margin-left:3%">
                 <div>{{session('success')}}</div>
-            </div>
+            </div> -->
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>{{session('success')}}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>         
+        </div>
         @endif
     </div>
+
+    <!-- Button trigger modal -->
+    <button type="button" style="margin-left:30%" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Launch demo modal
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <div class="modal" tabindex="-1">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <form>
+                <div class="mb-3">
+                <label for="recipient-name" class="col-form-label">Recipient:</label>
+                <input type="text" class="form-control" id="recipient-name">
+                </div>
+                <div class="mb-3">
+                <label for="message-text" class="col-form-label">Message:</label>
+                <textarea class="form-control" id="message-text"></textarea>
+                </div>
+            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+            </div>
+        </div>
+        </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+        </div>
+    </div>
+    </div>
+   
     <div class="container" style="margin-left:28%">
         <div class="row col-md-9">
-        <table class="table table-striped table-hover">
+        <form id="selectedProductsForm" method="POST" action="{{route('product.select')}}">
+        @csrf  
+        <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Get Selected Data</button>
+        <table id="productTable" class="table table-striped table-bordered">
+            <thead>
             <tr>
+                <th><input type="checkbox" id="selectAll"></th>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Quantity</th>
@@ -66,12 +131,17 @@
                 <th>Edit</th>
                 <th>Delete</th>
             </tr>
+            </thead>
+            <tbody>
             @foreach($products as $product)
                 <tr>
+                    <td><input type="checkbox" class="productCheckbox" name="product_ids[]" value="{{ $product->id }}"></td>
                     <td>{{$product->id}}</td>
                     <td>{{$product->name}}</td>
                     <td>{{$product->quantity}}</td>
-                    <td>{{$product->price}}</td>
+                    <td>{{$product->price}}</td>        
+            
+        </form>
                     <td>
                         <a class="btn btn-primary" href="{{route('product.view', ['product' => $product])}}">View</a>
                     </td>
@@ -87,20 +157,53 @@
                     </td>
                 </tr>
             @endforeach
+        </tbody>
         </table>
-</div>
+       
+    </div>
     </div>
     <!-- Bootstrap JS & Popper.js -->
-    <script>
-    function w3_open() {
-    document.getElementById("mySidebar").style.display = "block";
-    }
-    function w3_close() {
-    document.getElementById("mySidebar").style.display = "none";
-    }
-    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+     <!-- jQuery -->
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Script -->
+<script>
+    $(document).ready(function () {
+        $('#productTable').DataTable({
+            "paging": true,      // Enable Pagination
+            "searching": true,   // Enable Search Box
+            "ordering": true,    // Enable Sorting
+            "info": true         // Show Info
+        });
+
+        $('#selectAll').on('change', function () {
+            $('.productCheckbox').prop('checked', this.checked);
+        });
+
+        // Get Selected Data
+        // $('#getSelectedRows').on('click', function () {
+        //     let selectedProducts = [];
+        //     $('.productCheckbox:checked').each(function () {
+        //         let row = $(this).closest('tr'); // Get row data
+        //         let product = {
+        //             id: row.find('td:eq(1)').text(),
+        //             name: row.find('td:eq(2)').text(),
+        //             category: row.find('td:eq(3)').text(),
+        //             price: row.find('td:eq(4)').text(),
+        //         };
+        //         selectedProducts.push(product);
+        //     });
+        // });
+
+    });
+ 
+</script>
+
 
 </body>
-</body>
+
 </html>

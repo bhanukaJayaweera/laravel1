@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 80%; margin: auto; }
+
+    </style>
 </head>
 <body>
     <h1 class="text-center text-primary">View Product</h1>
@@ -27,8 +32,7 @@
             <span class="input-group-text">$</span>
             <span class="input-group-text">0.00</span>
         </div>
-        <div class="input-group mb-3">
-            <input type="submit" value="Generate PDF " class="btn btn-success"/>
+        <div class="input-group mb-3">       
             <a type="button" href="{{route('product.index')}}" class="btn btn-danger">Back</a>
         </div>
 
