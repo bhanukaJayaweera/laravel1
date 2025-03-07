@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('product/upload', [ProductController::class, 'showUploadForm'])->name('product.upload');
     Route::post('/import', [ProductController::class, 'import'])->name('import');
     Route::post('/product/select', [ProductController::class, 'generatepdfSelect'])->name('product.select');
+
+    Route::get('/customer',[CustomerController::class,'index'])->name('customer.index');
+    Route::post('/customer/select', [CustomerController::class, 'generatepdfSelect'])->name('customer.select');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
