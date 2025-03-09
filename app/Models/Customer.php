@@ -15,8 +15,8 @@ class Customer extends Model
         'email',
     ];
 
-    public function products()
+    public function orders()
     {
-        return $this->belongsToMany(Product::class);
+        return $this->hasMany(Order::class);
     }
 }

@@ -28,4 +28,46 @@ class CustomerController extends Controller
     // Download PDF
         return $pdf->download('generated.pdf');
     }
+
+    public function view(Customer $customer){
+        #dd($product); #used to check the data sent 
+        return view('Customer.view',['customer' => $customer]);
+    }
+
+    public function edit(Customer $customer){
+        #dd($product); #used to check the data sent 
+        return view('Customer.edit',['customer' => $customer]);
+    }
+
+    public function update(Customer $customer, Request $request){
+        $data = $request->validate([
+            'name' => 'required',
+            'address' => 'required',
+            'phone' => 'required|integer',
+            'email'=> 'required|email',
+        ]);
+        $customer -> update($data);
+        return redirect(route('customer.index'))->with('success','Customer updated successfully');
+    }
+
+    public function destroy(Customer $customer){
+        $customer->delete();
+        return redirect(route('customer.index'))->with('success','Customer deleted successfully');
+    }
+
+    public function create(){
+        return view('Customer.create');
+    } 
+    public function store(Request $request){
+        $data = $request->validate([
+            'name' => 'required',
+            'address' => 'required',
+            'phone' => 'required|integer',
+            'email' => 'required|email',
+        ]);
+
+        $newCustomer = Customer::create($data);
+        return redirect(route('customer.index'));
+    } 
+
 }

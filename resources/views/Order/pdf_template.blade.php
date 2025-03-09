@@ -27,7 +27,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>Viewed Customer Data</h2>
+        <h2>Viewed Orders Data</h2>
         <!-- <p><strong>Name:</strong> {{ $data['name'] ?? 'N/A' }}</p>
         <p><strong>Quantity:</strong> {{ $data['quantity'] ?? 'N/A' }}</p>
         <p><strong>Price:</strong> {{ $data['price'] ?? 'N/A' }}</p> -->
@@ -35,10 +35,11 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Address</th>
-                <th>Phone</th>
-                <th>Email</th>
+                <th>Customer ID</th>
+                <th>Product ID</th>
+                <th>Date</th>
+                <th>Payment Type</th>
+                <th>Amount</th>
             </tr>
             </thead>
             <tbody class="table-group-divider">
@@ -49,13 +50,14 @@
                     <td>{{ $data['quantity'] ?? 'N/A' }}</td>
                     <td>{{ $data['price'] ?? 'N/A' }}</td>
                 </tr> -->
-                @foreach($customers as $customer)
+                @foreach($orders as $order)
                 <tr>
-                    <td>{{ $customer->id }}</td>
-                    <td>{{ $customer->name }}</td>
-                    <td>{{ $customer->address }}</td>
-                    <td>{{ $customer->phone }}</td>
-                    <td>{{ $customer->email }}</td>
+                    <td>{{ $order->id }}</td>
+                    <td>{{ $order->customer_id }}</td>
+                    <td>{{ $order->product_id }}</td>
+                    <td>{{ $order->date }}</td>
+                    <td>{{ $order->payment_type }}</td>
+                    <td>{{ $order->amount }}</td>
                     
                 </tr>
                 @endforeach
