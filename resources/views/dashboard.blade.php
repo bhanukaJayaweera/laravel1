@@ -14,6 +14,8 @@
                     <a href="{{route('product.index')}}" class="text-red-600">Product page</a>
                     <br><br>
                     <a href="{{route('customer.index')}}" class="text-red-600">Customer page</a>
+                    <br><br>
+                    <a href="{{route('order.index')}}" class="text-red-600">Order page</a>
                 </div>
             </div>
         </div>

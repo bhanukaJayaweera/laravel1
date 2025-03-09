@@ -14,8 +14,8 @@ class Product extends Model
         'price',
     ];
 
-    public function customers()
+    public function orders()
     {
-        return $this->belongsToMany(Customer::class);
+        return $this->hasMany(Order::class);
     }
 }

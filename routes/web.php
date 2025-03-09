@@ -5,7 +5,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CustomerController;
-
+use App\Http\Controllers\OrderController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -41,6 +41,17 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/customer',[CustomerController::class,'index'])->name('customer.index');
     Route::post('/customer/select', [CustomerController::class, 'generatepdfSelect'])->name('customer.select');
+    Route::get('/customer/{customer}/view',[CustomerController::class,'view'])->name('customer.view');
+    Route::get('/customer/{customer}/edit',[CustomerController::class,'edit'])->name('customer.edit');
+    Route::put('/customer/{customer}/update',[CustomerController::class,'update'])->name('customer.update');
+    Route::delete('/customer/{customer}/destroy',[CustomerController::class,'destroy'])->name('customer.destroy');
+    Route::get('/customer/create',[CustomerController::class,'create'])->name('customer.create');
+    Route::post('/customer',[CustomerController::class,'store'])->name('customer.store');
+
+    Route::get('/order',[OrderController::class,'index'])->name('order.index');
+    Route::post('/order/select', [OrderController::class, 'generatepdfSelect'])->name('order.select');
+    Route::get('/order/create',[OrderController::class,'create'])->name('order.create');
+    Route::post('/order',[OrderController::class,'store'])->name('order.store');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

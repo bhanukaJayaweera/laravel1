@@ -16,7 +16,7 @@
         <div class = "row col-md-12">
             <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
-        <a class="navbar-brand" href="#"><h2 class="text-center text-primary">Customer Page</h2></a>
+        <a class="navbar-brand" href="#"><h2 class="text-center text-primary">Order Page</h2></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
         </button>
@@ -44,7 +44,7 @@
             <!-- Sidebar -->
         <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:20%">
         <h3 class="w3-bar-item">Menu</h3>
-        <a class="w3-bar-item w3-button" href="{{route('customer.create')}}">Create Customer</a>      
+        <a class="w3-bar-item w3-button" href="{{route('order.create')}}">Create Order</a>      
         <a class="w3-bar-item w3-button" href="{{route('dashboard')}}">Home</a>
         
         </div>
@@ -116,47 +116,35 @@
    
     <div class="container" style="margin-left:28%">
         <div class="row col-md-9">
-        <form id="selectedProductsForm" method="POST" action="{{route('customer.select')}}">
+        <form id="selectedProductsForm" method="POST" action="{{route('order.select')}}">
         @csrf  
         <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Get Selected Data</button>
-        <table id="customerTable" class="table table-striped table-bordered">
+        <table id="orderTable" class="table table-striped table-bordered">
             <thead>
             <tr>
                 <th><input type="checkbox" id="selectAll"></th>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Address</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>View</th>
-                <th>Edit</th>
-                <th>Delete</th>
+                <th>Customer ID</th>
+                <th>Product ID</th>
+                <th>Date</th>
+                <th>Payment Type</th>
+                <th>Amount</th>
+
             </tr>
             </thead>
             <tbody>
-            @foreach($customers as $customer)
+            @foreach($orders as $order)
                 <tr>
-                    <td><input type="checkbox" class="customerCheckbox" name="customer_ids[]" value="{{ $customer->id }}"></td>
-                    <td>{{$customer->id}}</td>
-                    <td>{{$customer->name}}</td>
-                    <td>{{$customer->address}}</td>
-                    <td>{{$customer->phone}}</td>     
-                    <td>{{$customer->email}}</td>     
+                    <td><input type="checkbox" class="orderCheckbox" name="order_ids[]" value="{{ $order->id }}"></td>
+                    <td>{{$order->id}}</td>
+                    <td>{{$order->customer_id}}</td>
+                    <td>{{$order->product_id}}</td>
+                    <td>{{$order->date}}</td>     
+                    <td>{{$order->payment_type}}</td>  
+                    <td>{{$order->amount}}</td>    
             
         </form>   
-                    <td>
-                    <a class="btn btn-primary" href="{{route('customer.view', ['customer' => $customer])}}">View</a>
-                    </td>
-                    <td>
-                        <a class="btn btn-success" href="{{route('customer.edit', ['customer' => $customer])}}">Edit</a>
-                    </td>
-                    <td>
-                        <form action="{{route('customer.destroy', ['customer'=>$customer])}}" method='POST'>
-                        @csrf
-                        @method('delete') 
-                            <input class="btn btn-danger" type="submit" value="delete" />
-                        </form>
-                    </td>           
+                         
         </tr>
             @endforeach
         </tbody>
@@ -175,7 +163,7 @@
     <!-- DataTables Script -->
 <script>
     $(document).ready(function () {
-        $('#customerTable').DataTable({
+        $('#orderTable').DataTable({
             "paging": true,      // Enable Pagination
             "searching": true,   // Enable Search Box
             "ordering": true,    // Enable Sorting
@@ -183,7 +171,7 @@
         });
 
         $('#selectAll').on('change', function () {
-            $('.productCheckbox').prop('checked', this.checked);
+            $('.orderCheckbox').prop('checked', this.checked);
         });
 
 
