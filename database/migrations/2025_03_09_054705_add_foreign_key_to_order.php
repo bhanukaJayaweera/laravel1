@@ -15,9 +15,9 @@ class AddForeignKeyToOrder extends Migration
     {
         Schema::table('order', function (Blueprint $table) {
             $table->unsignedBigInteger('customer_id'); // Foreign key column
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('restrict');
             $table->unsignedBigInteger('product_id'); // Foreign key column
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('restrict');
         });
     }
 

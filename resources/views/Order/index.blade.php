@@ -66,7 +66,7 @@
     </div>
 
     <!-- Button trigger modal -->
-    <button type="button" style="margin-left:30%" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal"style="margin-left:28%" data-bs-target="#exampleModal" >
     Launch demo modal
     </button>
 
@@ -79,32 +79,23 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-        <div class="modal" tabindex="-1">
-        <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-            <form>
-                <div class="mb-3">
-                <label for="recipient-name" class="col-form-label">Recipient:</label>
-                <input type="text" class="form-control" id="recipient-name">
+        <form method="POST" action="">
+            @csrf  
+            <div class="input-group mb-3">
+                    <label class="input-group-text" id="inputGroup-sizing-default">Order ID</label>
+                    <input type="text" name="name" value="" class="form-control" readonly>
+                </div>   
+                <div class="input-group mb-3">
+                    <label class="input-group-text" id="inputGroup-sizing-default">Customer ID</label>
+                    <input type="text" name="customer_id" value="" class="form-control" readonly>
                 </div>
-                <div class="mb-3">
-                <label for="message-text" class="col-form-label">Message:</label>
-                <textarea class="form-control" id="message-text"></textarea>
+                        <div class="input-group mb-3">
+                    <label class="input-group-text" id="inputGroup-sizing-default">Customer Name</label>
+                    <input type="text" name="customer_id" value="" class="form-control" readonly>
                 </div>
+                            
+
             </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-            </div>
-        </div>
-        </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -124,12 +115,15 @@
             <tr>
                 <th><input type="checkbox" id="selectAll"></th>
                 <th>ID</th>
-                <th>Customer ID</th>
+                <th>Cus ID</th>
+                <th>Customer Name</th>
                 <th>Product ID</th>
                 <th>Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
-
+                <th>View</th>
+                <th>Update</th>
+                <th>Delete</th>
             </tr>
             </thead>
             <tbody>
@@ -138,13 +132,29 @@
                     <td><input type="checkbox" class="orderCheckbox" name="order_ids[]" value="{{ $order->id }}"></td>
                     <td>{{$order->id}}</td>
                     <td>{{$order->customer_id}}</td>
+                    <td>{{$order->customer->name}}</td>
                     <td>{{$order->product_id}}</td>
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
                     <td>{{$order->amount}}</td>    
             
         </form>   
-                         
+                    <td>
+                <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" href="{{route('order.view', ['order' => $order])}}" style="margin-left:28%" data-bs-target="#exampleModal" >
+                Launch demo modal
+                </button> -->
+                        <a class="btn btn-primary" href="{{route('order.view', ['order' => $order])}}">View</a>
+                    </td>
+                    <td>
+                        <a class="btn btn-success" href="{{route('order.edit', ['order' => $order])}}">Edit</a>
+                    </td>
+                    <td>
+                        <form action="{{route('order.destroy', ['order'=>$order])}}" method='POST' onsubmit="return confirmDelete()">
+                        @csrf
+                        @method('delete') 
+                            <input class="btn btn-danger" type="submit" value="delete" />
+                        </form>
+                    </td> 
         </tr>
             @endforeach
         </tbody>
@@ -162,6 +172,9 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <!-- DataTables Script -->
 <script>
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete this Order?');
+    }
     $(document).ready(function () {
         $('#orderTable').DataTable({
             "paging": true,      // Enable Pagination
@@ -173,6 +186,8 @@
         $('#selectAll').on('change', function () {
             $('.orderCheckbox').prop('checked', this.checked);
         });
+
+       
 
 
     });

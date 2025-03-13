@@ -50,6 +50,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/order',[OrderController::class,'index'])->name('order.index');
     Route::post('/order/select', [OrderController::class, 'generatepdfSelect'])->name('order.select');
+    // Route::get('/order/{order}',[OrderController::class,'view'])->name('order.view');
+    Route::get('/order/{order}/view',[OrderController::class,'view'])->name('order.view');
+    Route::get('/order/{order}/edit',[OrderController::class,'edit'])->name('order.edit');
+    Route::put('/order/{order}/update',[OrderController::class,'update'])->name('order.update');
+    Route::delete('/order/{order}/destroy',[OrderController::class,'destroy'])->name('order.destroy');
     Route::get('/order/create',[OrderController::class,'create'])->name('order.create');
     Route::post('/order',[OrderController::class,'store'])->name('order.store');
 

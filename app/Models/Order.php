@@ -17,6 +17,7 @@ class Order extends Model
         'amount',
     ];
 
+    #eloquent relationships
     public function customer()
     {
         return $this->belongsTo(Customer::class);
