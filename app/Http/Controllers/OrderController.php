@@ -50,4 +50,35 @@ class OrderController extends Controller
     // Download PDF
         return $pdf->download('generated.pdf');
     }
+
+    public function view(Order $order){
+        #dd($product); #used to check the data sent 
+        return view('Order.view',compact('order'));
+        // return view('Order.index',compact('order'));
+    }
+    public function edit(Order $order){ 
+        $selectedCustomerId = $order->customer_id;
+        $selectedProductId = $order->product_id;
+        $selectedPaymentType= $order->payment_type;
+        $customers = Customer::all(); // Fetch all customers
+        $products = Product::all(); // Fetch all customers
+        return view('Order.edit',compact('customers','products','order','selectedCustomerId','selectedProductId','selectedPaymentType'));
+    }
+   
+    public function update(Order $order, Request $request){
+        $data = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'product_id' => 'required|exists:products,id',
+            'date'=> 'required|date',
+            'payment_type'=> 'required',
+            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+        ]);
+        $order -> update($data);
+        return redirect(route('order.index'))->with('success','Order updated successfully');
+    }
+
+    public function destroy(Order $order){
+        $order->delete();
+        return redirect(route('order.index'))->with('success','Order deleted successfully');
+    }
 }
