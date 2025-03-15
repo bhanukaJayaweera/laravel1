@@ -48,6 +48,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customer/create',[CustomerController::class,'create'])->name('customer.create');
     Route::post('/customer',[CustomerController::class,'store'])->name('customer.store');
 
+    //AJAX
+    Route::get('/customer/{id}/change', [CustomerController::class, 'ajaxedit']);
+    Route::post('/customer/store', [CustomerController::class, 'ajaxstore']);
+    Route::post('/customer/new', [CustomerController::class, 'ajaxstorenew']);
+
     Route::get('/order',[OrderController::class,'index'])->name('order.index');
     Route::post('/order/select', [OrderController::class, 'generatepdfSelect'])->name('order.select');
     // Route::get('/order/{order}',[OrderController::class,'view'])->name('order.view');

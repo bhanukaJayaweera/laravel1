@@ -70,4 +70,44 @@ class CustomerController extends Controller
         return redirect(route('customer.index'));
     } 
 
+    //AJAX
+    // Load customer data for editing
+    public function ajaxedit($id)
+    {
+        $customer = Customer::findOrFail($id);
+        return response()->json($customer);
+    }
+
+    // Store or update customer
+    public function ajaxstore(Request $request)
+    {
+        $customer = Customer::updateOrCreate(
+            ['id' => $request->id], // If ID exists, update; otherwise, create new
+            [
+                'name' => $request->name,
+                'address' => $request->address,
+                'email' => $request->email,
+                'phone' => $request->phone
+            ]
+        );
+
+        return response()->json(['message' => 'Customer updated successfully!']);
+    }
+
+    public function ajaxstorenew(Request $request)
+    {
+        $customer = Customer::updateOrCreate(
+            [
+                'name' => $request->name,
+                'address' => $request->address,
+                'email' => $request->email,
+                'phone' => $request->phone
+            ]
+        );
+
+        return response()->json(['message' => 'Customer saved successfully!']);
+    }
+
+
+
 }

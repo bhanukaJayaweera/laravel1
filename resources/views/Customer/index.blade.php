@@ -7,6 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
      <!-- DataTables CSS -->
      <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+     <!-- Font Awesome CDN (Add to <head> section) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <script src="{{ asset('js/new.js') }}"></script>
     <title>Document</title>
@@ -44,7 +46,8 @@
             <!-- Sidebar -->
         <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:20%">
         <h3 class="w3-bar-item">Menu</h3>
-        <a class="w3-bar-item w3-button" href="{{route('customer.create')}}">Create Customer</a>      
+        <!-- <a class="w3-bar-item w3-button" href="{{route('customer.create')}}">Create Customer</a>    -->
+        <button type="button" class="btn btn-primary createCustomer" data-bs-toggle="modal" data-bs-target="#customerModal">New Customer <i class="fa fa-plus"></i></button>   
         <a class="w3-bar-item w3-button" href="{{route('dashboard')}}">Home</a>
         
         </div>
@@ -65,54 +68,47 @@
         @endif
     </div>
 
-    <!-- Button trigger modal -->
-    <button type="button" style="margin-left:30%" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Launch demo modal
-    </button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-        <div class="modal" tabindex="-1">
+        <!-- Modal -->
+    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-            <form>
-                <div class="mb-3">
-                <label for="recipient-name" class="col-form-label">Recipient:</label>
-                <input type="text" class="form-control" id="recipient-name">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Customer Form</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="mb-3">
-                <label for="message-text" class="col-form-label">Message:</label>
-                <textarea class="form-control" id="message-text"></textarea>
-                </div>
-            </form>
+                <form id="customerForm">
+                    <div class="modal-body">
+                        @csrf  
+                        <div class="input-group mb-3" hidden>
+                            <label class="input-group-text">Customer ID</label>
+                            <input type="text" name="id" id="id" class="form-control">
+                        </div>   
+                        <div class="input-group mb-3">
+                            <label class="input-group-text">Name</label>
+                            <input type="text" name="name" id="name" class="form-control" required>
+                        </div> 
+                        <div class="input-group mb-3">
+                            <label class="input-group-text">Address</label>
+                            <input type="text" name="address" id="address" class="form-control" required>
+                        </div> 
+                        <div class="input-group mb-3">
+                            <label class="input-group-text">Email</label>
+                            <input type="email" name="email" id="email" class="form-control" required>
+                        </div>
+                        <div class="input-group mb-3">
+                            <label class="input-group-text">Phone</label>
+                            <input type="text" name="phone" id="phone" class="form-control" required>
+                        </div>             
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary save">Save changes</button>
+                    </div>
+                </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-            </div>
-        </div>
-        </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
         </div>
     </div>
-    </div>
+
    
     <div class="container" style="margin-left:28%">
         <div class="row col-md-9">
@@ -145,16 +141,19 @@
             
         </form>   
                     <td>
-                    <a class="btn btn-primary" href="{{route('customer.view', ['customer' => $customer])}}">View</a>
+                    <button type="button" class="btn btn-success viewCustomer" data-id="{{ $customer->id }}" data-bs-toggle="modal" data-bs-target="#customerModal"> <i class="fa fa-eye"></i></button>              
+                    <!-- <a class="btn btn-primary" href="{{route('customer.view', ['customer' => $customer])}}">View</a> -->
                     </td>
+                    <!-- <a class="btn btn-success" href="{{route('customer.edit', ['customer' => $customer])}}">Edit</a> -->
                     <td>
-                        <a class="btn btn-success" href="{{route('customer.edit', ['customer' => $customer])}}">Edit</a>
+                    
+                    <button type="button" class="btn btn-primary editCustomer" data-id="{{ $customer->id }}" data-bs-toggle="modal" data-bs-target="#customerModal"><i class="fa fa-edit"></i></button>              
                     </td>
                     <td>
                         <form action="{{route('customer.destroy', ['customer'=>$customer])}}" method='POST'>
                         @csrf
                         @method('delete') 
-                            <input class="btn btn-danger" type="submit" value="delete" />
+                            <button class="btn btn-danger" type="submit" value="delete"><i class="fa fa-trash"></i></button>
                         </form>
                     </td>           
         </tr>
@@ -164,17 +163,105 @@
        
     </div>
     </div>
-    <!-- Bootstrap JS & Popper.js -->
 
+      <!-- jQuery -->
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS & Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-     <!-- jQuery -->
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <!-- DataTables Script -->
 <script>
     $(document).ready(function () {
+
+        $(".viewCustomer").click(function () {
+                var customerId = $(this).data("id");
+                $.ajax({
+                    url: "/customer/" + customerId + "/change",
+                    type: "GET",
+                    success: function (response) {
+                        $("#id").val(response.id);
+                        $("#id").prop("disabled", true);
+                        $("#name").val(response.name);
+                        $("#name").prop("disabled", true);
+                        $("#address").val(response.address);
+                        $("#address").prop("disabled", true);
+                        $("#email").val(response.email);
+                        $("#email").prop("disabled", true);
+                        $("#phone").val(response.phone);
+                        $("#phone").prop("disabled", true);
+                        $(".save").prop("hidden", true);
+                        $("#customerModal").modal("show");
+                        
+                    },
+                });
+            });
+        // Open modal and load customer data
+        $(".editCustomer").click(function () {
+                var customerId = $(this).data("id");
+                $.ajax({
+                    url: "/customer/" + customerId + "/change",
+                    type: "GET",
+                    success: function (response) {
+                        $("#customerForm")[0].reset(); // Clear Form
+                        $("#id").val(response.id);
+                        $("#name").val(response.name);
+                        $("#address").val(response.address);
+                        $("#email").val(response.email);
+                        $("#phone").val(response.phone);
+                        $("#modalTitle").text("Edit Customer");
+                        $("#customerForm input").prop("disabled", false); // Enable fields
+                        $(".save").prop("hidden", false) // Show Save Button
+                        $("#customerModal").modal("show");
+                    },
+                });
+            });
+
+            //new customer
+            $(".createCustomer").click(function () {
+                $("#customerForm")[0].reset(); // Clear Form
+                $("#customerForm input").prop("disabled", false); // Enable fields
+            });
+
+
+
+            // Save or Update Customer (AJAX Form Submission)
+            $("#customerForm").submit(function (e){
+                e.preventDefault();
+                var formData = $(this).serialize();
+
+                var id = $("#id").val();
+                if (id) {
+                    $.ajax({
+                        url: "/customer/store",
+                        type: "POST",
+                        data: formData,
+                        success: function (response) {
+                            alert(response.message);
+                            location.reload(); // Refresh page
+                        },
+                        error: function (xhr) {
+                            alert("Error saving customer!");
+                        },
+                    });
+                }
+                else{
+                    $.ajax({
+                        url: "/customer/new",
+                        type: "POST",
+                        data: formData,
+                        success: function (response) {
+                            alert(response.message);
+                            location.reload(); // Refresh page
+                        },
+                        error: function (xhr) {
+                            alert("Error saving customer!");
+                        },
+                    });
+                }
+            });
+
         $('#customerTable').DataTable({
             "paging": true,      // Enable Pagination
             "searching": true,   // Enable Search Box
@@ -183,7 +270,7 @@
         });
 
         $('#selectAll').on('change', function () {
-            $('.productCheckbox').prop('checked', this.checked);
+            $('.customerCheckbox').prop('checked', this.checked);
         });
 
 
