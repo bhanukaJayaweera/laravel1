@@ -222,6 +222,7 @@
             $(".createCustomer").click(function () {
                 $("#customerForm")[0].reset(); // Clear Form
                 $("#customerForm input").prop("disabled", false); // Enable fields
+                
             });
 
 
