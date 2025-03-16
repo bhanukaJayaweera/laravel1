@@ -7,6 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
      <!-- DataTables CSS -->
      <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+       <!-- Font Awesome CDN (Add to <head> section) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <script src="{{ asset('js/new.js') }}"></script>
     <title>Document</title>
@@ -44,7 +46,7 @@
             <!-- Sidebar -->
         <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:20%">
         <h3 class="w3-bar-item">Menu</h3>
-        <a class="w3-bar-item w3-button" href="{{route('order.create')}}">Create Order</a>      
+        <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button>       
         <a class="w3-bar-item w3-button" href="{{route('dashboard')}}">Home</a>
         
         </div>
@@ -65,42 +67,60 @@
         @endif
     </div>
 
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal"style="margin-left:28%" data-bs-target="#exampleModal" >
-    Launch demo modal
-    </button>
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+            <h1 class="modal-title fs-5" id="modalTitle">Modal title</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-        <form method="POST" action="">
+        <form id="orderForm">
             @csrf  
+            <div class="input-group mb-3" hidden>
+                <label class="input-group-text">Order ID</label>
+                <input type="text" name="id" id="id" class="form-control">
+            </div> 
             <div class="input-group mb-3">
-                    <label class="input-group-text" id="inputGroup-sizing-default">Order ID</label>
-                    <input type="text" name="name" value="" class="form-control" readonly>
-                </div>   
-                <div class="input-group mb-3">
-                    <label class="input-group-text" id="inputGroup-sizing-default">Customer ID</label>
-                    <input type="text" name="customer_id" value="" class="form-control" readonly>
-                </div>
-                        <div class="input-group mb-3">
-                    <label class="input-group-text" id="inputGroup-sizing-default">Customer Name</label>
-                    <input type="text" name="customer_id" value="" class="form-control" readonly>
-                </div>
-                            
+                <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
+                <select class="form-select" name="customer_id" id="customer_id" required>
+                    <option value=""></option>
+                   
+                </select>
+            </div>
+            <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
+                <select class="form-select" name="product_id" id="product_id" required>
+                    <option value=""></option>
+                 
+                </select>
+            </div>
 
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
+            <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
+                <input type="date" name="date" id="date" class="form-control">
+            </div>
+            <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Payment Type</label>
+                <select class="form-select" name="payment_type" id="payment_type" required>
+                    <option value="">-- Choose a Type --</option>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                </select>
+            </div>
+            <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Amount</label>
+                <input type="text" name="amount" id="amount" class="form-control">
+            </div>
+                                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary save">Save changes</button>
+            </div>
+        </form>
         </div>
     </div>
     </div>
@@ -140,13 +160,12 @@
             
         </form>   
                     <td>
-                <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" href="{{route('order.view', ['order' => $order])}}" style="margin-left:28%" data-bs-target="#exampleModal" >
-                Launch demo modal
-                </button> -->
-                        <a class="btn btn-primary" href="{{route('order.view', ['order' => $order])}}">View</a>
-                    </td>
+                    <button type="button" class="btn btn-primary viewOrder" data-id="{{ $order->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-eye"></i></button> 
+                        <!-- <a class="btn btn-primary" href="{{route('order.view', ['order' => $order])}}">View</a>
+                    </td> -->
                     <td>
-                        <a class="btn btn-success" href="{{route('order.edit', ['order' => $order])}}">Edit</a>
+                    <button type="button" class="btn btn-primary editOrder" data-id="{{ $order->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-edit"></i></button> 
+                        <!-- <a class="btn btn-success" href="{{route('order.edit', ['order' => $order])}}">Edit</a> -->
                     </td>
                     <td>
                         <form action="{{route('order.destroy', ['order'=>$order])}}" method='POST' onsubmit="return confirmDelete()">
@@ -162,11 +181,12 @@
        
     </div>
     </div>
+     <!-- jQuery -->
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS & Popper.js -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-     <!-- jQuery -->
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
@@ -176,6 +196,158 @@
         return confirm('Are you sure you want to delete this Order?');
     }
     $(document).ready(function () {
+        $(".viewOrder").click(function () {
+                var orderId = $(this).data("id");
+                $.ajax({
+                    url: "/order/" + orderId + "/change",
+                    type: "GET",
+                    success: function (response) {
+                        $("#orderForm")[0].reset(); // Clear Form
+                        $("#id").val(response.order.id);
+                        $("#id").prop("disabled", true);
+                        let dropdown = $("#customer_id"); // Select dropdown
+                        dropdown.empty(); // Clear existing options
+                        dropdown.append('<option value="">Select Customer</option>'); // Default option
+                        // Loop through JSON array and add options
+                        $.each(response.customers, function(index, customer) {
+                            dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
+                        });
+                        let dropdown1 = $("#product_id"); // Select dropdown
+                        dropdown1.empty(); // Clear existing options
+                        dropdown1.append('<option value="">Select Product</option>'); // Default option
+                        // Loop through JSON array and add options
+                        $.each(response.products, function(index, product) {
+                            dropdown1.append('<option value="' + product.id + '">' + product.name + '</option>');
+                        });
+                        $("#customer_id").val(response.order.customer_id);
+                        $("#customer_id").prop("disabled", true);
+                        $("#product_id").val(response.order.product_id);
+                        $("#product_id").prop("disabled", true);
+                        $("#date").val(response.order.date);
+                        $("#date").prop("disabled", true);
+                        $("#payment_type").val(response.order.payment_type);
+                        $("#payment_type").prop("disabled", true);
+                        $("#amount").val(response.order.amount);
+                        $("#amount").prop("disabled", true);
+                        $(".save").prop("hidden", true);
+                        $("#orderModal").modal("show");
+                        
+                    },
+                });
+            });
+          // Open modal and load customer data
+          $(".editOrder").click(function () {
+                var orderId = $(this).data("id");
+                $.ajax({
+                    url: "/order/" + orderId + "/change",
+                    type: "GET",
+                    success: function (response) {
+                        $("#orderForm")[0].reset(); // Clear Form
+                        let dropdown = $("#customer_id"); // Select dropdown
+                        dropdown.empty(); // Clear existing options
+                        dropdown.append('<option value="">Select Customer</option>'); // Default option
+                        // Loop through JSON array and add options
+                        $.each(response.customers, function(index, customer) {
+                            dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
+                        });
+                        let dropdown1 = $("#product_id"); // Select dropdown
+                        dropdown1.empty(); // Clear existing options
+                        dropdown1.append('<option value="">Select Product</option>'); // Default option
+                        // Loop through JSON array and add options
+                        $.each(response.products, function(index, product) {
+                            dropdown1.append('<option value="' + product.id + '">' + product.name + '</option>');
+                        });
+                        $("#id").val(response.order.id);
+                        $("#customer_id").val(response.order.customer_id);
+                        $("#product_id").val(response.order.product_id);
+                        $("#date").val(response.order.date);
+                        let dropdown2 = $("#payment_type"); // Select dropdown
+                        dropdown2.empty(); // Clear existing options
+                        dropdown2.append('<option value="">Select Option</option>'); // Default option
+                        dropdown2.append('<option value="card">Card</option>'); // Default option
+                        dropdown2.append('<option value="cash">Cash</option>'); // Default option
+                        $("#payment_type").val(response.order.payment_type);
+                        $("#amount").val(response.order.amount);
+                        $("#modalTitle").text("Edit Customer");
+                        $("#orderForm input").prop("disabled", false); // Enable fields
+                        $("#orderForm select").prop("disabled", false); // Enable fields
+                        $(".save").prop("hidden", false) // Show Save Button
+                        $("#customerModal").modal("show");
+                    },
+                });
+            });
+
+
+         // Save or Update Customer (AJAX Form Submission)
+         $("#orderForm").submit(function (e){
+                e.preventDefault();
+                var formData = $(this).serialize();
+
+                var id = $("#id").val();
+                if (id) {
+                    $.ajax({
+                        url: "/order/store",
+                        type: "POST",
+                        data: formData,
+                        success: function (response) {
+                            alert(response.message);
+                            location.reload(); // Refresh page
+                        },
+                        error: function (xhr) {
+                            alert("Error saving order!");
+                        },
+                    });
+                }
+                else{
+                    $.ajax({
+                        url: "/order/new",
+                        type: "POST",
+                        data: formData,
+                        success: function (response) {
+                            alert(response.message);
+                            location.reload(); // Refresh page
+                        },
+                        error: function (xhr) {
+                            alert("Error saving order!");
+                        },
+                    });
+                }
+        });
+
+        
+        //new 
+        $(".createOrder").click(function () {
+            $("#orderForm")[0].reset(); // Clear Form
+            $("#modalTitle").text("New Order");
+            $("#orderForm input").prop("disabled", false); // Enable fields
+            $("#orderForm select").prop("disabled", false); // Enable fields
+            $(".save").prop("hidden", false) // Show Save Button    
+            $.ajax({
+                    url: "/order/newfetch",
+                    type: "GET",
+                    success: function (response) {
+           
+                        let dropdown = $("#customer_id"); // Select dropdown
+                        dropdown.empty(); // Clear existing options
+                        dropdown.append('<option value="">Select Customer</option>'); // Default option
+                        // Loop through JSON array and add options
+                        $.each(response.customers, function(index, customer) {
+                            dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
+                        });
+                        let dropdown1 = $("#product_id"); // Select dropdown
+                        dropdown1.empty(); // Clear existing options
+                        dropdown1.append('<option value="">Select Product</option>'); // Default option
+                        // Loop through JSON array and add options
+                        $.each(response.products, function(index, product) {
+                            dropdown1.append('<option value="' + product.id + '">' + product.name + '</option>');
+                        });
+                       
+                      
+        
+                    }
+            });
+        });
+
         $('#orderTable').DataTable({
             "paging": true,      // Enable Pagination
             "searching": true,   // Enable Search Box

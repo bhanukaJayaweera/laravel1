@@ -81,4 +81,62 @@ class OrderController extends Controller
         $order->delete();
         return redirect(route('order.index'))->with('success','Order deleted successfully');
     }
+
+     //AJAX
+    // Load data for editing
+    public function orderedit($id)
+    {
+        $customers = Customer::all(); // Fetch all customers
+        $products = Product::all(); // Fetch all customers
+        $order = Order::findOrFail($id);
+        return response()->json([
+            'order' => $order,
+            'customers' => $customers,
+            'products' => $products]);
+
+    }
+
+    public function newfetch()
+    {
+        $customers = Customer::all(); // Fetch all customers
+        $products = Product::all(); // Fetch all customers
+       
+        return response()->json([
+            'customers' => $customers,
+            'products' => $products]);
+
+    }
+
+
+    // Store or update 
+    public function orderstore(Request $request)
+    {
+        $order = Order::updateOrCreate(
+            ['id' => $request->id], // If ID exists, update; otherwise, create new
+            [
+                'customer_id' => $request->customer_id,
+                'product_id' => $request->product_id,
+                'date' => $request->date,
+                'payment_type' => $request->payment_type,
+                'amount' => $request->amount
+            ]
+        );
+
+        return response()->json(['message' => 'Order updated successfully!']);
+    }
+
+    public function ordernew(Request $request)
+    {
+        $order = Order::updateOrCreate(
+            [
+                'customer_id' => $request->customer_id,
+                'product_id' => $request->product_id,
+                'date' => $request->date,
+                'payment_type' => $request->payment_type,
+                'amount' => $request->amount
+            ]
+        );
+
+        return response()->json(['message' => 'Order saved successfully!']);
+    }
 }
