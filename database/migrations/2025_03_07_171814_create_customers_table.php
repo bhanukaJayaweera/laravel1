@@ -21,6 +21,8 @@ class CreateCustomersTable extends Migration
             $table->string('email');
             $table->timestamps();
         });
+       
+    
     }
 
     /**
@@ -31,5 +33,6 @@ class CreateCustomersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('customers');
+      
     }
 }

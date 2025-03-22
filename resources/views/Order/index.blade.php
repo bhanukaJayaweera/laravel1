@@ -28,7 +28,7 @@
             <a class="nav-link active" aria-current="page" href="#">Home</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{ route('product.upload') }}">Upload Excel</a>
+            <a class="nav-link" href="{{ route('order.upload') }}">Upload Excel</a>
             </li>
             
         </ul>
@@ -66,7 +66,29 @@
         </div>
         @endif
     </div>
-
+        <!-- Modal -->
+        <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Message</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+               
+                    <div class="modal-body">
+                    <p id="u" style="display: none;"></p>
+                    <p id="uerror" style="display: none;">Error Updating Order</p>
+                    <p id="s" style="display: none;"></p>
+                    <p id="serror" style="display: none;">Error Saving Order</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                       
+                    </div>
+                
+            </div>
+        </div>
+    </div>
 
     <!-- Modal -->
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -136,7 +158,7 @@
                 <th><input type="checkbox" id="selectAll"></th>
                 <th>ID</th>
                 <th>Cus ID</th>
-                <th>Customer Name</th>
+                <!-- <th>Customer Name</th> -->
                 <th>Product ID</th>
                 <th>Date</th>
                 <th>Payment Type</th>
@@ -152,7 +174,7 @@
                     <td><input type="checkbox" class="orderCheckbox" name="order_ids[]" value="{{ $order->id }}"></td>
                     <td>{{$order->id}}</td>
                     <td>{{$order->customer_id}}</td>
-                    <td>{{$order->customer->name}}</td>
+                    
                     <td>{{$order->product_id}}</td>
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
@@ -164,14 +186,14 @@
                         <!-- <a class="btn btn-primary" href="{{route('order.view', ['order' => $order])}}">View</a>
                     </td> -->
                     <td>
-                    <button type="button" class="btn btn-primary editOrder" data-id="{{ $order->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-edit"></i></button> 
+                    <button type="button" class="btn btn-success editOrder" data-id="{{ $order->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-edit"></i></button> 
                         <!-- <a class="btn btn-success" href="{{route('order.edit', ['order' => $order])}}">Edit</a> -->
                     </td>
                     <td>
                         <form action="{{route('order.destroy', ['order'=>$order])}}" method='POST' onsubmit="return confirmDelete()">
                         @csrf
                         @method('delete') 
-                            <input class="btn btn-danger" type="submit" value="delete" />
+                            <button class="btn btn-danger" type="submit" value="delete"><i class="fa fa-trash"></i></button>
                         </form>
                     </td> 
         </tr>
@@ -290,11 +312,21 @@
                         type: "POST",
                         data: formData,
                         success: function (response) {
-                            alert(response.message);
-                            location.reload(); // Refresh page
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#u").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                           
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000); // Reload after 3 seconds
                         },
                         error: function (xhr) {
-                            alert("Error saving order!");
+                            //alert("Error saving order!");
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#uerror").show();
+                            $("#messageModal").modal("show");
                         },
                     });
                 }
@@ -304,11 +336,22 @@
                         type: "POST",
                         data: formData,
                         success: function (response) {
-                            alert(response.message);
-                            location.reload(); // Refresh page
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#s").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                            //location.reload(); // Refresh page
+                            
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000); // Reload after 2 
                         },
                         error: function (xhr) {
-                            alert("Error saving order!");
+                            //alert("Error saving order!");
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#serror").show();
+                            $("#messageModal").modal("show");
                         },
                     });
                 }

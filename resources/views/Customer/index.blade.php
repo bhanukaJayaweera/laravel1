@@ -68,6 +68,30 @@
         @endif
     </div>
 
+      <!-- Modal -->
+      <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Message</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+               
+                    <div class="modal-body">
+                    <p id="u" style="display: none;"></p>
+                    <p id="uerror" style="display: none;">Error Updating Customer</p>
+                    <p id="s" style="display: none;"></p>
+                    <p id="serror" style="display: none;">Error Saving Customer</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                       
+                    </div>
+                
+            </div>
+        </div>
+    </div>
+
         <!-- Modal -->
     <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -87,6 +111,18 @@
                             <label class="input-group-text">Name</label>
                             <input type="text" name="name" id="name" class="form-control" required>
                         </div> 
+                        <div class="input-group mb-3">
+                            <label class="input-group-text">Gender</label><br>
+                            <div class="form-check form-check-inline" style="margin-left:3%">
+                            <input class="form-check-input" type="radio" name="gender" id="Male" value="Male">
+                            <label class="form-check-label" for="Male">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="gender" id="Female" value="Female">
+                            <label class="form-check-label" for="Female">Female</label>
+                            </div>
+
+                        </div>
                         <div class="input-group mb-3">
                             <label class="input-group-text">Address</label>
                             <input type="text" name="address" id="address" class="form-control" required>
@@ -121,6 +157,7 @@
                 <th><input type="checkbox" id="selectAll"></th>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Gender</th>
                 <th>Address</th>
                 <th>Phone</th>
                 <th>Email</th>
@@ -135,6 +172,7 @@
                     <td><input type="checkbox" class="customerCheckbox" name="customer_ids[]" value="{{ $customer->id }}"></td>
                     <td>{{$customer->id}}</td>
                     <td>{{$customer->name}}</td>
+                    <td>{{$customer->gender}}</td>
                     <td>{{$customer->address}}</td>
                     <td>{{$customer->phone}}</td>     
                     <td>{{$customer->email}}</td>     
@@ -185,6 +223,11 @@
                         $("#id").prop("disabled", true);
                         $("#name").val(response.name);
                         $("#name").prop("disabled", true);
+                        if (response.gender) {
+                            $("input[name=gender][value=" + response.gender + "]").prop("checked", true);
+                        }
+                        $("#Male").prop("disabled", true);
+                        $("#Female").prop("disabled", true);
                         $("#address").val(response.address);
                         $("#address").prop("disabled", true);
                         $("#email").val(response.email);
@@ -207,6 +250,9 @@
                         $("#customerForm")[0].reset(); // Clear Form
                         $("#id").val(response.id);
                         $("#name").val(response.name);
+                        if (response.gender) {
+                            $("input[name=gender][value=" + response.gender + "]").prop("checked", true);
+                        }
                         $("#address").val(response.address);
                         $("#email").val(response.email);
                         $("#phone").val(response.phone);
@@ -239,11 +285,20 @@
                         type: "POST",
                         data: formData,
                         success: function (response) {
-                            alert(response.message);
-                            location.reload(); // Refresh page
+                            //alert(response.message);
+                            $("#customerModal").modal("hide"); // Close modal
+                            $("#u").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                            //location.reload(); // Refresh page
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000); // Reload after 3 seconds
                         },
                         error: function (xhr) {
-                            alert("Error saving customer!");
+                            //alert("Error saving customer!");
+                            $("#customerModal").modal("hide"); // Close modal
+                            $("#uerror").show();
+                            $("#messageModal").modal("show");
                         },
                     });
                 }
@@ -253,11 +308,21 @@
                         type: "POST",
                         data: formData,
                         success: function (response) {
-                            alert(response.message);
-                            location.reload(); // Refresh page
+                            //alert(response.message);
+                            $("#customerModal").modal("hide"); // Close modal
+                            $("#s").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                            //location.reload(); // Refresh page
+                            
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000); // Reload after 2 seconds
                         },
                         error: function (xhr) {
-                            alert("Error saving customer!");
+                            //alert("Error saving customer!");
+                            $("#customerModal").modal("hide"); // Close modal
+                            $("#serror").show();
+                            $("#messageModal").modal("show");
                         },
                     });
                 }
