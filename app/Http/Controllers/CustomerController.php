@@ -42,6 +42,7 @@ class CustomerController extends Controller
     public function update(Customer $customer, Request $request){
         $data = $request->validate([
             'name' => 'required',
+            'gender' => 'required|in:Male,Female',       
             'address' => 'required',
             'phone' => 'required|integer',
             'email'=> 'required|email',
@@ -61,6 +62,7 @@ class CustomerController extends Controller
     public function store(Request $request){
         $data = $request->validate([
             'name' => 'required',
+            'gender' => 'required|in:Male,Female', 
             'address' => 'required',
             'phone' => 'required|integer',
             'email' => 'required|email',
@@ -85,6 +87,7 @@ class CustomerController extends Controller
             ['id' => $request->id], // If ID exists, update; otherwise, create new
             [
                 'name' => $request->name,
+                'gender' => $request->gender,
                 'address' => $request->address,
                 'email' => $request->email,
                 'phone' => $request->phone
@@ -99,6 +102,7 @@ class CustomerController extends Controller
         $customer = Customer::updateOrCreate(
             [
                 'name' => $request->name,
+                'gender' => $request->gender,
                 'address' => $request->address,
                 'email' => $request->email,
                 'phone' => $request->phone

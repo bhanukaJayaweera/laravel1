@@ -62,6 +62,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/order/{order}/destroy',[OrderController::class,'destroy'])->name('order.destroy');
     Route::get('/order/create',[OrderController::class,'create'])->name('order.create');
     Route::post('/order',[OrderController::class,'store'])->name('order.store');
+    Route::post('/importorder', [OrderController::class, 'importorder'])->name('importorder');
+    Route::get('order/upload', [OrderController::class, 'showUploadForm'])->name('order.upload');
 
     //AJAX
     Route::get('/order/{id}/change', [OrderController::class, 'orderedit']);

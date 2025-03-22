@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Product;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\OrderImport;
 
 
 class OrderController extends Controller
@@ -80,6 +81,22 @@ class OrderController extends Controller
     public function destroy(Order $order){
         $order->delete();
         return redirect(route('order.index'))->with('success','Order deleted successfully');
+    }
+
+    public function showUploadForm()
+    {
+        return view('Order.upload');
+    }
+
+    public function importorder(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        Excel::import(new OrderImport, $request->file('file'));
+
+        return back()->with('success', 'Order data imported successfully.');
     }
 
      //AJAX
