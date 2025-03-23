@@ -52,6 +52,18 @@ class OrderController extends Controller
         return $pdf->download('generated.pdf');
     }
 
+    public function deleteMultiple(Request $request)
+    {
+        $orderIds = $request->order_ids;
+
+        if ($orderIds) {
+            Order::whereIn('id', $orderIds)->delete();
+            return redirect()->back()->with('success', 'Selected orders deleted successfully.');
+        }
+
+        return redirect()->back()->with('error', 'No orders selected.');
+    }
+
     public function view(Order $order){
         #dd($product); #used to check the data sent 
         return view('Order.view',compact('order'));
