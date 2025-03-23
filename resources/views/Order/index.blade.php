@@ -66,7 +66,25 @@
         </div>
         @endif
     </div>
-        <!-- Modal -->
+
+        <!-- Modal for Viewing Selected Rows -->
+        <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+            
+            <div class="modal-dialog">
+                
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewModalLabel">Selected Orders</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                   
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        <!-- Message Modal -->
         <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -149,9 +167,18 @@
    
     <div class="container" style="margin-left:28%">
         <div class="row col-md-9">
-        <form id="selectedProductsForm" method="POST" action="{{route('order.select')}}">
-        @csrf  
-        <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Get Selected Data</button>
+        <!-- <form id="selectedProductsForm" method="POST" action="{{route('order.select')}}">
+        @csrf   -->
+        <!-- <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Get Selected Data</button> -->
+        
+        <form id="actionForm" method="POST">
+        @csrf
+        @method('DELETE')
+        <!-- Buttons -->
+        <div id="buttons" style="padding:10px">
+        <button type="button" class="btn btn-info" id="viewSelected">View/Print Selected</button>
+        <button type="submit" class="btn btn-danger" id="deleteSelected" style="margin-left:50%">Delete Selected</button>
+        </div>
         <table id="orderTable" class="table table-striped table-bordered">
             <thead>
             <tr>
@@ -174,13 +201,14 @@
                     <td><input type="checkbox" class="orderCheckbox" name="order_ids[]" value="{{ $order->id }}"></td>
                     <td>{{$order->id}}</td>
                     <td>{{$order->customer_id}}</td>
-                    
+                    {{-- <td>{{$order->customer->name}}</td> --}}
                     <td>{{$order->product_id}}</td>
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
                     <td>{{$order->amount}}</td>    
-            
+               
         </form>   
+       
                     <td>
                     <button type="button" class="btn btn-primary viewOrder" data-id="{{ $order->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-eye"></i></button> 
                         <!-- <a class="btn btn-primary" href="{{route('order.view', ['order' => $order])}}">View</a>
@@ -391,6 +419,67 @@
             });
         });
 
+        // View Selected Orders
+        document.getElementById('viewSelected').addEventListener('click', function() {
+            let selectedOrders = [];
+            document.querySelectorAll('input[name="order_ids[]"]:checked').forEach(checkbox => {
+                let row = checkbox.closest('tr');
+                let orderData = {
+                    id: row.cells[1].textContent,
+                    customer_id: row.cells[2].textContent,
+                    product_id: row.cells[3].textContent,
+                    date: row.cells[4].textContent,
+                    payment_type: row.cells[5].textContent,
+                    amount: row.cells[6].textContent
+                };
+                selectedOrders.push(orderData);
+            });
+
+            if (selectedOrders.length > 0) {
+                let modalBody = document.getElementById('modalBody');
+
+                 // Create form dynamically inside the modal
+                modalBody.innerHTML = `
+                    <form id="selectedProductsForm" method="POST" action="{{ route('order.select') }}">
+                        @csrf
+                        <ul>
+                            ${selectedOrders.map(order => 
+                                `<li>
+                                    <strong>Order ID:</strong> ${order.id} 
+                                    | <strong>Customer:</strong> ${order.customer_id} 
+                                    | <strong>Product:</strong> ${order.product_id} 
+                                    | <strong>Date:</strong> ${order.date} 
+                                    | <strong>Payment Type:</strong> ${order.payment_type} 
+                                    | <strong>Amount:</strong> ${order.amount} 
+                                    <input type="hidden" name="order_ids[]" value="${order.id}">
+                                </li>`
+                            ).join('')}
+                        </ul>
+                        <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Print Selected Data</button>
+                    </form>
+                `;
+
+                let viewModal = new bootstrap.Modal(document.getElementById('viewModal'));
+                viewModal.show();
+            } else {
+                alert("No orders selected!");
+            }
+        });
+
+        // Handle Delete Selected Orders
+        document.getElementById('actionForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent form submission
+            let selectedOrders = document.querySelectorAll('input[name="order_ids[]"]:checked');
+
+            if (selectedOrders.length > 0) {
+                if (confirm("Are you sure you want to delete selected orders?")) {
+                    this.action = "{{ route('order.deletemultiple') }}";
+                    this.submit();
+                }
+            } else {
+                alert("No orders selected for deletion!");
+            }
+        });
         $('#orderTable').DataTable({
             "paging": true,      // Enable Pagination
             "searching": true,   // Enable Search Box
