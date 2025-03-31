@@ -29,7 +29,7 @@ class OrderController extends Controller
     public function store(Request $request){
         $data = $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'product_id' => 'required|exists:products,id',
+            //'product_id' => 'required',
             'date'=> 'required|date',
             'payment_type'=> 'required',
             'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
@@ -38,6 +38,28 @@ class OrderController extends Controller
         $newOrder = Order::create($data);
         return redirect(route('order.index'));
     } 
+
+    //orderproduct
+    public function storeOrder(Request $request) {
+        $products = json_decode($request->products, true);  
+        if (!$products) {
+            return back()->with('error', 'No products selected!');
+        }  
+        $data = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            //'product_id' => 'required',
+            'date'=> 'required|date',
+            'payment_type'=> 'required',
+            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+        ]);
+        $order = Order::create($data);
+        // Attach products to order (Pivot Table)
+        //$order->products()->attach($productIds);
+        foreach ($products as $product) {
+            $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
+        }
+        return back()->with('success', 'Order placed successfully!');
+    }
 
     public function generatepdfSelect(Request $request){
         $orderIds = $request->input('order_ids');

@@ -72,6 +72,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/order/newfetch', [OrderController::class, 'newfetch']);
     Route::post('/order/new', [OrderController::class, 'ordernew']);
 
+    //orderproduct
+    Route::post('/orderproduct/store', [OrderController::class, 'storeOrder']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

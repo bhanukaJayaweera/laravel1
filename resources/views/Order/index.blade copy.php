@@ -46,8 +46,7 @@
             <!-- Sidebar -->
         <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:20%">
         <h3 class="w3-bar-item">Menu</h3>
-        <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button>     
-        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal">Order Product <i class="fa fa-plus"></i></button>     
+        <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button>       
         <a class="w3-bar-item w3-button" href="{{route('dashboard')}}">Home</a>
         
         </div>
@@ -131,13 +130,38 @@
                    
                 </select>
             </div>
-        
+            <form id="productForm">
                 <div class="input-group mb-3">
                     <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
                     <select class="form-select" name="product_id" id="product_id" required>
                         <option value=""></option>               
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" class="form-control" class="form-control">
+                </div>    
+                <button type="button" id="addProduct" class="btn btn-primary">Add to Table</button>
+            </form>
+                <form id="orderForm" method="POST" action="/submit-order">
+                    @csrf
+                    <table class="table mt-3">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Quantity</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                            <!-- Selected products will be added here -->
+                        </tbody>
+                    </table>
+                    
+                    <!-- Hidden input field to store product data -->
+                    <input type="hidden" name="products" id="productsData">                 
+                    <!-- <button type="submit" class="btn btn-success">Submit Order</button> -->
+                </form>
 
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
@@ -166,85 +190,6 @@
     </div>
     </div>
    
-    <!-- Order_Product Modal -->
-    <div class="modal fade" id="orderproductModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalTitle">Modal title</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-        <form id="orderProductForm">
-            @csrf  
-            <div class="input-group mb-3" hidden>
-                <label class="input-group-text">Order ID</label>
-                <input type="text" name="id" id="id" class="form-control">
-            </div> 
-            <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
-                <select class="form-select" name="customer_id" id="cus_id" required>
-                    <option value=""></option>
-                   
-                </select>
-            </div>
-            <!-- <form id="productForm"> -->
-                <div class="input-group mb-3">
-                    <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
-                    <select class="form-select" name="product_id" id="prod_id">
-                        <option value=""></option>               
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" id="quantity" class="form-control" class="form-control">
-                </div>    
-                <button type="button" id="addProduct" class="btn btn-primary">Add to Table</button>
-            <!-- </form> -->
-                
-                    <table id="orderproduct" class="table mt-3">
-                        <thead>
-                            <tr>
-                                <th>Product ID</th>
-                                <th>Product Name</th>
-                                <th>Quantity</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productTableBody">
-                            <!-- Selected products will be added here -->
-                        </tbody>
-                    </table>
-                    
-                    <!-- Hidden input field to store product data -->
-                    <input type="hidden" name="products" id="productsData">                 
-
-            <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
-                <input type="date" name="date" id="date" class="form-control">
-            </div>
-            <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Payment Type</label>
-                <select class="form-select" name="payment_type" id="payment_type" required>
-                    <option value="">-- Choose a Type --</option>
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                </select>
-            </div>
-            <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Amount</label>
-                <input type="text" name="amount" id="amount" class="form-control">
-            </div>
-                                
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary save">Save changes</button>
-            </div>
-        </form>
-        </div>
-    </div>
-    </div>
     <div class="container" style="margin-left:28%">
         <div class="row col-md-9">
         <!-- <form id="selectedProductsForm" method="POST" action="{{route('order.select')}}">
@@ -266,7 +211,7 @@
                 <th>ID</th>
                 <th>Cus ID</th>
                 <!-- <th>Customer Name</th> -->
-                <!-- <th>Product ID</th> -->
+                <th>Product ID</th>
                 <th>Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
@@ -282,7 +227,7 @@
                     <td>{{$order->id}}</td>
                     <td>{{$order->customer_id}}</td>
                     {{-- <td>{{$order->customer->name}}</td> --}}
-                    <!-- <td>{{$order->product_id}}</td> -->
+                    <td>{{$order->product_id}}</td>
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
                     <td>{{$order->amount}}</td>    
@@ -326,16 +271,14 @@
         return confirm('Are you sure you want to delete this Order?');
     }
     $(document).ready(function () {
-        //order-product Modal
         $("#addProduct").click(function () {
-        let productId = $("#prod_id").val();
-        let productName = $("#prod_id").find("option:selected").text(); 
+        let productId = $("#product").val();
+        let productName = $("#product option:selected").data("name");
         let quantity = $("#quantity").val();
 
         if (productId && quantity > 0) {
             let row = `
                 <tr data-id="${productId}" data-quantity="${quantity}">
-                    <td>${productId}</td>
                     <td>${productName}</td>
                     <td>${quantity}</td>
                     <td>
@@ -344,7 +287,7 @@
                 </tr>
             `;
             $("#productTableBody").append(row);
-            $("#prod_id").val('');
+            $("#product").val('');
             $("#quantity").val(1);
         } else {
             alert("Please select a product and enter a valid quantity.");
@@ -355,134 +298,7 @@
         $(this).closest("tr").remove();
     });
 
-           // Save or Update Customer (AJAX Form Submission)
-    $("#orderProductForm").submit(function (e){
-            var formData = $(this).serialize();
-            var id = $("#id").val();
-            let selectedProducts = [];
-
-            $("#productTableBody tr").each(function () {
-                let productId = $(this).attr("data-id");
-                let quantity = $(this).attr("data-quantity");
-                selectedProducts.push({ product_id: productId, quantity: quantity });
-            
-            });
-
-            if (selectedProducts.length === 0) {
-                alert("Please add at least one product.");
-                e.preventDefault();
-                return;
-            }
-
-            $("#productsData").val(JSON.stringify(selectedProducts));
-            $.ajax({
-                        url: "/orderproduct/store",
-                        type: "POST",
-                        data: formData,
-                        success: function (response) {
-                            //alert(response.message);
-                            //location.reload(); // Refresh page
-                            $("#orderModal").modal("hide"); // Close modal
-                            $("#u").text(response.message).show(); 
-                            $("#messageModal").modal("show");
-                           
-                            setTimeout(function () {
-                                location.reload();
-                            }, 2000); // Reload after 3 seconds
-                        },
-                        error: function (xhr) {
-                            //alert("Error saving order!");
-                            $("#orderModal").modal("hide"); // Close modal
-                            $("#uerror").show();
-                            $("#messageModal").modal("show");
-                        },
-                    });
-                // e.preventDefault();
-                // var formData = $(this).serialize();
-
-                // var id = $("#id").val();
-                // if (id) {
-                //     $.ajax({
-                //         url: "/order/store",
-                //         type: "POST",
-                //         data: formData,
-                //         success: function (response) {
-                //             //alert(response.message);
-                //             //location.reload(); // Refresh page
-                //             $("#orderModal").modal("hide"); // Close modal
-                //             $("#u").text(response.message).show(); 
-                //             $("#messageModal").modal("show");
-                           
-                //             setTimeout(function () {
-                //                 location.reload();
-                //             }, 2000); // Reload after 3 seconds
-                //         },
-                //         error: function (xhr) {
-                //             //alert("Error saving order!");
-                //             $("#orderModal").modal("hide"); // Close modal
-                //             $("#uerror").show();
-                //             $("#messageModal").modal("show");
-                //         },
-                //     });
-                // }
-                // else{
-                //     $.ajax({
-                //         url: "/order/new",
-                //         type: "POST",
-                //         data: formData,
-                //         success: function (response) {
-                //             //alert(response.message);
-                //             //location.reload(); // Refresh page
-                //             $("#orderModal").modal("hide"); // Close modal
-                //             $("#s").text(response.message).show(); 
-                //             $("#messageModal").modal("show");
-                //             //location.reload(); // Refresh page
-                            
-                //             setTimeout(function () {
-                //                 location.reload();
-                //             }, 2000); // Reload after 2 
-                //         },
-                //         error: function (xhr) {
-                //             //alert("Error saving order!");
-                //             $("#orderModal").modal("hide"); // Close modal
-                //             $("#serror").show();
-                //             $("#messageModal").modal("show");
-                //         },
-                //     });
-                // }
-        });
-
-        //createOrderProduct
-        $(".createOrderProduct").click(function () {
-            // $("#orderForm")[0].reset(); // Clear Form
-             $("#modalTitle").text("New Order Product");
-            // $("#orderForm input").prop("disabled", false); // Enable fields
-            // $("#orderForm select").prop("disabled", false); // Enable fields
-            // $(".save").prop("hidden", false) // Show Save Button    
-            $.ajax({
-                    url: "/order/newfetch",
-                    type: "GET",
-                    success: function (response) {
-           
-                        let dropdown = $("#cus_id"); // Select dropdown
-                        dropdown.empty(); // Clear existing options
-                        dropdown.append('<option value="">Select Customer</option>'); // Default option
-                        // Loop through JSON array and add options
-                        $.each(response.customers, function(index, customer) {
-                            dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
-                        });
-                        let dropdown1 = $("#prod_id"); // Select dropdown
-                        dropdown1.empty(); // Clear existing options
-                        dropdown1.append('<option value="">Select Product</option>'); // Default option
-                        // Loop through JSON array and add options
-                        $.each(response.products, function(index, product) {
-                            dropdown1.append('<option value="' + product.id + '">' + product.name + '</option>');
-                        });
-                       
-                    }
-            });
-        });
-
+    
     //view order
         $(".viewOrder").click(function () {
                 var orderId = $(this).data("id");
@@ -566,8 +382,64 @@
             });
 
 
-  
+         // Save or Update Customer (AJAX Form Submission)
+         $("#orderForm").submit(function (e){
+                e.preventDefault();
+                var formData = $(this).serialize();
 
+                var id = $("#id").val();
+                if (id) {
+                    $.ajax({
+                        url: "/order/store",
+                        type: "POST",
+                        data: formData,
+                        success: function (response) {
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#u").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                           
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000); // Reload after 3 seconds
+                        },
+                        error: function (xhr) {
+                            //alert("Error saving order!");
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#uerror").show();
+                            $("#messageModal").modal("show");
+                        },
+                    });
+                }
+                else{
+                    $.ajax({
+                        url: "/order/new",
+                        type: "POST",
+                        data: formData,
+                        success: function (response) {
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#s").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                            //location.reload(); // Refresh page
+                            
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000); // Reload after 2 
+                        },
+                        error: function (xhr) {
+                            //alert("Error saving order!");
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#serror").show();
+                            $("#messageModal").modal("show");
+                        },
+                    });
+                }
+        });
+
+        
         //new 
         $(".createOrder").click(function () {
             $("#orderForm")[0].reset(); // Clear Form
