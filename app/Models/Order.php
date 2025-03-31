@@ -11,7 +11,7 @@ class Order extends Model
     use HasFactory;
     protected $fillable =[
         'customer_id',
-        'product_id',
+        //'product_id',
         'date',
         'payment_type',
         'amount',
@@ -22,9 +22,9 @@ class Order extends Model
     {
         return $this->belongsTo(Customer::class);
     }
-    public function product()
+    public function products()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsToMany(Product::class, 'order_product')->withPivot('quantity')->withTimestamps();
     }
 
 }
