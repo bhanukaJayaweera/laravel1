@@ -44,9 +44,9 @@
 
     <div class = "container">
             <!-- Sidebar -->
-        <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:20%">
+        <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:15%">
         <h3 class="w3-bar-item">Menu</h3>
-        <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button>     
+        <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button><br/> <br>
         <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal">Order Product <i class="fa fa-plus"></i></button>     
         <a class="w3-bar-item w3-button" href="{{route('dashboard')}}">Home</a>
         
@@ -357,13 +357,13 @@
 
            // Save or Update Customer (AJAX Form Submission)
     $("#orderProductForm").submit(function (e){
-            var formData = $(this).serialize();
+            e.preventDefault(); // Prevent default form submission        
             var id = $("#id").val();
             let selectedProducts = [];
 
             $("#productTableBody tr").each(function () {
-                let productId = $(this).attr("data-id");
-                let quantity = $(this).attr("data-quantity");
+                let productId = $(this).data("id");
+                let quantity = $(this).data("quantity");
                 selectedProducts.push({ product_id: productId, quantity: quantity });
             
             });
@@ -375,6 +375,7 @@
             }
 
             $("#productsData").val(JSON.stringify(selectedProducts));
+            var formData = $(this).serialize();
             $.ajax({
                         url: "/orderproduct/store",
                         type: "POST",
@@ -382,7 +383,7 @@
                         success: function (response) {
                             //alert(response.message);
                             //location.reload(); // Refresh page
-                            $("#orderModal").modal("hide"); // Close modal
+                            $("#orderproductModal").modal("hide"); // Close modal
                             $("#u").text(response.message).show(); 
                             $("#messageModal").modal("show");
                            
@@ -392,7 +393,7 @@
                         },
                         error: function (xhr) {
                             //alert("Error saving order!");
-                            $("#orderModal").modal("hide"); // Close modal
+                            $("#orderproductModal").modal("hide"); // Close modal
                             $("#uerror").show();
                             $("#messageModal").modal("show");
                         },

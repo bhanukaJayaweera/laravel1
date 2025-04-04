@@ -39,7 +39,7 @@
 
     <div class = "container">
             <!-- Sidebar -->
-        <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:20%">
+        <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:10%">
         <h3 class="w3-bar-item">Menu</h3>
         <a class="w3-bar-item w3-button" href="{{route('product.create')}}">Create Product</a>      
         <a class="w3-bar-item w3-button" href="{{route('dashboard')}}">Home</a>
