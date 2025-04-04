@@ -37,11 +37,11 @@
                 <th>ID</th>
                 <th>Customer ID</th>
                 <th>Customer Name</th>
-                <th>Product ID</th>
-                <th>Product Name</th>
                 <th>Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
+                
+       
             </tr>
             </thead>
             <tbody class="table-group-divider">
@@ -56,12 +56,23 @@
                 <tr>
                     <td>{{ $order->id }}</td>
                     <td>{{ $order->customer_id }}</td>
-                    <td>{{$order->customer->name}}</td>
-                    <td>{{ $order->product_id }}</td>
-                    <td>{{ $order->product->name }}</td>
+                    <td>{{ $order->customer->name}}</td>                 
                     <td>{{ $order->date }}</td>
                     <td>{{ $order->payment_type }}</td>
                     <td>{{ $order->amount }}</td>
+                    <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    </tr>
+                    @foreach ($order->products as $product)            
+                    <tr>  
+                            <td>{{ $product->id }}</td>
+                            <td>{{ $product->name }}</td>
+                            <td>{{ $product->pivot->quantity }}</td>  
+                    </tr>                    
+                    @endforeach
+              
                     
                 </tr>
                 @endforeach

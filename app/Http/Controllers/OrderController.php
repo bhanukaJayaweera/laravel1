@@ -9,7 +9,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\OrderImport;
-
+use Illuminate\Support\Facades\Log; // Import Log facade
 
 class OrderController extends Controller
 {
@@ -41,6 +41,7 @@ class OrderController extends Controller
 
     //orderproduct
     public function storeOrder(Request $request) {
+        Log::info('Request Data:', $request->all()); // Log the request data
         $products = json_decode($request->products, true);  
         if (!$products) {
             return back()->with('error', 'No products selected!');
@@ -52,10 +53,13 @@ class OrderController extends Controller
             'payment_type'=> 'required',
             'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
         ]);
+        Log::info('Validated Order Data:', $data);
         $order = Order::create($data);
+        Log::info('Order Created:', ['id' => $order->id]);
         // Attach products to order (Pivot Table)
         //$order->products()->attach($productIds);
         foreach ($products as $product) {
+            Log::info('Attaching Product:', $product);
             $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
         }
         return back()->with('success', 'Order placed successfully!');
