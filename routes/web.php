@@ -70,10 +70,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/order/{id}/change', [OrderController::class, 'orderedit']);
     Route::post('/order/store', [OrderController::class, 'orderstore']);
     Route::get('/order/newfetch', [OrderController::class, 'newfetch']);
-    Route::post('/order/new', [OrderController::class, 'ordernew']);
+    //Route::post('/order/new', [OrderController::class, 'ordernew']);
 
     //orderproduct
     Route::post('/orderproduct/store', [OrderController::class, 'storeOrder']);
+    Route::post('/orderproduct/edit', [OrderController::class, 'editOrder']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

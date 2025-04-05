@@ -39,31 +39,7 @@ class OrderController extends Controller
         return redirect(route('order.index'));
     } 
 
-    //orderproduct
-    public function storeOrder(Request $request) {
-        Log::info('Request Data:', $request->all()); // Log the request data
-        $products = json_decode($request->products, true);  
-        if (!$products) {
-            return back()->with('error', 'No products selected!');
-        }  
-        $data = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            //'product_id' => 'required',
-            'date'=> 'required|date',
-            'payment_type'=> 'required',
-            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-        ]);
-        Log::info('Validated Order Data:', $data);
-        $order = Order::create($data);
-        Log::info('Order Created:', ['id' => $order->id]);
-        // Attach products to order (Pivot Table)
-        //$order->products()->attach($productIds);
-        foreach ($products as $product) {
-            Log::info('Attaching Product:', $product);
-            $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
-        }
-        return back()->with('success', 'Order placed successfully!');
-    }
+    
 
     public function generatepdfSelect(Request $request){
         $orderIds = $request->input('order_ids');
@@ -138,12 +114,42 @@ class OrderController extends Controller
     }
 
      //AJAX
+
+     //orderproduct new 
+    public function storeOrder(Request $request) {
+        Log::info('Request Data:', $request->all()); // Log the request data
+        $products = json_decode($request->products, true);  
+        if (!$products) {
+            return back()->with('error', 'No products selected!');
+        }  
+        $data = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            //'product_id' => 'required',
+            'date'=> 'required|date',
+            'payment_type'=> 'required',
+            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+        ]);
+        Log::info('Validated Order Data:', $data);
+        $order = Order::create($data);
+        Log::info('Order Created:', ['id' => $order->id]);
+        // Attach products to order (Pivot Table)
+        //$order->products()->attach($productIds);
+        foreach ($products as $product) {
+            Log::info('Attaching Product:', $product);
+            $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
+        }
+        return back()->with('success', 'Order placed successfully!');
+    }
+
     // Load data for editing
     public function orderedit($id)
     {
         $customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
-        $order = Order::findOrFail($id);
+        //$order = Order::findOrFail($id);
+        $order = Order::with(['products' => function($q) {
+            $q->withPivot('quantity');
+        }])->find($id);
         return response()->json([
             'order' => $order,
             'customers' => $customers,
@@ -162,36 +168,68 @@ class OrderController extends Controller
 
     }
 
+    //save edit
+    public function editOrder(Request $request) {
+        Log::info('Request Data:', $request->all()); // Log the request data
+        $products = json_decode($request->products, true);  
+        // if (!$products) {
+        //     return back()->with('error', 'No products selected!');
+        // }  
+        $data = $request->validate(
+            [
+            'customer_id' => 'required|exists:customers,id',
+            //'product_id' => 'required',
+            'date'=> 'required|date',
+            'payment_type'=> 'required',
+            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+            ]
+        );
+        Log::info('Validated Order Data:', $data);
+        $order = Order::findOrFail($request->id); // find the existing order
+        $order->update($data);
+        Log::info('Order Edited:', ['id' => $order->id]);
+
+        // First, remove existing pivot records
+        $order->products()->detach();
+
+        // Attach products to order (Pivot Table)
+        //$order->products()->attach($productIds);
+        foreach ($products as $product) {
+            Log::info('Attaching Product:', $product);
+            $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
+        }
+        return back()->with('success', 'Order edited successfully!');
+    }
 
     // Store or update 
-    public function orderstore(Request $request)
-    {
-        $order = Order::updateOrCreate(
-            ['id' => $request->id], // If ID exists, update; otherwise, create new
-            [
-                'customer_id' => $request->customer_id,
-                'product_id' => $request->product_id,
-                'date' => $request->date,
-                'payment_type' => $request->payment_type,
-                'amount' => $request->amount
-            ]
-        );
+    // public function orderstore(Request $request)
+    // {
+    //     $order = Order::updateOrCreate(
+    //         ['id' => $request->id], // If ID exists, update; otherwise, create new
+    //         [
+    //             'customer_id' => $request->customer_id,
+    //             'product_id' => $request->product_id,
+    //             'date' => $request->date,
+    //             'payment_type' => $request->payment_type,
+    //             'amount' => $request->amount
+    //         ]
+    //     );
 
-        return response()->json(['message' => 'Order updated successfully!']);
-    }
+    //     return response()->json(['message' => 'Order updated successfully!']);
+    // }
 
-    public function ordernew(Request $request)
-    {
-        $order = Order::updateOrCreate(
-            [
-                'customer_id' => $request->customer_id,
-                'product_id' => $request->product_id,
-                'date' => $request->date,
-                'payment_type' => $request->payment_type,
-                'amount' => $request->amount
-            ]
-        );
+    // public function ordernew(Request $request)
+    // {
+    //     $order = Order::updateOrCreate(
+    //         [
+    //             'customer_id' => $request->customer_id,
+    //             'product_id' => $request->product_id,
+    //             'date' => $request->date,
+    //             'payment_type' => $request->payment_type,
+    //             'amount' => $request->amount
+    //         ]
+    //     );
 
-        return response()->json(['message' => 'Order saved successfully!']);
-    }
+    //     return response()->json(['message' => 'Order saved successfully!']);
+    // }
 }

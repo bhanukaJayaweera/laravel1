@@ -131,13 +131,34 @@
                    
                 </select>
             </div>
-        
-                <div class="input-group mb-3">
+            <div class="input-group mb-3" id="product_div">
                     <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
-                    <select class="form-select" name="product_id" id="product_id" required>
+                    <select class="form-select" name="product_id" id="prod_id">
                         <option value=""></option>               
                     </select>
+            </div>
+                <div class="mb-3" id="quantity_div">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" class="form-control" class="form-control">
+                </div>    
+                <button type="button" id="addProduct" class="btn btn-primary">Add to Table</button>
+
+                <div class="input-group mb-3">
+                <table id="prodview" class="table mt-3">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                     
+                        </tbody>
+                    </table>
                 </div>
+            <!-- Hidden input field to store product data -->
+            <input type="hidden" name="products" id="editData">   
 
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
@@ -343,6 +364,17 @@
                     </td>
                 </tr>
             `;
+            let exists = false;
+            $("#productTableBody tr").each(function () {
+                if ($(this).data("id") == productId) {
+                    exists = true;
+                    return false;
+                }
+            });
+            if (exists) {
+                alert("This product is already added.");
+                return;
+            }
             $("#productTableBody").append(row);
             $("#prod_id").val('');
             $("#quantity").val(1);
@@ -355,7 +387,7 @@
         $(this).closest("tr").remove();
     });
 
-           // Save or Update Customer (AJAX Form Submission)
+           // Save new order (AJAX Form Submission)
     $("#orderProductForm").submit(function (e){
             e.preventDefault(); // Prevent default form submission        
             var id = $("#id").val();
@@ -398,62 +430,11 @@
                             $("#messageModal").modal("show");
                         },
                     });
-                // e.preventDefault();
-                // var formData = $(this).serialize();
-
-                // var id = $("#id").val();
-                // if (id) {
-                //     $.ajax({
-                //         url: "/order/store",
-                //         type: "POST",
-                //         data: formData,
-                //         success: function (response) {
-                //             //alert(response.message);
-                //             //location.reload(); // Refresh page
-                //             $("#orderModal").modal("hide"); // Close modal
-                //             $("#u").text(response.message).show(); 
-                //             $("#messageModal").modal("show");
-                           
-                //             setTimeout(function () {
-                //                 location.reload();
-                //             }, 2000); // Reload after 3 seconds
-                //         },
-                //         error: function (xhr) {
-                //             //alert("Error saving order!");
-                //             $("#orderModal").modal("hide"); // Close modal
-                //             $("#uerror").show();
-                //             $("#messageModal").modal("show");
-                //         },
-                //     });
-                // }
-                // else{
-                //     $.ajax({
-                //         url: "/order/new",
-                //         type: "POST",
-                //         data: formData,
-                //         success: function (response) {
-                //             //alert(response.message);
-                //             //location.reload(); // Refresh page
-                //             $("#orderModal").modal("hide"); // Close modal
-                //             $("#s").text(response.message).show(); 
-                //             $("#messageModal").modal("show");
-                //             //location.reload(); // Refresh page
-                            
-                //             setTimeout(function () {
-                //                 location.reload();
-                //             }, 2000); // Reload after 2 
-                //         },
-                //         error: function (xhr) {
-                //             //alert("Error saving order!");
-                //             $("#orderModal").modal("hide"); // Close modal
-                //             $("#serror").show();
-                //             $("#messageModal").modal("show");
-                //         },
-                //     });
-                // }
+                
         });
 
-        //createOrderProduct
+        
+        //fetchcreateOrderProduct
         $(".createOrderProduct").click(function () {
             // $("#orderForm")[0].reset(); // Clear Form
              $("#modalTitle").text("New Order Product");
@@ -494,6 +475,9 @@
                         $("#orderForm")[0].reset(); // Clear Form
                         $("#id").val(response.order.id);
                         $("#id").prop("disabled", true);
+                        $("#product_div").prop("hidden", true);
+                        $("#quantity_div").prop("hidden", true);
+                        $("#addProduct").prop("hidden", true);
                         let dropdown = $("#customer_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Customer</option>'); // Default option
@@ -501,30 +485,39 @@
                         $.each(response.customers, function(index, customer) {
                             dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
                         });
-                        let dropdown1 = $("#product_id"); // Select dropdown
-                        dropdown1.empty(); // Clear existing options
-                        dropdown1.append('<option value="">Select Product</option>'); // Default option
-                        // Loop through JSON array and add options
-                        $.each(response.products, function(index, product) {
-                            dropdown1.append('<option value="' + product.id + '">' + product.name + '</option>');
-                        });
                         $("#customer_id").val(response.order.customer_id);
                         $("#customer_id").prop("disabled", true);
-                        $("#product_id").val(response.order.product_id);
-                        $("#product_id").prop("disabled", true);
+
+                        let tableBody = $("#productTableBody");
+                        tableBody.empty(); // Clear existing data
+
+                        $.each(response.order.products, function (index, product) {
+                            //Log::info('Product:',$product);
+                            tableBody.append(`
+                                <tr>
+                                
+                                    <td>${product.id}</td>
+                                    <td>${product.name}</td>
+                                    <td>${product.pivot.quantity}</td>
+                                </tr>
+                            `);
+                        });
+                        
                         $("#date").val(response.order.date);
                         $("#date").prop("disabled", true);
                         $("#payment_type").val(response.order.payment_type);
                         $("#payment_type").prop("disabled", true);
                         $("#amount").val(response.order.amount);
                         $("#amount").prop("disabled", true);
+                        $("#modalTitle").text("View Order");
                         $(".save").prop("hidden", true);
                         $("#orderModal").modal("show");
                         
                     },
                 });
             });
-          // Open modal and load customer data
+       
+          // edit load customer data
           $(".editOrder").click(function () {
                 var orderId = $(this).data("id");
                 $.ajax({
@@ -532,6 +525,9 @@
                     type: "GET",
                     success: function (response) {
                         $("#orderForm")[0].reset(); // Clear Form
+                        $("#product_div").prop("hidden", false);
+                        $("#quantity_div").prop("hidden", false);
+                        $("#addProduct").prop("hidden", false);
                         let dropdown = $("#customer_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Customer</option>'); // Default option
@@ -539,16 +535,38 @@
                         $.each(response.customers, function(index, customer) {
                             dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
                         });
-                        let dropdown1 = $("#product_id"); // Select dropdown
+                        $("#customer_id").val(response.order.customer_id);
+                        $("#prod_id").prop("hidden", false) 
+
+                        let dropdown1 = $("#prod_id"); // Select dropdown
                         dropdown1.empty(); // Clear existing options
                         dropdown1.append('<option value="">Select Product</option>'); // Default option
                         // Loop through JSON array and add options
                         $.each(response.products, function(index, product) {
                             dropdown1.append('<option value="' + product.id + '">' + product.name + '</option>');
                         });
-                        $("#id").val(response.order.id);
-                        $("#customer_id").val(response.order.customer_id);
-                        $("#product_id").val(response.order.product_id);
+
+                        let tableBody = $("#productTableBody");
+                        tableBody.empty(); // Clear existing data
+
+                        $.each(response.order.products, function (index, product) {
+                            //Log::info('Product:',$product);
+                            tableBody.append(`
+                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}">                               
+                                    <td>${product.id}</td>
+                                    <td>${product.name}</td>
+                                    <td>${product.pivot.quantity}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                        // $(document).on("click", ".removeProduct", function () {
+                        //     $(this).closest("tr").remove();
+                        // });
+
+                        $("#id").val(response.order.id);                
                         $("#date").val(response.order.date);
                         let dropdown2 = $("#payment_type"); // Select dropdown
                         dropdown2.empty(); // Clear existing options
@@ -557,17 +575,59 @@
                         dropdown2.append('<option value="cash">Cash</option>'); // Default option
                         $("#payment_type").val(response.order.payment_type);
                         $("#amount").val(response.order.amount);
-                        $("#modalTitle").text("Edit Customer");
+                        $("#modalTitle").text("Edit Order");
                         $("#orderForm input").prop("disabled", false); // Enable fields
                         $("#orderForm select").prop("disabled", false); // Enable fields
                         $(".save").prop("hidden", false) // Show Save Button
-                        $("#customerModal").modal("show");
+                        $("#orderModal").modal("show");
                     },
                 });
             });
 
+    // Update Customer (AJAX Form Submission)
+    $("#orderForm").submit(function (e){
+            e.preventDefault(); // Prevent default form submission        
+            var id = $("#id").val();
+            let selectedProducts = [];
 
-  
+            $("#productTableBody tr").each(function () {
+                let productId = $(this).data("id");
+                let quantity = $(this).data("quantity");
+                selectedProducts.push({ product_id: productId, quantity: quantity });
+            
+            });
+
+            if (selectedProducts.length === 0) {
+                alert("Please add at least one product.");
+                e.preventDefault();
+                return;
+            }
+
+            $("#editData").val(JSON.stringify(selectedProducts));
+            var formData = $(this).serialize();
+            $.ajax({
+                        url: "/orderproduct/edit",
+                        type: "POST",
+                        data: formData,
+                        success: function (response) {
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#u").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                           
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000); // Reload after 3 seconds
+                        },
+                        error: function (xhr) {
+                            //alert("Error saving order!");
+                            $("#orderModal").modal("hide"); // Close modal
+                            $("#uerror").show();
+                            $("#messageModal").modal("show");
+                        },
+                    });
+                });
 
         //new 
         $(".createOrder").click(function () {
