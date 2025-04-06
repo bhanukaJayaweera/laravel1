@@ -54,17 +54,7 @@ class OrderController extends Controller
         return $pdf->download('generated.pdf');
     }
 
-    public function deleteMultiple(Request $request)
-    {
-        $orderIds = $request->order_ids;
-
-        if ($orderIds) {
-            Order::whereIn('id', $orderIds)->delete();
-            return redirect()->back()->with('success', 'Selected orders deleted successfully.');
-        }
-
-        return redirect()->back()->with('error', 'No orders selected.');
-    }
+   
 
     public function view(Order $order){
         #dd($product); #used to check the data sent 
@@ -93,8 +83,20 @@ class OrderController extends Controller
     }
 
     public function destroy(Order $order){
+        $order->products()->detach(); // Remove pivot table entries
         $order->delete();
         return redirect(route('order.index'))->with('success','Order deleted successfully');
+    }
+
+    public function deleteMultiple(Request $request)
+    {
+        $orderIds = $request->order_ids;
+
+        if ($orderIds) {
+            Order::whereIn('id', $orderIds)->delete();
+            return redirect()->back()->with('success', 'Selected orders deleted successfully.');
+        }
+        return redirect()->back()->with('error', 'No orders selected.');
     }
 
     public function showUploadForm()
@@ -200,6 +202,8 @@ class OrderController extends Controller
         }
         return back()->with('success', 'Order edited successfully!');
     }
+
+
 
     // Store or update 
     // public function orderstore(Request $request)
