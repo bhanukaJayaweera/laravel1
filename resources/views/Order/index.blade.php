@@ -141,7 +141,7 @@
                     <label for="quantity">Quantity:</label>
                     <input type="number" name="quantity" id="quantity" class="form-control" class="form-control">
                 </div>    
-                <button type="button" id="addProduct" class="btn btn-primary">Add to Table</button>
+                <button type="button" id="addProductUpdate" class="btn btn-primary">Add to Table</button>
 
                 <div class="input-group mb-3">
                 <table id="prodview" class="table mt-3">
@@ -159,7 +159,10 @@
                 </div>
             <!-- Hidden input field to store product data -->
             <input type="hidden" name="products" id="editData">   
-
+            <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Total Amount</label>
+                <input type="text" name="amount" id="amount" class="form-control" readonly>
+            </div>
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
                 <input type="date" name="date" id="date" class="form-control">
@@ -172,10 +175,7 @@
                     <option value="card">Card</option>
                 </select>
             </div>
-            <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Amount</label>
-                <input type="text" name="amount" id="amount" class="form-control">
-            </div>
+            
                                 
             </div>
             <div class="modal-footer">
@@ -192,7 +192,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalTitle">Modal title</h1>
+            <h1 class="modal-title fs-5" id="modalTitle1">Modal title</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -212,13 +212,13 @@
             <!-- <form id="productForm"> -->
                 <div class="input-group mb-3">
                     <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
-                    <select class="form-select" name="product_id" id="prod_id">
+                    <select class="form-select" name="product_id" id="product_id">
                         <option value=""></option>               
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" id="quantity" class="form-control" class="form-control">
+                    <input type="number" name="quantity" id="quantitys" class="form-control" class="form-control">
                 </div>    
                 <button type="button" id="addProduct" class="btn btn-primary">Add to Table</button>
             <!-- </form> -->
@@ -229,38 +229,39 @@
                                 <th>Product ID</th>
                                 <th>Product Name</th>
                                 <th>Quantity</th>
+                                <th>Unit Price</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="productTableBody">
+                        <tbody id="productTableBodyNew">
                             <!-- Selected products will be added here -->
                         </tbody>
                     </table>
                     
                     <!-- Hidden input field to store product data -->
                     <input type="hidden" name="products" id="productsData">                 
-
+            <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Total Amount</label>
+                <input type="text" name="amount" id="amounts" class="form-control" readonly>
+            </div>
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
                 <input type="date" name="date" id="date" class="form-control">
             </div>
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Payment Type</label>
-                <select class="form-select" name="payment_type" id="payment_type" required>
+                <select class="form-select" name="payment_type" id="payment_types" required>
                     <option value="">-- Choose a Type --</option>
                     <option value="cash">Cash</option>
                     <option value="card">Card</option>
                 </select>
             </div>
-            <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Amount</label>
-                <input type="text" name="amount" id="amount" class="form-control">
-            </div>
+           
                                 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary save">Save changes</button>
+                <button type="submit" class="btn btn-primary new">Save changes</button>
             </div>
         </form>
         </div>
@@ -284,9 +285,9 @@
             <thead>
             <tr>
                 <th><input type="checkbox" id="selectAll"></th>
-                <th>ID</th>
-                <th>Cus ID</th>
-                <!-- <th>Customer Name</th> -->
+                <th>Order ID</th>
+                <!-- <th>Cus ID</th> -->
+                <th>Customer Name</th>
                 <!-- <th>Product ID</th> -->
                 <th>Date</th>
                 <th>Payment Type</th>
@@ -301,8 +302,8 @@
                 <tr>
                     <td><input type="checkbox" class="orderCheckbox" name="order_ids[]" value="{{ $order->id }}"></td>
                     <td>{{$order->id}}</td>
-                    <td>{{$order->customer_id}}</td>
-                    {{-- <td>{{$order->customer->name}}</td> --}}
+                    <!-- <td>{{$order->customer_id}}</td> -->
+                    <td>{{$order->customer->name}}</td>
                     <!-- <td>{{$order->product_id}}</td> -->
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
@@ -349,13 +350,63 @@
     $(document).ready(function () {
         //order-product Modal
         $("#addProduct").click(function () {
+        let productId = $("#product_id").val();
+        let productName = $("#product_id").find("option:selected").text(); 
+        let quantity = $("#quantitys").val();
+        let price = $("#product_id").find("option:selected").data('price');
+        console.log({ productId, productName, quantity }); // ✅ Check what you're getting
+        if (productId && quantity > 0) {
+            let row = `
+                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}">
+                    <td>${productId}</td>
+                    <td>${productName}</td>
+                    <td>${quantity}</td>
+                    <td>${price}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
+                    </td>
+                </tr>
+            `;
+            let exists = false;
+            $("#productTableBodyNew tr").each(function () {
+                if ($(this).data("id") == productId) {
+                    exists = true;
+                    return false;
+                }
+            });
+            if (exists) {
+                alert("This product is already added.");
+                return;
+            }
+            $("#productTableBodyNew").append(row);
+            $("#products_id").val('');
+            $("#quantitys").val(1);
+        } else {
+            alert("Please select a product and enter a valid quantity.");
+        }
+    });
+
+    //load full amount 
+    $('#amounts').on('click', function () {
+        let amount = 0; // Moved outside the loop
+        $("#productTableBodyNew tr").each(function () {
+                let quantity = $(this).data("quantity");
+                let price = $(this).data('price');
+                productPrice = quantity*price;
+                amount += productPrice;
+            });
+        $('#amounts').val(amount); // Set to some input
+    });
+
+
+        $("#addProductUpdate").click(function () {
         let productId = $("#prod_id").val();
         let productName = $("#prod_id").find("option:selected").text(); 
         let quantity = $("#quantity").val();
 
         if (productId && quantity > 0) {
             let row = `
-                <tr data-id="${productId}" data-quantity="${quantity}">
+                <tr data-id="${productId}" data-quantity="${quantity}" >
                     <td>${productId}</td>
                     <td>${productName}</td>
                     <td>${quantity}</td>
@@ -393,7 +444,7 @@
             var id = $("#id").val();
             let selectedProducts = [];
 
-            $("#productTableBody tr").each(function () {
+            $("#productTableBodyNew tr").each(function () {
                 let productId = $(this).data("id");
                 let quantity = $(this).data("quantity");
                 selectedProducts.push({ product_id: productId, quantity: quantity });
@@ -436,8 +487,10 @@
         
         //fetchcreateOrderProduct
         $(".createOrderProduct").click(function () {
-            // $("#orderForm")[0].reset(); // Clear Form
-             $("#modalTitle").text("New Order Product");
+            
+            $("#orderproductModal").show();
+           // $("#orderForm")[0].reset(); // Clear Form
+             $("#modalTitle1").text("New Order Product");
             // $("#orderForm input").prop("disabled", false); // Enable fields
             // $("#orderForm select").prop("disabled", false); // Enable fields
             // $(".save").prop("hidden", false) // Show Save Button    
@@ -453,12 +506,12 @@
                         $.each(response.customers, function(index, customer) {
                             dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
                         });
-                        let dropdown1 = $("#prod_id"); // Select dropdown
+                        let dropdown1 = $("#product_id"); // Select dropdown
                         dropdown1.empty(); // Clear existing options
                         dropdown1.append('<option value="">Select Product</option>'); // Default option
                         // Loop through JSON array and add options
                         $.each(response.products, function(index, product) {
-                            dropdown1.append('<option value="' + product.id + '">' + product.name + '</option>');
+                            dropdown1.append('<option value="' + product.id + '" data-price="'+product.price+'">' + product.name + '</option>');
                         });
                        
                     }
@@ -477,7 +530,7 @@
                         $("#id").prop("disabled", true);
                         $("#product_div").prop("hidden", true);
                         $("#quantity_div").prop("hidden", true);
-                        $("#addProduct").prop("hidden", true);
+                        $("#addProductUpdate").prop("hidden", true);
                         let dropdown = $("#customer_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Customer</option>'); // Default option
@@ -527,7 +580,7 @@
                         $("#orderForm")[0].reset(); // Clear Form
                         $("#product_div").prop("hidden", false);
                         $("#quantity_div").prop("hidden", false);
-                        $("#addProduct").prop("hidden", false);
+                        $("#addProductUpdate").prop("hidden", false);
                         let dropdown = $("#customer_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Customer</option>'); // Default option
@@ -613,6 +666,7 @@
                             //alert(response.message);
                             //location.reload(); // Refresh page
                             $("#orderModal").modal("hide"); // Close modal
+                            $("#u").show();
                             $("#u").text(response.message).show(); 
                             $("#messageModal").modal("show");
                            
