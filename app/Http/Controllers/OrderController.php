@@ -110,9 +110,12 @@ class OrderController extends Controller
             'file' => 'required|mimes:xlsx,xls',
         ]);
 
-        Excel::import(new OrderImport, $request->file('file'));
-
-        return back()->with('success', 'Order data imported successfully.');
+        try {
+            Excel::import(new OrderImport, $request->file('file'));
+            return back()->with('success', 'Orders imported successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Import failed: ' . $e->getMessage());
+        }
     }
 
      //AJAX

@@ -269,7 +269,7 @@
         </div>
     </div>
     </div>
-    <div class="container" style="margin-left:35%">
+    <div class="container" style="margin-left:25%">
         <div class="row col-md-9">
         <!-- <form id="selectedProductsForm" method="POST" action="{{route('order.select')}}">
         @csrf   -->
