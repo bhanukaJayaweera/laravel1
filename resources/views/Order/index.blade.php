@@ -46,9 +46,9 @@
             <!-- Sidebar -->
         <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:15%">
         <h3 class="w3-bar-item">Menu</h3>
-        <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button><br/> <br>
-        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal">Order Product <i class="fa fa-plus"></i></button>     
-        <a class="w3-bar-item w3-button" href="{{route('dashboard')}}">Home</a>
+        <!-- <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button><br/> <br> -->
+        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Order Product </button>     
+        <br><br><a class="btn btn-success" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Home</a>
         
         </div>
     </div>
@@ -150,6 +150,8 @@
                                 <th>Product ID</th>
                                 <th>Product Name</th>
                                 <th>Quantity</th>
+                                <th>Unit price</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="productTableBody">
@@ -267,7 +269,7 @@
         </div>
     </div>
     </div>
-    <div class="container" style="margin-left:28%">
+    <div class="container" style="margin-left:25%">
         <div class="row col-md-9">
         <!-- <form id="selectedProductsForm" method="POST" action="{{route('order.select')}}">
         @csrf   -->
@@ -403,13 +405,14 @@
         let productId = $("#prod_id").val();
         let productName = $("#prod_id").find("option:selected").text(); 
         let quantity = $("#quantity").val();
-
+        let price = $("#prod_id").find("option:selected").data('price');   
         if (productId && quantity > 0) {
             let row = `
-                <tr data-id="${productId}" data-quantity="${quantity}" >
+                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" >
                     <td>${productId}</td>
                     <td>${productName}</td>
                     <td>${quantity}</td>
+                    <td>${price}</td>
                     <td>
                         <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
                     </td>
@@ -548,10 +551,10 @@
                             //Log::info('Product:',$product);
                             tableBody.append(`
                                 <tr>
-                                
                                     <td>${product.id}</td>
                                     <td>${product.name}</td>
                                     <td>${product.pivot.quantity}</td>
+                                    <td>${product.price}</td>
                                 </tr>
                             `);
                         });
@@ -596,7 +599,7 @@
                         dropdown1.append('<option value="">Select Product</option>'); // Default option
                         // Loop through JSON array and add options
                         $.each(response.products, function(index, product) {
-                            dropdown1.append('<option value="' + product.id + '">' + product.name + '</option>');
+                            dropdown1.append('<option value="' + product.id + '" data-price="'+product.price+'">' + product.name + '</option>');
                         });
 
                         let tableBody = $("#productTableBody");
@@ -605,10 +608,11 @@
                         $.each(response.order.products, function (index, product) {
                             //Log::info('Product:',$product);
                             tableBody.append(`
-                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}">                               
+                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}" data-price="${product.price}">                               
                                     <td>${product.id}</td>
                                     <td>${product.name}</td>
                                     <td>${product.pivot.quantity}</td>
+                                    <td>${product.price}</td>
                                     <td>
                                         <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
                                     </td>
@@ -636,6 +640,18 @@
                     },
                 });
             });
+
+     //load full amount 
+     $('#amount').on('click', function () {
+        let amount = 0; // Moved outside the loop
+        $("#productTableBody tr").each(function () {
+                let quantity = $(this).data("quantity");
+                let price = $(this).data('price');
+                productPrice = quantity*price;
+                amount += productPrice;
+            });
+        $('#amount').val(amount); // Set to some input
+    });
 
     // Update Customer (AJAX Form Submission)
     $("#orderForm").submit(function (e){
@@ -723,11 +739,10 @@
                 let row = checkbox.closest('tr');
                 let orderData = {
                     id: row.cells[1].textContent,
-                    customer_id: row.cells[2].textContent,
-                    product_id: row.cells[3].textContent,
-                    date: row.cells[4].textContent,
-                    payment_type: row.cells[5].textContent,
-                    amount: row.cells[6].textContent
+                    customer_name: row.cells[2].textContent,
+                    date: row.cells[3].textContent,
+                    payment_type: row.cells[4].textContent,
+                    amount: row.cells[5].textContent
                 };
                 selectedOrders.push(orderData);
             });
@@ -743,8 +758,7 @@
                             ${selectedOrders.map(order => 
                                 `<li>
                                     <strong>Order ID:</strong> ${order.id} 
-                                    | <strong>Customer:</strong> ${order.customer_id} 
-                                    | <strong>Product:</strong> ${order.product_id} 
+                                    | <strong>Customer:</strong> ${order.customer_name} 
                                     | <strong>Date:</strong> ${order.date} 
                                     | <strong>Payment Type:</strong> ${order.payment_type} 
                                     | <strong>Amount:</strong> ${order.amount} 
@@ -752,7 +766,7 @@
                                 </li>`
                             ).join('')}
                         </ul>
-                        <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Print Selected Data</button>
+                        <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows"><i class="fa fa-print"></i> Print Data</button>
                     </form>
                 `;
 

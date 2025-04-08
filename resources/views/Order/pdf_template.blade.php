@@ -23,6 +23,12 @@
         th {
             background-color: #f2f2f2;
         }
+        .highlighted-row {
+            background-color: #ffe5e5; /* Light red background */
+            border-top: 3px solid red;
+            border-bottom: 3px solid red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -63,17 +69,20 @@
                     <tr>
                     <th>Product ID</th>
                     <th>Product Name</th>
+                    <th>Unit Price</th>
                     <th>Quantity</th>
                     </tr>
                     @foreach ($order->products as $product)            
                     <tr>  
                             <td>{{ $product->id }}</td>
                             <td>{{ $product->name }}</td>
+                            <td>{{ $product->price }}</td>
                             <td>{{ $product->pivot->quantity }}</td>  
                     </tr>                    
                     @endforeach
-              
-                    
+                    <tr class="highlighted-row">
+                    </tr>
+                
                 </tr>
                 @endforeach
                 
