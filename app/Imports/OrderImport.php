@@ -15,23 +15,44 @@ use Illuminate\Support\Facades\DB;
 class OrderImport implements ToCollection, WithHeadingRow
 {
    
-
     public function collection(Collection $rows)
     {
         DB::beginTransaction();
 
         try {
-            foreach ($rows as $row) {
+            // foreach ($rows as $row) {
 
-                // Create Order
-                $order = Order::updateOrCreate(
-                    ['customer_id'  =>  $row['customer_id']],
-                    [                
-                    'date' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['date'])->format('Y-m-d'),
-                    'payment_type' => $row['payment_type'], // Column 4in Excel
-                    'amount' => $row['amount'], // Column 5 in Excel
-                    ]
-            );
+            //     // Create Order
+            //     $order = Order::updateOrCreate(
+            //         ['customer_id'  =>  $row['customer_id']],
+            //         [                
+            //         'date' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['date'])->format('Y-m-d'),
+            //         'payment_type' => $row['payment_type'], // Column 4in Excel
+            //         'amount' => $row['amount'], // Column 5 in Excel
+            //         ]
+            // );
+
+            // To track already created orders during this import
+            $ordersMap = [];
+
+            foreach ($rows as $row) {
+            // Create a unique key for the order (customer_id + date + payment_type + amount)
+                $key = $row['customer_id'] . '|' .
+                    \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['date'])->format('Y-m-d');
+                  
+
+            if (!isset($ordersMap[$key])) {
+                // Create a new Order
+                $ordersMap[$key] = Order::create([
+                    'customer_id'  => $row['customer_id'],
+                    'date'         => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['date'])->format('Y-m-d'),
+                    'payment_type' => $row['payment_type'],
+                    'amount'       => $row['amount'],
+                ]);
+            }
+
+            $order = $ordersMap[$key];
+
                 // Attach or sync product with quantity
                 $order->products()->syncWithoutDetaching([
                     $row['product_id'] => ['quantity' => $row['quantity']]
