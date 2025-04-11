@@ -47,7 +47,7 @@ class OrderImport implements ToCollection, WithHeadingRow
                     'customer_id'  => $row['customer_id'],
                     'date'         => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['date'])->format('Y-m-d'),
                     'payment_type' => $row['payment_type'],
-                    'amount'       => $row['amount'],
+                    'amount'       => 0,
                 ]);
             }
 

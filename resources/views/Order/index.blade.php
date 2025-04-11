@@ -47,7 +47,7 @@
         <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:15%">
         <h3 class="w3-bar-item">Menu</h3>
         <!-- <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button><br/> <br> -->
-        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Order Product </button>     
+        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Order </button>     
         <br><br><a class="btn btn-success" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Home</a>
         
         </div>
@@ -269,7 +269,7 @@
         </div>
     </div>
     </div>
-    <div class="container" style="margin-left:25%">
+    <div class="container" style="margin-left:35%">
         <div class="row col-md-9">
         <!-- <form id="selectedProductsForm" method="POST" action="{{route('order.select')}}">
         @csrf   -->
@@ -280,8 +280,8 @@
         @method('DELETE')
         <!-- Buttons -->
         <div id="buttons" style="padding:10px">
-        <button type="button" class="btn btn-info" id="viewSelected">View/Print Selected</button>
-        <button type="submit" class="btn btn-danger" id="deleteSelected" style="margin-left:50%">Delete Selected</button>
+        <button type="button" class="btn btn-info" id="viewSelected"><i class="fa fa-eye"></i> View Selected</button>
+        <button type="submit" class="btn btn-danger" id="deleteSelected" style="margin-left:0%"><i class="fa fa-trash"></i> Bulk Delete</button>
         </div>
         <table id="orderTable" class="table table-striped table-bordered">
             <thead>
@@ -682,7 +682,8 @@
                             //alert(response.message);
                             //location.reload(); // Refresh page
                             $("#orderModal").modal("hide"); // Close modal
-                            $("#u").show();
+                            //$("#u").text(response.message)
+                            //alert(response.message)
                             $("#u").text(response.message).show(); 
                             $("#messageModal").modal("show");
                            

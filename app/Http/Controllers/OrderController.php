@@ -93,7 +93,11 @@ class OrderController extends Controller
         $orderIds = $request->order_ids;
 
         if ($orderIds) {
-            Order::whereIn('id', $orderIds)->delete();
+            $orders = Order::whereIn('id', $orderIds)->get();
+            foreach($orders as $order){
+                $order->products()->detach();
+                $order->delete();
+            }
             return redirect()->back()->with('success', 'Selected orders deleted successfully.');
         }
         return redirect()->back()->with('error', 'No orders selected.');
@@ -143,7 +147,7 @@ class OrderController extends Controller
             Log::info('Attaching Product:', $product);
             $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
         }
-        return back()->with('success', 'Order placed successfully!');
+        return response()->json(['message' => 'Order saved successfully!']);
     }
 
     // Load data for editing
@@ -203,7 +207,7 @@ class OrderController extends Controller
             Log::info('Attaching Product:', $product);
             $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
         }
-        return back()->with('success', 'Order edited successfully!');
+        return response()->json(['message' => 'Order updated successfully!']);
     }
 
 
