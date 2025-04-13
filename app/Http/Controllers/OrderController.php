@@ -93,7 +93,11 @@ class OrderController extends Controller
         $orderIds = $request->order_ids;
 
         if ($orderIds) {
-            Order::whereIn('id', $orderIds)->delete();
+            $orders = Order::whereIn('id', $orderIds)->get();
+            foreach($orders as $order){
+                $order->products()->detach();
+                $order->delete();
+            }
             return redirect()->back()->with('success', 'Selected orders deleted successfully.');
         }
         return redirect()->back()->with('error', 'No orders selected.');
@@ -142,10 +146,44 @@ class OrderController extends Controller
         foreach ($products as $product) {
             Log::info('Attaching Product:', $product);
             $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
+            // Update inventory
+            $productModel = Product::find($product['product_id']);
+            if ($productModel) {
+                $newInventory = $productModel->quantity - $product['quantity'];
+                // Optional: prevent negative inventory
+                // if ($newInventory < 0) {
+                //     Log::warning('Inventory would go negative. Skipping product: ' . $productModel->name);
+                //     //return response()->json(['message' => 'Inventory would go negative. Skipping product: ' . $productModel->name]);
+                //     continue;
+                // }
+                $productModel->quantity = $newInventory;
+                $productModel->save();
+            }
         }
-        return back()->with('success', 'Order placed successfully!');
+        return response()->json(['message' => 'Order saved successfully!']);
     }
 
+    public function checkInvent(Request $request){
+        $productId = $request->input('productId');
+        $quantity = $request->input('quantity');
+        $productModel = Product::find($productId);
+            if ($productModel) {
+                $newInventory = $productModel->quantity - $quantity;
+                if ($newInventory < 0) {
+                    Log::warning('Inventory would go negative. Skipping product: ' . $productModel->name);
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "Not enough inventory for {$productModel->name}. Available: {$productModel->quantity}, Requested: $quantity."
+                    ], 422);            
+                }
+                else{
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => "Sufficient inventory for {$productModel->name}."
+                    ]);
+                }
+            }
+    }
     // Load data for editing
     public function orderedit($id)
     {
@@ -203,7 +241,7 @@ class OrderController extends Controller
             Log::info('Attaching Product:', $product);
             $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
         }
-        return back()->with('success', 'Order edited successfully!');
+        return response()->json(['message' => 'Order updated successfully!']);
     }
 
 

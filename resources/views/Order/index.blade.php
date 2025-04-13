@@ -47,7 +47,7 @@
         <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:15%">
         <h3 class="w3-bar-item">Menu</h3>
         <!-- <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button><br/> <br> -->
-        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Order Product </button>     
+        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Order </button>     
         <br><br><a class="btn btn-success" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Home</a>
         
         </div>
@@ -189,7 +189,7 @@
     </div>
     </div>
    
-    <!-- Order_Product Modal -->
+    <!-- Add new-Order_Product Modal -->
     <div class="modal fade" id="orderproductModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -280,8 +280,8 @@
         @method('DELETE')
         <!-- Buttons -->
         <div id="buttons" style="padding:10px">
-        <button type="button" class="btn btn-info" id="viewSelected">View/Print Selected</button>
-        <button type="submit" class="btn btn-danger" id="deleteSelected" style="margin-left:50%">Delete Selected</button>
+        <button type="button" class="btn btn-info" id="viewSelected"><i class="fa fa-eye"></i> View Selected</button>
+        <button type="submit" class="btn btn-danger" id="deleteSelected" style="margin-left:0%"><i class="fa fa-trash"></i> Bulk Delete</button>
         </div>
         <table id="orderTable" class="table table-striped table-bordered">
             <thead>
@@ -350,42 +350,66 @@
         return confirm('Are you sure you want to delete this Order?');
     }
     $(document).ready(function () {
-        //order-product Modal
+        //order-product Modal- add new 
         $("#addProduct").click(function () {
         let productId = $("#product_id").val();
         let productName = $("#product_id").find("option:selected").text(); 
         let quantity = $("#quantitys").val();
         let price = $("#product_id").find("option:selected").data('price');
         console.log({ productId, productName, quantity }); // ✅ Check what you're getting
-        if (productId && quantity > 0) {
-            let row = `
-                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}">
-                    <td>${productId}</td>
-                    <td>${productName}</td>
-                    <td>${quantity}</td>
-                    <td>${price}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
-                    </td>
-                </tr>
-            `;
-            let exists = false;
-            $("#productTableBodyNew tr").each(function () {
-                if ($(this).data("id") == productId) {
-                    exists = true;
-                    return false;
-                }
-            });
-            if (exists) {
-                alert("This product is already added.");
-                return;
-            }
-            $("#productTableBodyNew").append(row);
-            $("#products_id").val('');
-            $("#quantitys").val(1);
-        } else {
-            alert("Please select a product and enter a valid quantity.");
-        }
+        $.ajax({
+                        url: "/orderproduct/checkInvent",
+                        type: "POST",
+                        data: {
+                            productId: productId,
+                            quantity: quantity,
+                            _token: $('input[name="_token"]').val() // important for POST!
+                        },
+                        success: function (response) {
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                        if (response.status === 'success') {  
+                            if (productId && quantity > 0) {
+                                let row = `
+                                    <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}">
+                                        <td>${productId}</td>
+                                        <td>${productName}</td>
+                                        <td>${quantity}</td>
+                                        <td>${price}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
+                                        </td>
+                                    </tr>
+                                `;
+                                let exists = false;
+                                $("#productTableBodyNew tr").each(function () {
+                                    if ($(this).data("id") == productId) {
+                                        exists = true;
+                                        return false;
+                                    }
+                                });
+                                if (exists) {
+                                    alert("This product is already added.");
+                                    return;
+                                }
+                                $("#productTableBodyNew").append(row);
+                                $("#products_id").val('');
+                                $("#quantitys").val(1);
+                            } else {
+                                alert("Please select a product and enter a valid quantity.");
+                            }
+                                  
+                        }
+                        },
+                        error: function (xhr) {
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                alert(xhr.responseJSON.message);
+                            } else {
+                                alert('An error occurred');
+                            }
+                        }
+                    });
+       
     });
 
     //load full amount 
@@ -682,7 +706,8 @@
                             //alert(response.message);
                             //location.reload(); // Refresh page
                             $("#orderModal").modal("hide"); // Close modal
-                            $("#u").show();
+                            //$("#u").text(response.message)
+                            //alert(response.message)
                             $("#u").text(response.message).show(); 
                             $("#messageModal").modal("show");
                            

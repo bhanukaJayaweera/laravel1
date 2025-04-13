@@ -74,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
 
     //orderproduct
     Route::post('/orderproduct/store', [OrderController::class, 'storeOrder']);
+    Route::post('/orderproduct/checkInvent', [OrderController::class, 'checkInvent']);
     Route::post('/orderproduct/edit', [OrderController::class, 'editOrder']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
