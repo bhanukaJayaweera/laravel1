@@ -189,7 +189,7 @@
     </div>
     </div>
    
-    <!-- Order_Product Modal -->
+    <!-- Add new-Order_Product Modal -->
     <div class="modal fade" id="orderproductModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -269,7 +269,7 @@
         </div>
     </div>
     </div>
-    <div class="container" style="margin-left:35%">
+    <div class="container" style="margin-left:25%">
         <div class="row col-md-9">
         <!-- <form id="selectedProductsForm" method="POST" action="{{route('order.select')}}">
         @csrf   -->
@@ -350,42 +350,66 @@
         return confirm('Are you sure you want to delete this Order?');
     }
     $(document).ready(function () {
-        //order-product Modal
+        //order-product Modal- add new 
         $("#addProduct").click(function () {
         let productId = $("#product_id").val();
         let productName = $("#product_id").find("option:selected").text(); 
         let quantity = $("#quantitys").val();
         let price = $("#product_id").find("option:selected").data('price');
         console.log({ productId, productName, quantity }); // ✅ Check what you're getting
-        if (productId && quantity > 0) {
-            let row = `
-                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}">
-                    <td>${productId}</td>
-                    <td>${productName}</td>
-                    <td>${quantity}</td>
-                    <td>${price}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
-                    </td>
-                </tr>
-            `;
-            let exists = false;
-            $("#productTableBodyNew tr").each(function () {
-                if ($(this).data("id") == productId) {
-                    exists = true;
-                    return false;
-                }
-            });
-            if (exists) {
-                alert("This product is already added.");
-                return;
-            }
-            $("#productTableBodyNew").append(row);
-            $("#products_id").val('');
-            $("#quantitys").val(1);
-        } else {
-            alert("Please select a product and enter a valid quantity.");
-        }
+        $.ajax({
+                        url: "/orderproduct/checkInvent",
+                        type: "POST",
+                        data: {
+                            productId: productId,
+                            quantity: quantity,
+                            _token: $('input[name="_token"]').val() // important for POST!
+                        },
+                        success: function (response) {
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                        if (response.status === 'success') {  
+                            if (productId && quantity > 0) {
+                                let row = `
+                                    <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}">
+                                        <td>${productId}</td>
+                                        <td>${productName}</td>
+                                        <td>${quantity}</td>
+                                        <td>${price}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
+                                        </td>
+                                    </tr>
+                                `;
+                                let exists = false;
+                                $("#productTableBodyNew tr").each(function () {
+                                    if ($(this).data("id") == productId) {
+                                        exists = true;
+                                        return false;
+                                    }
+                                });
+                                if (exists) {
+                                    alert("This product is already added.");
+                                    return;
+                                }
+                                $("#productTableBodyNew").append(row);
+                                $("#products_id").val('');
+                                $("#quantitys").val(1);
+                            } else {
+                                alert("Please select a product and enter a valid quantity.");
+                            }
+                                  
+                        }
+                        },
+                        error: function (xhr) {
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                alert(xhr.responseJSON.message);
+                            } else {
+                                alert('An error occurred');
+                            }
+                        }
+                    });
+       
     });
 
     //load full amount 
