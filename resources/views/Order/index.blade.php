@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+<x-app-layout>
 <head>
+
+    <!-- <x-slot name="header">
+    </x-slot> -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -12,9 +17,17 @@
 
     <script src="{{ asset('js/new.js') }}"></script>
     <title>Document</title>
+    <style>
+
+    </style>
 </head>
 <body>
-    <div class = "container">
+<x-slot name="header">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Order Page') }}
+    </h2>
+</x-slot> 
+    <!-- <div class = "container" id="topbar">
         <div class = "row col-md-12">
             <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
@@ -40,7 +53,7 @@
   </div>
 </nav>
     </div>
-    </div>
+    </div> -->
 
     <div class = "container">
             <!-- Sidebar -->
@@ -49,7 +62,7 @@
         <!-- <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button><br/> <br> -->
         <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Order </button>     
         <br><br><a class="btn btn-success" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Home</a>
-        
+        <br><br><a class="btn btn-success" href="{{route('order.upload')}}"><i class="fa fa-plus"></i> Upload Excel</a>
         </div>
     </div>
     
@@ -350,7 +363,7 @@
         return confirm('Are you sure you want to delete this Order?');
     }
     $(document).ready(function () {
-        //order-product Modal- add new 
+        //order-product Modal- add new product
         $("#addProduct").click(function () {
         let productId = $("#product_id").val();
         let productName = $("#product_id").find("option:selected").text(); 
@@ -493,13 +506,20 @@
                         success: function (response) {
                             //alert(response.message);
                             //location.reload(); // Refresh page
+
+                            if (response.invoice_url) {
+                                window.open(response.invoice_url, '_blank'); // 👈 Opens in new tab
+                            } 
                             $("#orderproductModal").modal("hide"); // Close modal
                             $("#u").text(response.message).show(); 
                             $("#messageModal").modal("show");
-                           
+                            
                             setTimeout(function () {
                                 location.reload();
                             }, 2000); // Reload after 3 seconds
+
+                          
+                            
                         },
                         error: function (xhr) {
                             //alert("Error saving order!");
@@ -836,5 +856,5 @@
 
 
 </body>
-
+</x-app-layout>
 </html>
