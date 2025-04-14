@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
+//use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Product;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\OrderImport;
 use Illuminate\Support\Facades\Log; // Import Log facade
+use PDF;
 
 class OrderController extends Controller
 {
@@ -133,7 +134,6 @@ class OrderController extends Controller
         }  
         $data = $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            //'product_id' => 'required',
             'date'=> 'required|date',
             'payment_type'=> 'required',
             'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
@@ -150,17 +150,22 @@ class OrderController extends Controller
             $productModel = Product::find($product['product_id']);
             if ($productModel) {
                 $newInventory = $productModel->quantity - $product['quantity'];
-                // Optional: prevent negative inventory
-                // if ($newInventory < 0) {
-                //     Log::warning('Inventory would go negative. Skipping product: ' . $productModel->name);
-                //     //return response()->json(['message' => 'Inventory would go negative. Skipping product: ' . $productModel->name]);
-                //     continue;
-                // }
                 $productModel->quantity = $newInventory;
                 $productModel->save();
             }
         }
-        return response()->json(['message' => 'Order saved successfully!']);
+        // Generate the PDF
+        $pdf = PDF::loadView('Order.invoice', compact('order'));
+
+        // Optionally save to storage
+        $fileName = 'invoice_'.$order->id.'.pdf';
+        $pdf->save(storage_path('app/public/invoices/' . $fileName));
+        $url = asset('storage/invoices/' . $fileName);//create url to open in new tab
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order saved successfully!',
+            'invoice_url' => $url
+        ], 200);
     }
 
     public function checkInvent(Request $request){
