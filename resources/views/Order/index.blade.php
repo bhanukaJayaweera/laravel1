@@ -23,8 +23,8 @@
 </head>
 <body>
 <x-slot name="header">
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Order Page') }}
+    <h2 class="text-4xl font-bold text-orange-600 text-center leading-snug" style="color: #f97316;">
+        {{ __('Order Page') }}
     </h2>
 </x-slot> 
     <!-- <div class = "container" id="topbar">
@@ -63,7 +63,8 @@
         <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Order </button>     
         <br><br><a class="btn btn-success" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Home</a>
         <br><br><a class="btn btn-success" href="{{route('order.upload')}}"><i class="fa fa-plus"></i> Upload Excel</a>
-        </div>
+        <br><br><a class="btn btn-danger" href="{{route('order.productsearch')}}"><i class="fa fa-eye"></i> View Ordered Products</a>    
+    </div>
     </div>
     
 
@@ -478,7 +479,7 @@
         $(this).closest("tr").remove();
     });
 
-           // Save new order (AJAX Form Submission)
+    // Save new order (AJAX Form Submission)
     $("#orderProductForm").submit(function (e){
             e.preventDefault(); // Prevent default form submission        
             var id = $("#id").val();
@@ -797,7 +798,7 @@
 
                  // Create form dynamically inside the modal
                 modalBody.innerHTML = `
-                    <form id="selectedProductsForm" method="POST" action="{{ route('order.select') }}">
+                    <form id="selectedProductsForm" method="POST" action="{{ route('order.select') }}"  target="_blank">
                         @csrf
                         <ul>
                             ${selectedOrders.map(order => 
@@ -820,6 +821,7 @@
             } else {
                 alert("No orders selected!");
             }
+            
         });
 
         // Handle Delete Selected Orders
