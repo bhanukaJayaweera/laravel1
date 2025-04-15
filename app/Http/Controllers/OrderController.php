@@ -19,12 +19,19 @@ class OrderController extends Controller
         return view('Order.index',compact('orders'));
 
     } 
+    public function showSearch(){
+        $orders = Order::all();
+        $customers = Customer::all(); // Fetch all customers
+        $products = Product::all(); // Fetch all customers
+        return view('Order.productsearch', compact('customers','products','orders'));
+    } 
 
     public function create()
     {
         $customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
         return view('Order.create', compact('customers','products'));
+        
     }
    
     public function store(Request $request){
@@ -51,8 +58,9 @@ class OrderController extends Controller
         $orders = Order::whereIn('id', $orderIds)->get();
         // Load view with selected products
         $pdf = PDF::loadView('Order.pdf_template', compact('orders'));
+        return $pdf->stream("order_list.pdf"); // 👈 This opens in browser
     // Download PDF
-        return $pdf->download('generated.pdf');
+        //return $pdf->download('generated.pdf');
     }
 
    

@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/order',[OrderController::class,'store'])->name('order.store');
     Route::post('/importorder', [OrderController::class, 'importorder'])->name('importorder');
     Route::get('order/upload', [OrderController::class, 'showUploadForm'])->name('order.upload');
+    Route::get('/order/productsearch',[OrderController::class,'showSearch'])->name('order.productsearch');
 
     //AJAX
     Route::get('/order/{id}/change', [OrderController::class, 'orderedit']);
