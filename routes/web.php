@@ -60,7 +60,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/order/{order}/view',[OrderController::class,'view'])->name('order.view');
     Route::get('/order/{order}/edit',[OrderController::class,'edit'])->name('order.edit');
     Route::put('/order/{order}/update',[OrderController::class,'update'])->name('order.update');
-    Route::delete('/order/{order}/destroy',[OrderController::class,'destroy'])->name('order.destroy');
+    
     Route::get('/order/create',[OrderController::class,'create'])->name('order.create');
     Route::post('/order',[OrderController::class,'store'])->name('order.store');
     Route::post('/importorder', [OrderController::class, 'importorder'])->name('importorder');
@@ -72,11 +72,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/order/store', [OrderController::class, 'orderstore']);
     Route::get('/order/newfetch', [OrderController::class, 'newfetch']);
     //Route::post('/order/new', [OrderController::class, 'ordernew']);
+    Route::post('/order/{orderId}',[OrderController::class,'destroy']);
 
     //orderproduct
     Route::post('/orderproduct/store', [OrderController::class, 'storeOrder']);
     Route::post('/orderproduct/checkInvent', [OrderController::class, 'checkInvent']);
     Route::post('/orderproduct/edit', [OrderController::class, 'editOrder']);
+
+    //productsearch
+    Route::get('/order/search', [OrderController::class, 'search'])->name('order.search');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

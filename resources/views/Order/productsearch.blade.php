@@ -23,7 +23,7 @@
 @include('Order.frame')
 
     <div class="container col-md-6 brounded-lg border p-4" style="margin-left:25%; border: 1px solid #ccc; border-radius: 12px; padding: 16px;">
-    <form class="row row-cols-lg-auto g-3 align-items-center">
+    <form method="GET" action="{{ route('order.search') }}" class="row row-cols-lg-auto g-3 align-items-center">
         <div class="col-12">
             <label class="visually-hidden" for="inlineFormSelectPref">Products</label>
             <select class="form-select" id="inlineFormSelectPref" name="product_id" id="product_id">
@@ -45,36 +45,49 @@
         </div>
 
         <div class="col-12">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Search Orders</button>
         </div>
 
     </form>
     </div>
-    <div class="container" style="margin-left:25%; border: 1px solid #ccc; border-radius: 12px; padding: 16px;">
-    <table class="table table-striped table-bordered">
+    @if(!empty($orders) && count($orders) > 0)
+        <div class="container" style="margin-left:25%; border: 1px solid #ccc; border-radius: 12px; padding: 16px; ">
+        <table class="table table-striped table-bordered" style="width: 50%;">
             <thead>
             <tr>            
                 <th>Order ID</th>
                 <th>Customer Name</th>     
                 <th>Date</th>
                 <th>Payment Type</th>
-                <th>Amount</th>
+                <th>Quantity</th>
 
             </tr>
             </thead>
             <tbody>
             @foreach($orders as $order)
+                @php
+                    $quantity = null;
+                    foreach ($order->products as $product) {
+                        if ($product->id == $selectedProductId) {
+                            $quantity = $product->pivot->quantity;
+                            break;
+                        }
+                    }
+                @endphp
                 <tr>                 
                     <td>{{$order->id}}</td>            
                     <td>{{$order->customer->name}}</td>                 
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
-                    <td>{{$order->amount}}</td>    
+                    <td>{{ $quantity ?? '—' }}</td> 
                 </tr>
             @endforeach
             </tbody>
         </table>
     </div>
+    @else
+        <p class="text-center mt-4">No orders found for the selected product.</p>
+    @endif
 
 </x-app-layout>
 
