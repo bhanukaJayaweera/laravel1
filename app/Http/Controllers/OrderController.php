@@ -19,12 +19,28 @@ class OrderController extends Controller
         return view('Order.index',compact('orders'));
 
     } 
+    //productsearch page
     public function showSearch(){
-        $orders = Order::all();
+       // $orders = Order::all();
         $customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
-        return view('Order.productsearch', compact('customers','products','orders'));
+        return view('Order.productsearch', compact('customers','products'));
     } 
+
+    public function search(Request $request)
+    {
+        $products = Product::all();
+        $orders = [];
+
+        if ($request->filled('product_id')) {
+            $orders = Order::whereHas('products', function ($query) use ($request) {
+                $query->where('product_id', $request->product_id);
+            })->with('customer')->get();
+        }
+        $selectedProductId = $request->input('product_id');
+        return view('Order.productsearch', compact('products', 'orders','selectedProductId'));
+    }
+
 
     public function create()
     {
@@ -91,11 +107,18 @@ class OrderController extends Controller
         return redirect(route('order.index'))->with('success','Order updated successfully');
     }
 
-    public function destroy(Order $order){
+    
+    public function destroy($orderId){
+        $order = Order::findOrFail($orderId); // fetch single order
         $order->products()->detach(); // Remove pivot table entries
         $order->delete();
-        return redirect(route('order.index'))->with('success','Order deleted successfully');
+        return response()->json(['message' => 'Order deleted successfully']);
     }
+    // public function destroy(Order $order){
+    //     $order->products()->detach(); // Remove pivot table entries
+    //     $order->delete();
+    //     return redirect(route('order.index'))->with('success','Order deleted successfully');
+    // }
 
     public function deleteMultiple(Request $request)
     {
