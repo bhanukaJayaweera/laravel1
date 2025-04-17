@@ -109,6 +109,7 @@ class OrderController extends Controller
 
     
     public function destroy($orderId){
+        Log::info('Validated Order Data:'. $orderId);
         $order = Order::findOrFail($orderId); // fetch single order
         $order->products()->detach(); // Remove pivot table entries
         $order->delete();

@@ -15,13 +15,13 @@
        <!-- Font Awesome CDN (Add to <head> section) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- <script src="{{ asset('js/new.js') }}"></script> -->
+    <script src="{{ asset('js/new.js') }}"></script>
     <title>Document</title>
     <style>
 
     </style>
 </head>
-<!-- <body> -->
+<body>
 <x-slot name="header">
     <h2 class="text-4xl font-bold text-orange-600 text-center leading-snug" style="color: #f97316;">
         {{ __('Order Page') }}
@@ -336,10 +336,9 @@
                     <button type="button" class="btn btn-success editOrder" data-id="{{ $order->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-edit"></i></button> 
                         <!-- <a class="btn btn-success" href="{{route('order.edit', ['order' => $order])}}">Edit</a> -->
                     </td>
-                    <td>
-                       
-                    <button class="btn btn-danger delete" value="delete" data-id="{{ $order->id }}"><i class="fa fa-trash"></i></button>
-                        <!-- </form> -->
+                    <td>  
+                        <meta name="csrf-token" content="{{ csrf_token() }}">
+                        <button type="button" class="btn btn-danger deleteOrder" data-id="{{ $order->id }}"><i class="fa fa-trash"></i></button>
                     </td> 
         </tr>
             @endforeach
@@ -348,9 +347,8 @@
        
     </div>
     </div>
-    
-      <!-- jQuery -->
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <!-- jQuery -->
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS & Popper.js -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -359,17 +357,12 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <!-- DataTables Script -->
-
-    <!-- Initialize DataTable -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            $('#orderTable').DataTable({
-            "paging": true,      // Enable Pagination
-            "searching": true,   // Enable Search Box
-            "ordering": true,    // Enable Sorting
-            "info": true         // Show Info
-            });
-             //order-product Modal- add new product
+<script>
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete this Order?');
+    }
+    $(document).ready(function () {
+        //order-product Modal- add new product
         $("#addProduct").click(function () {
         let productId = $("#product_id").val();
         let productName = $("#product_id").find("option:selected").text(); 
@@ -419,7 +412,7 @@
                             }
                                   
                         }
-                    },
+                        },
                         error: function (xhr) {
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 alert(xhr.responseJSON.message);
@@ -430,7 +423,7 @@
                     });
        
     });
-});
+
     //load full amount 
     $('#amounts').on('click', function () {
         let amount = 0; // Moved outside the loop
@@ -750,35 +743,6 @@
                     });
                 });
 
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-            $(document).on('click', '.delete', function () {
-                    let orderId = $(this).data('id'); // use `this`
-                    $.ajax({
-                                    url: "/order/" + orderId,
-                                    type: 'POST',
-                                    data: {
-                                        _method: 'DELETE'
-                                    },
-                                    headers: {
-                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // include CSRF token
-                                    },
-                                    success: function (response) {
-                                        $("#u").text(response.message).show(); 
-                                        $("#messageModal").modal("show");
-                                        
-                                        setTimeout(function () {
-                                            location.reload();
-                                        }, 2000); // Reload after 3 seconds
-
-                                           
-                                    },
-                                    error: function (xhr) {
-                                        //alert("Error saving order!");
-                                        $("#derror").show();
-                                        $("#messageModal").modal("show");
-                                    },
-                    })
-                
         //new 
         $(".createOrder").click(function () {
             $("#orderForm")[0].reset(); // Clear Form
@@ -872,25 +836,52 @@
                 alert("No orders selected for deletion!");
             }
         });
-        // $('#orderTable').DataTable({
-        //     "paging": true,      // Enable Pagination
-        //     "searching": true,   // Enable Search Box
-        //     "ordering": true,    // Enable Sorting
-        //     "info": true         // Show Info
-        // });
+        $('#orderTable').DataTable({
+            "paging": true,      // Enable Pagination
+            "searching": true,   // Enable Search Box
+            "ordering": true,    // Enable Sorting
+            "info": true         // Show Info
+        });
 
         $('#selectAll').on('change', function () {
             $('.orderCheckbox').prop('checked', this.checked);
         });
 
-        function confirmDelete() {
-        return confirm('Are you sure you want to delete this Order?');
-         }
-       
-        });
-    </script>
-  
+    
+        $(".deleteOrder").click(function () {
+                    let orderId = $(this).data('id'); // use `this`
+                    $.ajax({
+                                    url: "/order/" + orderId,
+                                    type: 'DELETE',
+                                    
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // include CSRF token
+                                    },
+                                    success: function (response) {
+                                        $("#u").text(response.message).show(); 
+                                        $("#messageModal").modal("show");
+                                        
+                                        setTimeout(function () {
+                                            location.reload();
+                                        }, 2000); // Reload after 3 seconds
 
-// </body>
+                                           
+                                    },
+                                    error: function (xhr) {
+                                        //alert("Error saving order!");
+                                        $("#derror").show();
+                                        $("#messageModal").modal("show");
+                                    },
+                    })
+
+        });
+
+
+    });
+ 
+</script>
+
+
+</body>
 </x-app-layout>
 </html>

@@ -72,7 +72,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/order/store', [OrderController::class, 'orderstore']);
     Route::get('/order/newfetch', [OrderController::class, 'newfetch']);
     //Route::post('/order/new', [OrderController::class, 'ordernew']);
-    Route::post('/order/{orderId}',[OrderController::class,'destroy']);
+    Route::delete('/order/{orderId}',[OrderController::class,'destroy']);
 
     //orderproduct
     Route::post('/orderproduct/store', [OrderController::class, 'storeOrder']);
