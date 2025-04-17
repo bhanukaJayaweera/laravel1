@@ -852,8 +852,7 @@
                     let orderId = $(this).data('id'); // use `this`
                     $.ajax({
                                     url: "/order/" + orderId,
-                                    type: 'DELETE',
-                                    
+                                    type: 'DELETE',                                   
                                     headers: {
                                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // include CSRF token
                                     },
