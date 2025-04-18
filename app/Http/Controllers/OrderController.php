@@ -247,6 +247,7 @@ class OrderController extends Controller
             'date'=> 'required|date',
             'payment_type'=> 'required',
             'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+            'status'=> 'required',
             ]
         );
         Log::info('Validated Order Data:', $data);

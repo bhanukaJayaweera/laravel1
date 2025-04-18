@@ -193,7 +193,7 @@
                     <option value="card">Card</option>
                 </select>
             </div>
-            <div class="input-group mb-3">
+            <!-- <div class="input-group mb-3">
             <label class="input-group-text" id="inputGroup-sizing-default">Status</label>
             <div style="padding:5px">
                 <div class="form-check form-switch form-check-reverse">
@@ -214,7 +214,30 @@
                 </div>
                 </div>
             </div>
-            
+             -->
+             <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Status</label>
+                <div style="padding: 5px">
+                    @php
+                        $statuses = ['new', 'processing', 'completed', 'cancelled'];
+                    @endphp
+
+                    @foreach($statuses as $status)
+                        <div class="form-check form-check-reverse">
+                            <!-- @foreach($orders as $order) -->
+                            <input class="form-check-input" type="radio" 
+                                id="status" 
+                                name="status" 
+                                value="{{ $status }}">
+                            <!-- @endforeach -->
+                            <label class="form-check-label" for="{{ $status }}">
+                                {{ ucfirst($status) }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
                                 
             </div>
             <div class="modal-footer">
@@ -647,6 +670,10 @@
                         $("#payment_type").prop("disabled", true);
                         $("#amount").val(response.order.amount);
                         $("#amount").prop("disabled", true);
+                        $('input[name="status"]').prop('checked', false);
+                        // Select the radio that matches the status
+                        $(`input[name="status"][value="${response.order.status}"]`).prop('checked', true);
+                        $('input[name="status"]').prop("disabled", true);
                         $("#modalTitle").text("View Order");
                         $(".save").prop("hidden", true);
                         $("#orderModal").modal("show");
@@ -714,6 +741,11 @@
                         dropdown2.append('<option value="cash">Cash</option>'); // Default option
                         $("#payment_type").val(response.order.payment_type);
                         $("#amount").val(response.order.amount);
+                        //const status = response.status; // assuming response has "status"
+                        // Deselect all status radios
+                        $('input[name="status"]').prop('checked', false);
+                        // Select the radio that matches the status
+                        $(`input[name="status"][value="${response.order.status}"]`).prop('checked', true);
                         $("#modalTitle").text("Edit Order");
                         $("#orderForm input").prop("disabled", false); // Enable fields
                         $("#orderForm select").prop("disabled", false); // Enable fields
