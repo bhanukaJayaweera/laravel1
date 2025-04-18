@@ -56,7 +56,8 @@
             <thead>
             <tr>            
                 <th>Order ID</th>
-                <th>Customer Name</th>     
+                <th>Customer Name</th> 
+                <th>Product Name</th>     
                 <th>Date</th>
                 <th>Payment Type</th>
                 <th>Quantity</th>
@@ -70,13 +71,15 @@
                     foreach ($order->products as $product) {
                         if ($product->id == $selectedProductId) {
                             $quantity = $product->pivot->quantity;
+                            $product_name = $product->name;
                             break;
                         }
                     }
                 @endphp
                 <tr>                 
                     <td>{{$order->id}}</td>            
-                    <td>{{$order->customer->name}}</td>                 
+                    <td>{{$order->customer->name}}</td> 
+                    <td>{{ $product_name ?? '—' }}</td>                
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
                     <td>{{ $quantity ?? '—' }}</td> 
@@ -88,6 +91,8 @@
     @else
         <p class="text-center mt-4">No orders found for the selected product.</p>
     @endif
-
+    <div class="col-12" style="margin-left:25%; padding:5px;">
+            <a type="button" href="{{ route('order.index') }}" class="btn btn-danger">Back</a>
+    </div>
 </x-app-layout>
 

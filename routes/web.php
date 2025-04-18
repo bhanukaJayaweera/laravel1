@@ -55,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/order',[OrderController::class,'index'])->name('order.index');
     Route::post('/order/select', [OrderController::class, 'generatepdfSelect'])->name('order.select');
-    Route::delete('/order/deletemultiple', [OrderController::class, 'deleteMultiple'])->name('order.deletemultiple');
+    //Route::delete('/order/deletemultiple', [OrderController::class, 'deleteMultiple'])->name('order.deletemultiple');
     // Route::get('/order/{order}',[OrderController::class,'view'])->name('order.view');
     Route::get('/order/{order}/view',[OrderController::class,'view'])->name('order.view');
     Route::get('/order/{order}/edit',[OrderController::class,'edit'])->name('order.edit');
@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/order/newfetch', [OrderController::class, 'newfetch']);
     //Route::post('/order/new', [OrderController::class, 'ordernew']);
     Route::delete('/order/{orderId}',[OrderController::class,'destroy']);
+    Route::delete('/orders/delete-multiple', [OrderController::class, 'deleteMultiple'])->name('orders.delete-multiple');
 
     //orderproduct
     Route::post('/orderproduct/store', [OrderController::class, 'storeOrder']);

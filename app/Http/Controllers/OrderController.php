@@ -19,28 +19,7 @@ class OrderController extends Controller
         return view('Order.index',compact('orders'));
 
     } 
-    //productsearch page
-    public function showSearch(){
-       // $orders = Order::all();
-        $customers = Customer::all(); // Fetch all customers
-        $products = Product::all(); // Fetch all customers
-        return view('Order.productsearch', compact('customers','products'));
-    } 
-
-    public function search(Request $request)
-    {
-        $products = Product::all();
-        $orders = [];
-
-        if ($request->filled('product_id')) {
-            $orders = Order::whereHas('products', function ($query) use ($request) {
-                $query->where('product_id', $request->product_id);
-            })->with('customer')->get();
-        }
-        $selectedProductId = $request->input('product_id');
-        return view('Order.productsearch', compact('products', 'orders','selectedProductId'));
-    }
-
+   
 
     public function create()
     {
@@ -107,33 +86,40 @@ class OrderController extends Controller
         return redirect(route('order.index'))->with('success','Order updated successfully');
     }
 
-    
+    //AJAX
     public function destroy($orderId){
-        Log::info('Validated Order Data:'. $orderId);
+       
         $order = Order::findOrFail($orderId); // fetch single order
         $order->products()->detach(); // Remove pivot table entries
         $order->delete();
         return response()->json(['message' => 'Order deleted successfully']);
     }
-    // public function destroy(Order $order){
-    //     $order->products()->detach(); // Remove pivot table entries
-    //     $order->delete();
-    //     return redirect(route('order.index'))->with('success','Order deleted successfully');
-    // }
 
     public function deleteMultiple(Request $request)
     {
-        $orderIds = $request->order_ids;
-
-        if ($orderIds) {
-            $orders = Order::whereIn('id', $orderIds)->get();
-            foreach($orders as $order){
+        $request->validate([
+            'order_ids' => 'required|array',
+            'order_ids.*' => 'exists:orders,id'
+        ]);
+        $orderIds = $request->input('order_ids');  
+        Log::info('Deleting orders:', ['order_ids' => $orderIds]);
+        try {
+            $orders = Order::whereIn('id', $orderIds)->get();          
+            foreach ($orders as $order) {
                 $order->products()->detach();
                 $order->delete();
-            }
-            return redirect()->back()->with('success', 'Selected orders deleted successfully.');
+            }         
+            return response()->json([
+                'success' => true,
+                'message' => 'Orders deleted successfully'
+            ]);        
+        } catch (\Exception $e) {
+            Log::error('Error deleting orders:', ['error' => $e->getMessage()]);         
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete orders'
+            ], 500);
         }
-        return redirect()->back()->with('error', 'No orders selected.');
     }
 
     public function showUploadForm()
@@ -155,7 +141,6 @@ class OrderController extends Controller
         }
     }
 
-     //AJAX
 
      //orderproduct new 
     public function storeOrder(Request $request) {
@@ -281,6 +266,28 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order updated successfully!']);
     }
 
+     //productsearch page
+     public function showSearch(){
+        // $orders = Order::all();
+         $customers = Customer::all(); // Fetch all customers
+         $products = Product::all(); // Fetch all customers
+         return view('Order.productsearch', compact('customers','products'));
+     } 
+ 
+     public function search(Request $request)
+     {
+         $products = Product::all();
+         $orders = [];
+ 
+         if ($request->filled('product_id')) {
+             $orders = Order::whereHas('products', function ($query) use ($request) {
+                 $query->where('product_id', $request->product_id);
+             })->with('customer')->get();
+         }
+         $selectedProductId = $request->input('product_id');
+         return view('Order.productsearch', compact('products', 'orders','selectedProductId'));
+     }
+ 
 
 
     // Store or update 

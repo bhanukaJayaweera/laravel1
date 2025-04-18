@@ -5,9 +5,10 @@
 
     <!-- <x-slot name="header">
     </x-slot> -->
-
+    <!-- <meta name="csrf-token" content="{{ csrf_token() }}"> -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
      <!-- DataTables CSS -->
@@ -124,7 +125,7 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal view/update-->
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -191,6 +192,27 @@
                     <option value="cash">Cash</option>
                     <option value="card">Card</option>
                 </select>
+            </div>
+            <div class="input-group mb-3">
+            <label class="input-group-text" id="inputGroup-sizing-default">Status</label>
+            <div style="padding:5px">
+                <div class="form-check form-switch form-check-reverse">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="new" name="status">
+                <label class="form-check-label" for="switchCheckReverse">New</label>
+                </div>
+                <div class="form-check form-switch form-check-reverse">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="processing" name="status">
+                <label class="form-check-label" for="switchCheckReverse">Processing</label>
+                </div>
+                <div class="form-check form-switch form-check-reverse">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="completed" name="status">
+                <label class="form-check-label" for="switchCheckReverse">Completed</label>
+                </div>
+                <div class="form-check form-switch form-check-reverse">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="cancelled" name="status">
+                <label class="form-check-label" for="switchCheckReverse">Cancelled</label>
+                </div>
+                </div>
             </div>
             
                                 
@@ -290,13 +312,13 @@
         @csrf   -->
         <!-- <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Get Selected Data</button> -->
         
-        <form id="actionForm" method="POST">
-        @csrf
-        @method('DELETE')
+        <!-- <form id="actionForm">
+        @csrf -->
+        <!-- <input type="hidden" name="_method" value="DELETE"> -->
         <!-- Buttons -->
         <div id="buttons" style="padding:10px">
         <button type="button" class="btn btn-info" id="viewSelected"><i class="fa fa-eye"></i> View Selected</button>
-        <button type="submit" class="btn btn-danger" id="deleteSelected" style="margin-left:0%"><i class="fa fa-trash"></i> Bulk Delete</button>
+        <button type="button" class="btn btn-danger" id="deleteSelected" style="margin-left:0%"><i class="fa fa-trash"></i> Bulk Delete</button>
         </div>
         <table id="orderTable" class="table table-striped table-bordered">
             <thead>
@@ -309,6 +331,7 @@
                 <th>Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
+                <th>Status</th>
                 <th>View</th>
                 <th>Update</th>
                 <th>Delete</th>
@@ -325,6 +348,22 @@
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
                     <td>{{$order->amount}}</td>    
+                    <td>
+                    @php
+                        $statusClass = match($order->status) {
+                            'new' => 'badge bg-warning text-dark',
+                            'processing' => 'badge bg-primary',
+                            'completed' => 'badge bg-success',
+                            'cancelled' => 'badge bg-danger',
+                            default => 'badge bg-secondary',
+                        };
+                    @endphp
+
+                    <span class="{{ $statusClass }}">
+                        {{ ucfirst($order->status) }}
+                    </span>
+
+                    </td>  
                
         </form>   
        
@@ -822,20 +861,7 @@
             
         });
 
-        // Handle Delete Selected Orders
-        document.getElementById('actionForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent form submission
-            let selectedOrders = document.querySelectorAll('input[name="order_ids[]"]:checked');
-
-            if (selectedOrders.length > 0) {
-                if (confirm("Are you sure you want to delete selected orders?")) {
-                    this.action = "{{ route('order.deletemultiple') }}";
-                    this.submit();
-                }
-            } else {
-                alert("No orders selected for deletion!");
-            }
-        });
+  
         $('#orderTable').DataTable({
             "paging": true,      // Enable Pagination
             "searching": true,   // Enable Search Box
@@ -856,6 +882,7 @@
                                     headers: {
                                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // include CSRF token
                                     },
+                                    dataType: 'json', // Ensure we expect JSON response
                                     success: function (response) {
                                         $("#u").text(response.message).show(); 
                                         $("#messageModal").modal("show");
@@ -873,6 +900,43 @@
                                     },
                     })
 
+        });
+
+              // Handle Delete Selected Orders
+        // document.getElementById('actionForm').addEventListener('submit', function(e) {
+            $("#deleteSelected").click(function () {
+            let selectedOrders = $('input[name="order_ids[]"]:checked');
+            if (selectedOrders.length > 0) {
+                if (confirm("Are you sure you want to delete selected orders?")) {
+                    let orderIds = selectedOrders.map(function () {
+                        return $(this).val();
+                    }).get();
+                    
+                    $.ajax({
+                        url: "/orders/delete-multiple",
+                        type: 'DELETE',                         
+                        data: {
+                            order_ids: orderIds,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        dataType: 'json', // Ensure we expect JSON response
+                        success: function (response) {
+                            $("#u").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                            
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
+                        },
+                        error: function (xhr) {
+                            $("#derror").show();
+                            $("#messageModal").modal("show");
+                        },
+                    });
+                }
+            } else {
+                alert("No orders selected for deletion!");
+            }
         });
 
 

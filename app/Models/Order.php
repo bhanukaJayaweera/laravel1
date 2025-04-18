@@ -14,6 +14,7 @@ class Order extends Model
         'date',
         'payment_type',
         'amount',
+        'status',
     ];
 
     #eloquent relationships
