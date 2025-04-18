@@ -52,7 +52,7 @@
     </div>
     @if(session('success'))
         <!-- <p style="color: green;">{{ session('success') }}</p> -->
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-left:55%">
             <strong>{{session('success')}}</strong>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>

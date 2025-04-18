@@ -5,9 +5,10 @@
 
     <!-- <x-slot name="header">
     </x-slot> -->
-
+    <!-- <meta name="csrf-token" content="{{ csrf_token() }}"> -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
      <!-- DataTables CSS -->
@@ -15,13 +16,13 @@
        <!-- Font Awesome CDN (Add to <head> section) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- <script src="{{ asset('js/new.js') }}"></script> -->
+    <script src="{{ asset('js/new.js') }}"></script>
     <title>Document</title>
     <style>
 
     </style>
 </head>
-<!-- <body> -->
+<body>
 <x-slot name="header">
     <h2 class="text-4xl font-bold text-orange-600 text-center leading-snug" style="color: #f97316;">
         {{ __('Order Page') }}
@@ -124,7 +125,7 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal view/update-->
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -192,7 +193,51 @@
                     <option value="card">Card</option>
                 </select>
             </div>
-            
+            <!-- <div class="input-group mb-3">
+            <label class="input-group-text" id="inputGroup-sizing-default">Status</label>
+            <div style="padding:5px">
+                <div class="form-check form-switch form-check-reverse">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="new" name="status">
+                <label class="form-check-label" for="switchCheckReverse">New</label>
+                </div>
+                <div class="form-check form-switch form-check-reverse">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="processing" name="status">
+                <label class="form-check-label" for="switchCheckReverse">Processing</label>
+                </div>
+                <div class="form-check form-switch form-check-reverse">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="completed" name="status">
+                <label class="form-check-label" for="switchCheckReverse">Completed</label>
+                </div>
+                <div class="form-check form-switch form-check-reverse">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="cancelled" name="status">
+                <label class="form-check-label" for="switchCheckReverse">Cancelled</label>
+                </div>
+                </div>
+            </div>
+             -->
+             <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Status</label>
+                <div style="padding: 5px">
+                    @php
+                        $statuses = ['new', 'processing', 'completed', 'cancelled'];
+                    @endphp
+
+                    @foreach($statuses as $status)
+                        <div class="form-check form-check-reverse">
+                            <!-- @foreach($orders as $order) -->
+                            <input class="form-check-input" type="radio" 
+                                id="status" 
+                                name="status" 
+                                value="{{ $status }}">
+                            <!-- @endforeach -->
+                            <label class="form-check-label" for="{{ $status }}">
+                                {{ ucfirst($status) }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
                                 
             </div>
             <div class="modal-footer">
@@ -290,13 +335,13 @@
         @csrf   -->
         <!-- <button type="submit" class="btn btn-primary mt-3" id="getSelectedRows">Get Selected Data</button> -->
         
-        <form id="actionForm" method="POST">
-        @csrf
-        @method('DELETE')
+        <!-- <form id="actionForm">
+        @csrf -->
+        <!-- <input type="hidden" name="_method" value="DELETE"> -->
         <!-- Buttons -->
         <div id="buttons" style="padding:10px">
         <button type="button" class="btn btn-info" id="viewSelected"><i class="fa fa-eye"></i> View Selected</button>
-        <button type="submit" class="btn btn-danger" id="deleteSelected" style="margin-left:0%"><i class="fa fa-trash"></i> Bulk Delete</button>
+        <button type="button" class="btn btn-danger" id="deleteSelected" style="margin-left:0%"><i class="fa fa-trash"></i> Bulk Delete</button>
         </div>
         <table id="orderTable" class="table table-striped table-bordered">
             <thead>
@@ -309,6 +354,7 @@
                 <th>Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
+                <th>Status</th>
                 <th>View</th>
                 <th>Update</th>
                 <th>Delete</th>
@@ -325,6 +371,22 @@
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
                     <td>{{$order->amount}}</td>    
+                    <td>
+                    @php
+                        $statusClass = match($order->status) {
+                            'new' => 'badge bg-warning text-dark',
+                            'processing' => 'badge bg-primary',
+                            'completed' => 'badge bg-success',
+                            'cancelled' => 'badge bg-danger',
+                            default => 'badge bg-secondary',
+                        };
+                    @endphp
+
+                    <span class="{{ $statusClass }}">
+                        {{ ucfirst($order->status) }}
+                    </span>
+
+                    </td>  
                
         </form>   
        
@@ -336,10 +398,9 @@
                     <button type="button" class="btn btn-success editOrder" data-id="{{ $order->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-edit"></i></button> 
                         <!-- <a class="btn btn-success" href="{{route('order.edit', ['order' => $order])}}">Edit</a> -->
                     </td>
-                    <td>
-                       
-                    <button class="btn btn-danger delete" value="delete" data-id="{{ $order->id }}"><i class="fa fa-trash"></i></button>
-                        <!-- </form> -->
+                    <td>  
+                        <meta name="csrf-token" content="{{ csrf_token() }}">
+                        <button type="button" class="btn btn-danger deleteOrder" data-id="{{ $order->id }}"><i class="fa fa-trash"></i></button>
                     </td> 
         </tr>
             @endforeach
@@ -348,9 +409,8 @@
        
     </div>
     </div>
-    
-      <!-- jQuery -->
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <!-- jQuery -->
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS & Popper.js -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -359,17 +419,12 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <!-- DataTables Script -->
-
-    <!-- Initialize DataTable -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            $('#orderTable').DataTable({
-            "paging": true,      // Enable Pagination
-            "searching": true,   // Enable Search Box
-            "ordering": true,    // Enable Sorting
-            "info": true         // Show Info
-            });
-             //order-product Modal- add new product
+<script>
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete this Order?');
+    }
+    $(document).ready(function () {
+        //order-product Modal- add new product
         $("#addProduct").click(function () {
         let productId = $("#product_id").val();
         let productName = $("#product_id").find("option:selected").text(); 
@@ -419,7 +474,7 @@
                             }
                                   
                         }
-                    },
+                        },
                         error: function (xhr) {
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 alert(xhr.responseJSON.message);
@@ -430,7 +485,7 @@
                     });
        
     });
-});
+
     //load full amount 
     $('#amounts').on('click', function () {
         let amount = 0; // Moved outside the loop
@@ -615,6 +670,10 @@
                         $("#payment_type").prop("disabled", true);
                         $("#amount").val(response.order.amount);
                         $("#amount").prop("disabled", true);
+                        $('input[name="status"]').prop('checked', false);
+                        // Select the radio that matches the status
+                        $(`input[name="status"][value="${response.order.status}"]`).prop('checked', true);
+                        $('input[name="status"]').prop("disabled", true);
                         $("#modalTitle").text("View Order");
                         $(".save").prop("hidden", true);
                         $("#orderModal").modal("show");
@@ -682,6 +741,11 @@
                         dropdown2.append('<option value="cash">Cash</option>'); // Default option
                         $("#payment_type").val(response.order.payment_type);
                         $("#amount").val(response.order.amount);
+                        //const status = response.status; // assuming response has "status"
+                        // Deselect all status radios
+                        $('input[name="status"]').prop('checked', false);
+                        // Select the radio that matches the status
+                        $(`input[name="status"][value="${response.order.status}"]`).prop('checked', true);
                         $("#modalTitle").text("Edit Order");
                         $("#orderForm input").prop("disabled", false); // Enable fields
                         $("#orderForm select").prop("disabled", false); // Enable fields
@@ -750,35 +814,6 @@
                     });
                 });
 
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-            $(document).on('click', '.delete', function () {
-                    let orderId = $(this).data('id'); // use `this`
-                    $.ajax({
-                                    url: "/order/" + orderId,
-                                    type: 'POST',
-                                    data: {
-                                        _method: 'DELETE'
-                                    },
-                                    headers: {
-                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // include CSRF token
-                                    },
-                                    success: function (response) {
-                                        $("#u").text(response.message).show(); 
-                                        $("#messageModal").modal("show");
-                                        
-                                        setTimeout(function () {
-                                            location.reload();
-                                        }, 2000); // Reload after 3 seconds
-
-                                           
-                                    },
-                                    error: function (xhr) {
-                                        //alert("Error saving order!");
-                                        $("#derror").show();
-                                        $("#messageModal").modal("show");
-                                    },
-                    })
-                
         //new 
         $(".createOrder").click(function () {
             $("#orderForm")[0].reset(); // Clear Form
@@ -858,39 +893,90 @@
             
         });
 
-        // Handle Delete Selected Orders
-        document.getElementById('actionForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent form submission
-            let selectedOrders = document.querySelectorAll('input[name="order_ids[]"]:checked');
-
-            if (selectedOrders.length > 0) {
-                if (confirm("Are you sure you want to delete selected orders?")) {
-                    this.action = "{{ route('order.deletemultiple') }}";
-                    this.submit();
-                }
-            } else {
-                alert("No orders selected for deletion!");
-            }
+  
+        $('#orderTable').DataTable({
+            "paging": true,      // Enable Pagination
+            "searching": true,   // Enable Search Box
+            "ordering": true,    // Enable Sorting
+            "info": true         // Show Info
         });
-        // $('#orderTable').DataTable({
-        //     "paging": true,      // Enable Pagination
-        //     "searching": true,   // Enable Search Box
-        //     "ordering": true,    // Enable Sorting
-        //     "info": true         // Show Info
-        // });
 
         $('#selectAll').on('change', function () {
             $('.orderCheckbox').prop('checked', this.checked);
         });
 
-        function confirmDelete() {
-        return confirm('Are you sure you want to delete this Order?');
-         }
-       
-        });
-    </script>
-  
+    
+        $(".deleteOrder").click(function () {
+                    let orderId = $(this).data('id'); // use `this`
+                    $.ajax({
+                                    url: "/order/" + orderId,
+                                    type: 'DELETE',                                   
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // include CSRF token
+                                    },
+                                    dataType: 'json', // Ensure we expect JSON response
+                                    success: function (response) {
+                                        $("#u").text(response.message).show(); 
+                                        $("#messageModal").modal("show");
+                                        
+                                        setTimeout(function () {
+                                            location.reload();
+                                        }, 2000); // Reload after 3 seconds
 
-// </body>
+                                           
+                                    },
+                                    error: function (xhr) {
+                                        //alert("Error saving order!");
+                                        $("#derror").show();
+                                        $("#messageModal").modal("show");
+                                    },
+                    })
+
+        });
+
+              // Handle Delete Selected Orders
+        // document.getElementById('actionForm').addEventListener('submit', function(e) {
+            $("#deleteSelected").click(function () {
+            let selectedOrders = $('input[name="order_ids[]"]:checked');
+            if (selectedOrders.length > 0) {
+                if (confirm("Are you sure you want to delete selected orders?")) {
+                    let orderIds = selectedOrders.map(function () {
+                        return $(this).val();
+                    }).get();
+                    
+                    $.ajax({
+                        url: "/orders/delete-multiple",
+                        type: 'DELETE',                         
+                        data: {
+                            order_ids: orderIds,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        dataType: 'json', // Ensure we expect JSON response
+                        success: function (response) {
+                            $("#u").text(response.message).show(); 
+                            $("#messageModal").modal("show");
+                            
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
+                        },
+                        error: function (xhr) {
+                            $("#derror").show();
+                            $("#messageModal").modal("show");
+                        },
+                    });
+                }
+            } else {
+                alert("No orders selected for deletion!");
+            }
+        });
+
+
+    });
+ 
+</script>
+
+
+</body>
 </x-app-layout>
 </html>

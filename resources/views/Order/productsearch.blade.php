@@ -51,15 +51,17 @@
     </form>
     </div>
     @if(!empty($orders) && count($orders) > 0)
-        <div class="container" style="margin-left:25%; border: 1px solid #ccc; border-radius: 12px; padding: 16px; ">
-        <table class="table table-striped table-bordered" style="width: 50%;">
+        <div class="container" style="margin-left:25%; border: 1px solid #ccc; border-radius: 12px; padding: 16px; width: 700px;">
+        <table class="table table-striped table-bordered" id="productTable" style="width: 50%;">
             <thead>
             <tr>            
                 <th>Order ID</th>
-                <th>Customer Name</th>     
+                <th>Customer Name</th> 
+                <th>Product Name</th>     
                 <th>Date</th>
                 <th>Payment Type</th>
                 <th>Quantity</th>
+                <th>Status</th>
 
             </tr>
             </thead>
@@ -70,16 +72,32 @@
                     foreach ($order->products as $product) {
                         if ($product->id == $selectedProductId) {
                             $quantity = $product->pivot->quantity;
+                            $product_name = $product->name;
                             break;
                         }
                     }
                 @endphp
                 <tr>                 
                     <td>{{$order->id}}</td>            
-                    <td>{{$order->customer->name}}</td>                 
+                    <td>{{$order->customer->name}}</td> 
+                    <td>{{ $product_name ?? '—' }}</td>                
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
                     <td>{{ $quantity ?? '—' }}</td> 
+                    <td>@php
+                        $statusClass = match($order->status) {
+                            'new' => 'badge bg-warning text-dark',
+                            'processing' => 'badge bg-primary',
+                            'completed' => 'badge bg-success',
+                            'cancelled' => 'badge bg-danger',
+                            default => 'badge bg-secondary',
+                        };
+                    @endphp
+
+                    <span class="{{ $statusClass }}">
+                        {{ ucfirst($order->status) }}
+                    </span>
+                    </td> 
                 </tr>
             @endforeach
             </tbody>
@@ -88,6 +106,29 @@
     @else
         <p class="text-center mt-4">No orders found for the selected product.</p>
     @endif
+    <div class="col-12" style="margin-left:25%; padding:5px;">
+            <a type="button" href="{{ route('order.index') }}" class="btn btn-danger">Back</a>
+    </div>
 
+     <!-- jQuery -->
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS & Popper.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Script -->
+<script>
+     $(document).ready(function () {
+        $('#productTable').DataTable({
+            "paging": true,      // Enable Pagination
+            "searching": true,   // Enable Search Box
+            "ordering": true,    // Enable Sorting
+            "info": true         // Show Info
+        });
+     })
+</script>  
 </x-app-layout>
 
