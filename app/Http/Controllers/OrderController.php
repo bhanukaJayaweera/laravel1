@@ -15,12 +15,16 @@ use PDF;
 class OrderController extends Controller
 {
     public function index(){
-        $orders = Order::all();
-        return view('Order.index',compact('orders'));
+        // if (!Auth::user()->hasRole('admin')) {
+        //     abort(403, 'Unauthorized');
+        // }
+        if (auth()->user()->can('handle orders')) {
+            $orders = Order::all();
+            return view('Order.index',compact('orders'));
+        }
 
-    } 
+    }
    
-
     public function create()
     {
         $customers = Customer::all(); // Fetch all customers
@@ -124,7 +128,9 @@ class OrderController extends Controller
 
     public function showUploadForm()
     {
-        return view('Order.upload');
+        if (auth()->user()->can('handle orders')) {
+            return view('Order.upload');
+        }
     }
 
     public function importorder(Request $request)
@@ -144,6 +150,7 @@ class OrderController extends Controller
 
      //orderproduct new 
     public function storeOrder(Request $request) {
+    if (auth()->user()->can('handle orders')) {
         Log::info('Request Data:', $request->all()); // Log the request data
         $products = json_decode($request->products, true);  
         if (!$products) {
@@ -183,6 +190,7 @@ class OrderController extends Controller
             'message' => 'Order saved successfully!',
             'invoice_url' => $url
         ], 200);
+    }
     }
 
     public function checkInvent(Request $request){
@@ -268,15 +276,18 @@ class OrderController extends Controller
     }
 
      //productsearch page
-     public function showSearch(){
+    public function showSearch(){
         // $orders = Order::all();
+    if (auth()->user()->can('handle orders')) {
          $customers = Customer::all(); // Fetch all customers
          $products = Product::all(); // Fetch all customers
          return view('Order.productsearch', compact('customers','products'));
-     } 
+    }
+    } 
  
      public function search(Request $request)
      {
+        // if (auth()->user()->can('handle orders')) {
          $products = Product::all();
          $orders = [];
  
@@ -287,6 +298,7 @@ class OrderController extends Controller
          }
          $selectedProductId = $request->input('product_id');
          return view('Order.productsearch', compact('products', 'orders','selectedProductId'));
+        // }
      }
  
 

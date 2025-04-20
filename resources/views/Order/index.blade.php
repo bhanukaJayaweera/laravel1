@@ -1,3 +1,4 @@
+@can('handle orders')
 <!DOCTYPE html>
 <html lang="en">
 <x-app-layout>
@@ -980,3 +981,4 @@
 </body>
 </x-app-layout>
 </html>
+@endcan
