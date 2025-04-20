@@ -21,12 +21,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
-
-
 Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
     Route::get('/product',[ProductController::class,'index'])->name('product.index');
     Route::get('/product/create',[ProductController::class,'create'])->name('product.create');
     Route::post('/product',[ProductController::class,'store'])->name('product.store');
@@ -53,13 +51,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/store', [CustomerController::class, 'ajaxstore']);
     Route::post('/customer/new', [CustomerController::class, 'ajaxstorenew']);
 
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+// Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/order',[OrderController::class,'index'])->name('order.index');
     Route::post('/order/select', [OrderController::class, 'generatepdfSelect'])->name('order.select');
     //Route::delete('/order/deletemultiple', [OrderController::class, 'deleteMultiple'])->name('order.deletemultiple');
     // Route::get('/order/{order}',[OrderController::class,'view'])->name('order.view');
     Route::get('/order/{order}/view',[OrderController::class,'view'])->name('order.view');
     Route::get('/order/{order}/edit',[OrderController::class,'edit'])->name('order.edit');
-    Route::put('/order/{order}/update',[OrderController::class,'update'])->name('order.update');
+    Route::put('/order/{order}/update',[OrderController::class,'update'])->name('order.update'); 
     
     Route::get('/order/create',[OrderController::class,'create'])->name('order.create');
     Route::post('/order',[OrderController::class,'store'])->name('order.store');
@@ -82,24 +85,7 @@ Route::middleware(['auth'])->group(function () {
 
     //productsearch
     Route::get('/order/search', [OrderController::class, 'search'])->name('order.search');
+    // });
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-// Route::put('/view', function () {
-//     return view('Products.view');
-// });
-
-// Route::post('/generatepdf', function (Request $request) {
-//     $data = $request->all(); // Get form data
-//     // Load view and pass form data
-//     $pdf = Pdf::loadView('Products.pdf_template', compact('data'));
-
-//     // Download PDF
-//     return $pdf->download('generated.pdf');
-// })->name('generate.pdf');
-
-#Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
 require __DIR__.'/auth.php';

@@ -19,7 +19,9 @@
                     <br><br>
                     <a class="btn btn-danger" href="{{route('customer.index')}}"><i class="fa fa-user"></i> Customer page</a>
                     <br><br>
+                    @role('admin')
                     <a class="btn btn-primary" href="{{route('order.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Order page</a>
+                    @endrole
                 </div>
             </div>
         </div>
