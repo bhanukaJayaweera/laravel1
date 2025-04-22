@@ -10,9 +10,10 @@ use App\Imports\ProductsImport;
 class ProductController extends Controller
 {
     public function index(){
+        if (auth()->user()->can('handle products')) {
         $products = Product::all();
         return view('Products.index',compact('products'));
-
+        }
     } 
     public function create(){
         return view('Products.create');

@@ -15,13 +15,21 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h2 class="font-bold">You're logged in!</h2>
                     <br><br>
+                    @hasrole('admin')
+                    <a class="btn btn-primary" href="{{route('user-role.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> User page</a>
+                    @endhasrole
+                    <br><br>
+                    @hasanyrole('entry|approve')
                     <a class="btn btn-success" href="{{route('product.index')}}" class="text-red-600"><i class="fa fa-box"></i> Product page</a>
+                    
                     <br><br>
                     <a class="btn btn-danger" href="{{route('customer.index')}}"><i class="fa fa-user"></i> Customer page</a>
+                    @endhasanyrole
                     <br><br>
-                    @role('admin')
+                    @hasrole('approve')
                     <a class="btn btn-primary" href="{{route('order.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Order page</a>
-                    @endrole
+                    @endhasrole
+
                 </div>
             </div>
         </div>

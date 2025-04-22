@@ -1,3 +1,4 @@
+@can('handle customers')
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -348,3 +349,4 @@
 </body>
 
 </html>
+@endcan

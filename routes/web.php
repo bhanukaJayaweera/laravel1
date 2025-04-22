@@ -4,8 +4,10 @@ use Illuminate\Support\Facades\Route;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -86,6 +88,9 @@ Route::middleware(['auth'])->group(function () {
     //productsearch
     Route::get('/order/search', [OrderController::class, 'search'])->name('order.search');
     // });
+
+    Route::get('/user-role', [UserRoleController::class, 'index'])->name('user-role.index');
+    Route::post('/user-role/{user}', [UserRoleController::class, 'update'])->name('user-role.update');
 
 });
 require __DIR__.'/auth.php';

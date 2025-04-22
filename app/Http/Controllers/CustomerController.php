@@ -11,8 +11,10 @@ use Illuminate\Http\Request;
 class CustomerController extends Controller
 {
     public function index(){
+        if (auth()->user()->can('handle customers')) {
         $customers = Customer::all();
         return view('Customer.index',compact('customers'));
+        }
 
     } 
 
