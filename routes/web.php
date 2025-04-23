@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
-
+use App\Http\Controllers\RolePermissionController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -91,6 +91,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/user-role', [UserRoleController::class, 'index'])->name('user-role.index');
     Route::post('/user-role/{user}', [UserRoleController::class, 'update'])->name('user-role.update');
+
+    Route::get('/roles-permissions', [RolePermissionController::class, 'index'])->name('roles.permissions.index');
+    Route::post('/roles-permissions/{role}', [RolePermissionController::class, 'update'])->name('roles.permissions.update');
 
 });
 require __DIR__.'/auth.php';
