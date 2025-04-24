@@ -94,6 +94,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/roles-permissions', [RolePermissionController::class, 'index'])->name('roles.permissions.index');
     Route::post('/roles-permissions/{role}', [RolePermissionController::class, 'update'])->name('roles.permissions.update');
-
+    //delete request 
+    Route::get('/order-approvals', [OrderController::class, 'showApprovalRequests'])->name('order.approvals');
+    Route::post('/order-approve/{id}', [OrderController::class, 'approveDelete'])->name('order.approve');
+    Route::post('/order-reject/{id}', [OrderController::class, 'rejectDelete'])->name('order.reject');
 });
 require __DIR__.'/auth.php';

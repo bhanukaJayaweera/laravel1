@@ -32,7 +32,10 @@
                     @can('handle orders')
                     <a class="btn btn-primary" href="{{route('order.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Order page</a>
                     @endcan
-
+                    <br><br>
+                    @can('approve orders')
+                    <a class="btn btn-primary" href="{{route('order.approvals')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>Approve Orders</a>
+                    @endcan
                 </div>
             </div>
         </div>
