@@ -107,6 +107,7 @@ class OrderController extends Controller
             OrderDeletionRequest::create([
                 'order_id' => $order->id,
                 'requested_by' => auth()->id(),
+                'status' => 'Deleted',
             ]);
             return response()->json(['message' => 'Orders delete submitted for approval']); 
                
@@ -114,7 +115,7 @@ class OrderController extends Controller
 
     public function showApprovalRequests()
         {
-            $requests = OrderDeletionRequest::with('order', 'user')->where('status', 'pending')->get();
+            $requests = OrderDeletionRequest::with('order', 'user')->where('status', 'Deleted')->get();
             return view('Order.approvals', compact('requests'));
         }
 
@@ -128,7 +129,7 @@ class OrderController extends Controller
                 $order->delete();
             }
            
-            $request->status = 'approved';
+            $request->status = 'delete_approved';
             $request->save();
 
             // Delete the actual order
@@ -141,7 +142,7 @@ class OrderController extends Controller
         public function rejectDelete($id)
         {
             $request = OrderDeletionRequest::findOrFail($id);
-            $request->status = 'rejected';
+            $request->status = 'delete_rejected';
             $request->save();
 
             return back()->with('info', 'Order deletion request rejected.');

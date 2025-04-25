@@ -3,7 +3,7 @@
 
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Order Deletion Approvals
+            Order Update/Delete Approvals
         </h2>
     </x-slot>
     <head>
@@ -38,6 +38,7 @@
                         <tr class="bg-gray-100">
                             <th class="px-4 py-2 border">Order ID</th>
                             <th class="px-4 py-2 border">Requested By</th>
+                            <th class="px-4 py-2 border">Status</th>
                             <th class="px-4 py-2 border"></th>
                             <th class="px-4 py-2 border"></th>
                         </tr>
@@ -47,6 +48,7 @@
                     <tr class="border">
                         <td class="px-4 py-2 border"> {{ $req->order->id }}</td>
                         <td class="px-4 py-2 border">{{ $req->user->name }}</td>
+                        <td class="px-4 py-2 border">{{ $req->status }}</td>
                         <td class="px-4 py-2 border">
                             <form method="POST" action="{{ route('order.approve', $req->id) }}" style="display:inline;">
                                 @csrf

@@ -17,7 +17,7 @@ class CreateOrderDeletionRequestsTable extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('requested_by')->constrained('users');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('status', ['Deleted', 'Updated','delete_approved', 'delete_rejected','update_approved', 'update_rejected']);
             $table->timestamps();
         });
     }
