@@ -121,6 +121,7 @@ class OrderController extends Controller
 
         public function approveDelete($id)
         {
+            
             $request = OrderDeletionRequest::findOrFail($id);
            
             $order = $request->order;
@@ -135,8 +136,8 @@ class OrderController extends Controller
             // Delete the actual order
             // $request->order->delete();
             // $request->order->products()->detach(); 
-
-            return back()->with('success', 'Order deletion approved and order removed.');
+            //return back()->with('success', 'Order deletion approved and order removed.');
+            return response()->json(['message' => 'Order deletion approved and order removed.']); 
         }
 
         public function rejectDelete($id)
@@ -145,7 +146,8 @@ class OrderController extends Controller
             $request->status = 'delete_rejected';
             $request->save();
 
-            return back()->with('info', 'Order deletion request rejected.');
+            //return back()->with('info', 'Order deletion request rejected.');
+            return response()->json(['message' => 'Order deletion request rejected.']); 
         }
 
 
