@@ -98,5 +98,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/order-approvals', [OrderController::class, 'showApprovalRequests'])->name('order.approvals');
     Route::post('/order-approve/{id}', [OrderController::class, 'approveDelete'])->name('order.approve');
     Route::post('/order-reject/{id}', [OrderController::class, 'rejectDelete'])->name('order.reject');
+    Route::post('/update-approve/{id}', [OrderController::class, 'approveUpdate']);
+    Route::post('/update-reject/{id}', [OrderController::class, 'rejectUpdate']);
 });
 require __DIR__.'/auth.php';

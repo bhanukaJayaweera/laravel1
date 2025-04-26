@@ -15,22 +15,8 @@
         <!-- Font Awesome CDN (Add to <head> section) -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     </x-slot>
-    <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <!-- Font Awesome CDN (Add to <head> section) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-    <style>
-
-    </style>
-    </head>
+  
      <!-- Message Modal -->
      <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -64,16 +50,14 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-        <form id="orderForm">
-            @csrf  
+        <!-- <form id="orderForm"> -->
+            <!-- @csrf   -->
             <div class="input-group mb-3" hidden>
                 <label class="input-group-text">Order ID</label>
                 <input type="text" name="id" id="id" class="form-control">
             </div> 
-            <div class="input-group mb-3" hidden>
-                <label class="input-group-text">Request ID</label>
-                <input type="text" name="request_id" id="request_id" class="form-control">
-            </div> 
+            <input type="hidden" name="request_id" id="request_id" class="form-control">
+
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
                 <select class="form-select" name="customer_id" id="customer_id" required>
@@ -158,9 +142,11 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary approve">Approve</button>
                 <button type="button" class="btn btn-primary reject">Reject</button>
+                <button type="button" class="btn btn-primary approveUpdate">Approve Update</button>
+                <button type="button" class="btn btn-primary rejectUpdate">Reject Update</button>
 
             </div>
-        </form>
+        <!-- </form> -->
         </div>
     </div>
     </div>
@@ -178,6 +164,7 @@
             <table class="table-auto w-full border">
                     <thead>
                         <tr class="bg-gray-100">
+                        <th class="px-4 py-2 border">Request ID</th>
                             <th class="px-4 py-2 border">Order ID</th>
                             <th class="px-4 py-2 border">Requested By</th>
                             <th class="px-4 py-2 border">Status</th>
@@ -188,10 +175,11 @@
                     <tbody>
                     @foreach($requests as $req)
                     <tr class="border">
+                        <td class="px-4 py-2 border"> {{ $req->id }}</td>
                         <td class="px-4 py-2 border"> {{ $req->order->id }}</td>
                         <td class="px-4 py-2 border">{{ $req->user->name }}</td>
                         <td class="px-4 py-2 border">{{ $req->status }}</td>
-                        <td class="px-4 py-2 border">
+                        <!-- <td class="px-4 py-2 border">
                             <form method="POST" action="{{ route('order.approve', $req->id) }}" style="display:inline;">
                                 @csrf
                                 <button class="btn btn-success">Approve</button>
@@ -202,8 +190,8 @@
                                 @csrf
                                 <button class="btn btn-danger">Reject</button>
                             </form>
-                        </td>
-                        <td>
+                        </td> -->
+                        <td class="px-4 py-2 border">
                             <button class="btn btn-info view-order-btn" data-id="{{ $req->order->id }}"  data-request-id="{{ $req->id }}">View</button>
                         </td>
                     </tr>
@@ -220,7 +208,11 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
-$(document).on('click', '.view-order-btn', function() {
+
+// $(document).on('click', '.view-order-btn', function() {
+$(document).ready(function () {
+        //order-product Modal- add new product
+    $(".view-order-btn").click(function () {
     var orderId = $(this).data('id');
     var requestId = $(this).data('request-id');
     $('#request_id').val(requestId);
@@ -229,7 +221,7 @@ $(document).on('click', '.view-order-btn', function() {
         url: '/order/' + orderId + '/change', // or whatever route you use
         type: 'GET',
         success: function(response) {
-            $("#orderForm")[0].reset(); // Clear Form
+            //$("#orderForm")[0].reset(); // Clear Form
                         $("#id").val(response.order.id);
                         $("#id").prop("disabled", true);
                         $("#product_div").prop("hidden", true);
@@ -284,10 +276,17 @@ $('.approve').on('click', function () {
         $.ajax({
             url: '/order-approve/' + requestId, // or whatever route you use
             type: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             success: function(response) {
                 $("#orderModal").modal("hide"); // Close modal
+                $('button[data-request-id="'+requestId+'"]').closest('tr').remove(); // Remove the table row
                 $("#d").text(response.message).show();
                 $("#messageModal").modal("show");
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
             },
             error: function (xhr) {
                         //alert("Error saving order!");
@@ -306,8 +305,12 @@ $('.reject').on('click', function () {
         $.ajax({
             url: '/order-reject/' + requestId, // or whatever route you use
             type: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             success: function(response) {
                 $("#orderModal").modal("hide"); // Close modal
+                $('button[data-request-id="'+requestId+'"]').closest('tr').remove();
                 $("#d").text(response.message).show();
                 $("#messageModal").modal("show");
             },
@@ -321,6 +324,61 @@ $('.reject').on('click', function () {
         });
 });
 
+$('.approveUpdate').on('click', function () {
+    
+    var requestId = $('#request_id').val();
+
+        $.ajax({
+            url: '/update-approve/' + requestId, // or whatever route you use
+            type: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                $("#orderModal").modal("hide"); // Close modal
+                $('button[data-request-id="'+requestId+'"]').closest('tr').remove(); // Remove the table row
+                $("#d").text(response.message).show();
+                $("#messageModal").modal("show");
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            },
+            error: function (xhr) {
+                        //alert("Error saving order!");
+                $("#orderModal").modal("hide"); // Close modal
+                $("#derror").show();
+                $("#messageModal").modal("show");
+            },
+
+        });
+});
+$('.rejectUpdate').on('click', function () {
+    console.log($('#request_id').val());
+    var requestId = $('#request_id').val();
+
+        $.ajax({
+            url: '/update-reject/' + requestId, // or whatever route you use
+            type: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                $("#orderModal").modal("hide"); // Close modal
+                $('button[data-request-id="'+requestId+'"]').closest('tr').remove();
+                $("#d").text(response.message).show();
+                $("#messageModal").modal("show");
+            },
+            error: function (xhr) {
+                        //alert("Error saving order!");
+                $("#orderModal").modal("hide"); // Close modal
+                $("#derror").show();
+                $("#messageModal").modal("show");
+            },
+
+        });
+});
+
+});
 </script>
 </x-app-layout>
 
