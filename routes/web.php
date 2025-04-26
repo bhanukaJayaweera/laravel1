@@ -4,8 +4,10 @@ use Illuminate\Support\Facades\Route;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RolePermissionController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -87,5 +89,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/order/search', [OrderController::class, 'search'])->name('order.search');
     // });
 
+    Route::get('/user-role', [UserRoleController::class, 'index'])->name('user-role.index');
+    Route::post('/user-role/{user}', [UserRoleController::class, 'update'])->name('user-role.update');
+
+    Route::get('/roles-permissions', [RolePermissionController::class, 'index'])->name('roles.permissions.index');
+    Route::post('/roles-permissions/{role}', [RolePermissionController::class, 'update'])->name('roles.permissions.update');
+    //delete request 
+    Route::get('/order-approvals', [OrderController::class, 'showApprovalRequests'])->name('order.approvals');
+    Route::post('/order-approve/{id}', [OrderController::class, 'approveDelete'])->name('order.approve');
+    Route::post('/order-reject/{id}', [OrderController::class, 'rejectDelete'])->name('order.reject');
+    Route::post('/update-approve/{id}', [OrderController::class, 'approveUpdate']);
+    Route::post('/update-reject/{id}', [OrderController::class, 'rejectUpdate']);
 });
 require __DIR__.'/auth.php';

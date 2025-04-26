@@ -15,13 +15,27 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h2 class="font-bold">You're logged in!</h2>
                     <br><br>
-                    <a class="btn btn-success" href="{{route('product.index')}}" class="text-red-600"><i class="fa fa-box"></i> Product page</a>
+                    @can('handle users')
+                    <a class="btn btn-primary" href="{{route('user-role.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Assign Roles to Users</a>            
+                    <br><br>             
+                    <a class="btn btn-success" href="{{route( 'roles.permissions.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Assign Permissions to Roles</a>
+                    @endcan
                     <br><br>
+                    @can('handle products')
+                    <a class="btn btn-success" href="{{route('product.index')}}" class="text-red-600"><i class="fa fa-box"></i> Product page</a>  
+                    @endcan                
+                    <br><br>
+                    @can('handle customers')
                     <a class="btn btn-danger" href="{{route('customer.index')}}"><i class="fa fa-user"></i> Customer page</a>
+                    @endcan
                     <br><br>
-                    @role('admin')
+                    @can('handle orders')
                     <a class="btn btn-primary" href="{{route('order.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Order page</a>
-                    @endrole
+                    @endcan
+                    <br><br>
+                    @can('approve orders')
+                    <a class="btn btn-primary" href="{{route('order.approvals')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>Approve Orders</a>
+                    @endcan
                 </div>
             </div>
         </div>
