@@ -264,10 +264,12 @@ class OrderController extends Controller
             }
     }
     // Load data for editing
-    public function orderedit($id)
+    public function orderedit($id,Request $request)
     {
+        $requestId = $request->input('requestId'); 
         $customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
+        $request = OrderDeletionRequest::find($requestId);
         //$order = Order::findOrFail($id);
         $order = Order::with(['products' => function($q) {
             $q->withPivot('quantity');
@@ -275,7 +277,8 @@ class OrderController extends Controller
         return response()->json([
             'order' => $order,
             'customers' => $customers,
-            'products' => $products]);
+            'products' => $products,
+            'request' => $request]);
 
     }
 
@@ -290,23 +293,54 @@ class OrderController extends Controller
 
     }
 
+    
+        // $validated = $request->validate([
+        //     'id' => 'required|exists:orders,id',
+        //     'customer_id' => 'required|exists:customers,id',
+        //     'products' => 'required|array',
+        //     'date'=> 'required|date',
+        //     'payment_type'=> 'required',
+        //     'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+        //     'status'=> 'required',
+        // ]);
+
     //save edit
     public function editOrder(Request $request) {
-        $order = Order::find($request->id); // or whatever field you're sending
+        //$order = Order::find($request->id); // or whatever field you're sending
+        $order = Order::with('products')->find($request->id);//eager load the products relationship
         if (!$order) {
             return response()->json(['message' => 'Order not found.'], 404);
         }
 
         // Now safe to log
-        Log::info('Request Id:', ['id' => $order->id]);
-       
+        //Log::info('Request Id:', ['id' => $order->id]);
+ 
         if (OrderDeletionRequest::where('order_id', $order->id)->where('status', 'Updated')->exists()) {
             return response()->json(['message' => 'A Update request already exists for this order.'], 409);
         }
+        // Get updated products from the request
+        $editedProducts = json_decode($request->editData, true); // Parse the JSON you sent from JS
+
+        // Prepare products for requested_changes
+        $products = collect($editedProducts)->map(function($product) {
+            return [
+                'id' => $product['product_id'],              
+                'quantity' => $product['quantity'],
+
+            ];
+        })->toArray();
         OrderDeletionRequest::create([
             'order_id' => $order->id,
             'requested_by' => auth()->id(),
             'status' => 'Updated',
+            'requested_changes' => json_encode([
+                'customer_id' => $request->customer_id,
+                'payment_type' => $request->payment_type,
+                'products' => $products,
+                'date'=> $request->date,
+                'amount' => $request->amount,
+                'status'=> $request->status,
+            ]),
         ]);
         return response()->json(['message' => 'Order update submitted for approval']);
         // Log::info('Request Data:', $request->all()); // Log the request data
@@ -346,35 +380,50 @@ class OrderController extends Controller
         
         $request = OrderDeletionRequest::findOrFail($id);
         $order = $request->order;
-        $products = json_decode($order->products, true);  
+        
         // if (!$products) {
         //     return back()->with('error', 'No products selected!');
         // }  
-        $data = $request->validate(
-            [
-            'customer_id' => 'required|exists:customers,id',
-            //'product_id' => 'required',
-            'date'=> 'required|date',
-            'payment_type'=> 'required',
-            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-            'status'=> 'required',
-            ]
-        );
-        Log::info('Validated Order Data:', $data);
-        //$order = Order::findOrFail($request->id); // find the existing order
-        $order->update($data);
-        Log::info('Order Edited:', ['id' => $order->id]);
-
+        
         // First, remove existing pivot records
         $order->products()->detach();
+        if ($request->requested_changes) {
+            $changes = json_decode($request->requested_changes, true);
+    
+            $order->update([
+                'customer_id' => $changes['customer_id'],
+                'payment_type' => $changes['payment_type'],
+                'amount' =>$changes['amount'],
+                'status' =>$changes['status'],
+                'date' =>$changes['date'],
+            ]);
+        }
+        // $data = $order->validate(
+        //     [
+        //     'customer_id' => 'required|exists:customers,id',
+        //     //'product_id' => 'required',
+        //     'date'=> 'required|date',
+        //     'payment_type'=> 'required',
+        //     'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+        //     'status'=> 'required',
+        //     ]
+        // );
+       // Log::info('Validated Order Data:', $data);
+        //$order = Order::findOrFail($request->id); // find the existing order
+        //$order->update($data);
+        //Log::info('Order Edited:', ['id' => $order->id]);
+
+        // First, remove existing pivot records
+        // $order->products()->detach();
 
         // Attach products to order (Pivot Table)
         //$order->products()->attach($productIds);
-        foreach ($products as $product) {
+        //$products = json_decode($order->products, true);  
+        foreach ($changes['products'] as $product) {
             Log::info('Attaching Product:', $product);
             $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
         }
-        $request->status = 'delete_approved';
+        $request->status = 'update_approved';
         $request->save();    
         return response()->json(['message' => 'Order update approved.']); 
 
