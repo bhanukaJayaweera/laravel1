@@ -220,9 +220,32 @@ $(document).ready(function () {
     $.ajax({
         url: '/order/' + orderId + '/change', // or whatever route you use
         type: 'GET',
+        data: {
+            requestId: requestId,
+        },
         success: function(response) {
             //$("#orderForm")[0].reset(); // Clear Form
-                        $("#id").val(response.order.id);
+                let requestedChanges = response.requested_changes;
+                let order = response.order;
+
+                if (requestedChanges) {
+                    if (requestedChanges.customer_id) {
+                        order.customer_id = requestedChanges.customer_id;
+                    }
+                    if (requestedChanges.payment_type) {
+                        order.payment_type = requestedChanges.payment_type;
+                    }
+                    if (requestedChanges.products) {
+                        order.amount = requestedChanges.amount;
+                    }
+                    if (requestedChanges.products) {
+                        order.date = requestedChanges.date;
+                    }
+                    if (requestedChanges.products) {
+                        order.status = requestedChanges.status;
+                    }
+                }
+                        $("#id").val(order.id);
                         $("#id").prop("disabled", true);
                         $("#product_div").prop("hidden", true);
                         $("#quantity_div").prop("hidden", true);
@@ -234,13 +257,13 @@ $(document).ready(function () {
                         $.each(response.customers, function(index, customer) {
                             dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
                         });
-                        $("#customer_id").val(response.order.customer_id);
+                        $("#customer_id").val(order.customer_id);
                         $("#customer_id").prop("disabled", true);
 
                         let tableBody = $("#productTableBody");
                         tableBody.empty(); // Clear existing data
 
-                        $.each(response.order.products, function (index, product) {
+                        $.each(order.products, function (index, product) {
                             //Log::info('Product:',$product);
                             tableBody.append(`
                                 <tr>
@@ -252,15 +275,15 @@ $(document).ready(function () {
                             `);
                         });
                         
-                        $("#date").val(response.order.date);
+                        $("#date").val(order.date);
                         $("#date").prop("disabled", true);
-                        $("#payment_type").val(response.order.payment_type);
+                        $("#payment_type").val(order.payment_type);
                         $("#payment_type").prop("disabled", true);
-                        $("#amount").val(response.order.amount);
+                        $("#amount").val(order.amount);
                         $("#amount").prop("disabled", true);
                         $('input[name="status"]').prop('checked', false);
                         // Select the radio that matches the status
-                        $(`input[name="status"][value="${response.order.status}"]`).prop('checked', true);
+                        $(`input[name="status"][value="${order.status}"]`).prop('checked', true);
                         $('input[name="status"]').prop("disabled", true);
                         $("#modalTitle").text("View Order");
                         //$(".save").prop("hidden", true);

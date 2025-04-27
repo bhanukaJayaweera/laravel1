@@ -14,6 +14,7 @@ class OrderDeletionRequest extends Model
         'order_id',
         'requested_by',
         'status',
+        'requested_changes',
     ];
     public function order()
     {
