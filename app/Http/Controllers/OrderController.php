@@ -278,7 +278,44 @@ class OrderController extends Controller
             'order' => $order,
             'customers' => $customers,
             'products' => $products,
-            'request' => $request]);
+            'request' => $request,
+           ]);
+
+    }
+    
+    public function orderdeleteload($id,Request $request)
+    {
+        $requestId = $request->input('requestId'); 
+        $customers = Customer::all(); // Fetch all customers
+        $products = Product::all(); // Fetch all customers
+        $request = OrderDeletionRequest::find($requestId);
+        //$order = Order::findOrFail($id);
+        $order = Order::with(['products' => function($q) {
+            $q->withPivot('quantity');
+        }])->find($id);
+        return response()->json([
+            'order' => $order,
+            'customers' => $customers,
+            'products' => $products,
+            'request' => $request,
+           ]);
+
+    }
+    public function orderapproveload($id,Request $request)
+    {
+        $requestId = $request->input('requestId'); 
+        $customers = Customer::all(); // Fetch all customers
+        $products = Product::all(); // Fetch all customers
+        $request = OrderDeletionRequest::find($requestId);
+        //$order = Order::findOrFail($id);
+        $order = Order::with(['products' => function($q) {
+            $q->withPivot('quantity');
+        }])->find($id);
+        return response()->json([
+            'order' => $order,
+            'customers' => $customers,
+            'products' => $products,
+            'requested_changes' => $request ? json_decode($request->requested_changes, true) : null,]);
 
     }
 

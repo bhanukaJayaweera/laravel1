@@ -176,7 +176,7 @@
                     @foreach($requests as $req)
                     <tr class="border">
                         <td class="px-4 py-2 border"> {{ $req->id }}</td>
-                        <td class="px-4 py-2 border"> {{ $req->order->id }}</td>
+                        <td class="px-4 py-2 border"> {{ $req->order->id ?? 'No Order Found' }}</td>
                         <td class="px-4 py-2 border">{{ $req->user->name }}</td>
                         <td class="px-4 py-2 border">{{ $req->status }}</td>
                         <!-- <td class="px-4 py-2 border">
@@ -192,7 +192,7 @@
                             </form>
                         </td> -->
                         <td class="px-4 py-2 border">
-                            <button class="btn btn-info view-order-btn" data-id="{{ $req->order->id }}"  data-request-id="{{ $req->id }}">View</button>
+                            <button class="btn btn-info view-order-btn" data-id="{{ $req->order->id ?? ''}}"  data-request-id="{{ $req->id }}" data-status="{{ $req->status }}">View</button>
                         </td>
                     </tr>
                     @endforeach
@@ -215,82 +215,216 @@ $(document).ready(function () {
     $(".view-order-btn").click(function () {
     var orderId = $(this).data('id');
     var requestId = $(this).data('request-id');
+    var status = $(this).data('status');
     $('#request_id').val(requestId);
-
+    
+    var url = status == "Updated" 
+        ? '/order/' + orderId + '/load' 
+        : '/order/' + orderId + '/loaddelete';
+    
     $.ajax({
-        url: '/order/' + orderId + '/change', // or whatever route you use
+        url: url,
         type: 'GET',
-        data: {
-            requestId: requestId,
-        },
+        data: { requestId: requestId },
         success: function(response) {
-            //$("#orderForm")[0].reset(); // Clear Form
-                let requestedChanges = response.requested_changes;
+            // Common setup for both Updated and Deleted cases
+            $("#id").val(response.order.id).prop("disabled", true);
+            $("#product_div, #quantity_div, #addProductUpdate").prop("hidden", true);
+            
+            // Customer dropdown setup
+            let dropdown = $("#customer_id");
+            dropdown.empty().append('<option value="">Select Customer</option>');
+            $.each(response.customers, function(index, customer) {
+                dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
+            });
+            dropdown.val(response.order.customer_id).prop("disabled", true);
+            
+            // Products table setup
+            let tableBody = $("#productTableBody");
+            tableBody.empty();
+            
+            var products = status == "Updated" 
+                ? response.requested_changes.products
+                : response.order.products;
+            
+                $.each(products, function (index, product) {
+                // Determine quantity field based on status
+                var quantityCell = status == "Updated" 
+                    ? `<td>${product.quantity}</td>` 
+                    : `<td>${product.pivot.quantity}</td>`;
+                
+                tableBody.append(`
+                    <tr>
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        ${quantityCell}
+                        <td>${product.price}</td>
+                    </tr>
+                `);
+            });
+            
+            // Apply requested changes if status is "Updated"
+            if (status == "Updated" && response.requested_changes) {
+                let changes = response.requested_changes;
                 let order = response.order;
-
-                if (requestedChanges) {
-                    if (requestedChanges.customer_id) {
-                        order.customer_id = requestedChanges.customer_id;
-                    }
-                    if (requestedChanges.payment_type) {
-                        order.payment_type = requestedChanges.payment_type;
-                    }
-                    if (requestedChanges.products) {
-                        order.amount = requestedChanges.amount;
-                    }
-                    if (requestedChanges.products) {
-                        order.date = requestedChanges.date;
-                    }
-                    if (requestedChanges.products) {
-                        order.status = requestedChanges.status;
-                    }
-                }
-                        $("#id").val(order.id);
-                        $("#id").prop("disabled", true);
-                        $("#product_div").prop("hidden", true);
-                        $("#quantity_div").prop("hidden", true);
-                        $("#addProductUpdate").prop("hidden", true);
-                        let dropdown = $("#customer_id"); // Select dropdown
-                        dropdown.empty(); // Clear existing options
-                        dropdown.append('<option value="">Select Customer</option>'); // Default option
-                        // Loop through JSON array and add options
-                        $.each(response.customers, function(index, customer) {
-                            dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
-                        });
-                        $("#customer_id").val(order.customer_id);
-                        $("#customer_id").prop("disabled", true);
-
-                        let tableBody = $("#productTableBody");
-                        tableBody.empty(); // Clear existing data
-
-                        $.each(order.products, function (index, product) {
-                            //Log::info('Product:',$product);
-                            tableBody.append(`
-                                <tr>
-                                    <td>${product.id}</td>
-                                    <td>${product.name}</td>
-                                    <td>${product.pivot.quantity}</td>
-                                    <td>${product.price}</td>
-                                </tr>
-                            `);
-                        });
-                        
-                        $("#date").val(order.date);
-                        $("#date").prop("disabled", true);
-                        $("#payment_type").val(order.payment_type);
-                        $("#payment_type").prop("disabled", true);
-                        $("#amount").val(order.amount);
-                        $("#amount").prop("disabled", true);
-                        $('input[name="status"]').prop('checked', false);
-                        // Select the radio that matches the status
-                        $(`input[name="status"][value="${order.status}"]`).prop('checked', true);
-                        $('input[name="status"]').prop("disabled", true);
-                        $("#modalTitle").text("View Order");
-                        //$(".save").prop("hidden", true);
-                        $("#orderModal").modal("show");
+                
+                if (changes.customer_id) order.customer_id = changes.customer_id;
+                if (changes.payment_type) order.payment_type = changes.payment_type;
+                if (changes.amount) order.amount = changes.amount;
+                if (changes.date) order.date = changes.date;
+                if (changes.status) order.status = changes.status;
+                
+                // Update dropdown with potentially changed customer
+                dropdown.val(order.customer_id);
+            }
+            
+            // Set other form values
+            $("#date").val(response.order.date).prop("disabled", true);
+            $("#payment_type").val(response.order.payment_type).prop("disabled", true);
+            $("#amount").val(response.order.amount).prop("disabled", true);
+            $(`input[name="status"][value="${response.order.status}"]`)
+                .prop('checked', true)
+                .prop("disabled", true);
+            
+            $("#modalTitle").text("View Order - " + status);
+            $("#orderModal").modal("show");
+        },
+        error: function(xhr) {
+            console.error(xhr);
+            alert("Error loading order details");
         }
     });
 });
+//     $.ajax({
+//         if(status == "Updated"){
+//         url: '/order/' + orderId + '/load', // or whatever route you use
+//         type: 'GET',
+//         data: {
+//             requestId: requestId,
+//         },
+//         success: function(response) {
+//             //$("#orderForm")[0].reset(); // Clear Form
+//                 let requestedChanges = response.requested_changes;
+//                 let order = response.order;
+
+//                 if (requestedChanges) {
+//                     if (requestedChanges.customer_id) {
+//                         order.customer_id = requestedChanges.customer_id;
+//                     }
+//                     if (requestedChanges.payment_type) {
+//                         order.payment_type = requestedChanges.payment_type;
+//                     }
+//                     if (requestedChanges.products) {
+//                         order.amount = requestedChanges.amount;
+//                     }
+//                     if (requestedChanges.products) {
+//                         order.date = requestedChanges.date;
+//                     }
+//                     if (requestedChanges.products) {
+//                         order.status = requestedChanges.status;
+//                     }
+//                 }
+//                         $("#id").val(order.id);
+//                         $("#id").prop("disabled", true);
+//                         $("#product_div").prop("hidden", true);
+//                         $("#quantity_div").prop("hidden", true);
+//                         $("#addProductUpdate").prop("hidden", true);
+//                         let dropdown = $("#customer_id"); // Select dropdown
+//                         dropdown.empty(); // Clear existing options
+//                         dropdown.append('<option value="">Select Customer</option>'); // Default option
+//                         // Loop through JSON array and add options
+//                         $.each(response.customers, function(index, customer) {
+//                             dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
+//                         });
+//                         $("#customer_id").val(order.customer_id);
+//                         $("#customer_id").prop("disabled", true);
+
+//                         let tableBody = $("#productTableBody");
+//                         tableBody.empty(); // Clear existing data
+
+//                         $.each(requestedChanges.products, function (index, product) {
+//                             //Log::info('Product:',$product);
+//                             tableBody.append(`
+//                                 <tr>
+//                                     <td>${product.id}</td>
+//                                     <td>${product.name}</td>
+//                                     <td>${product.pivot.quantity}</td>
+//                                     <td>${product.price}</td>
+//                                 </tr>
+//                             `);
+//                         });
+                        
+//                         $("#date").val(order.date);
+//                         $("#date").prop("disabled", true);
+//                         $("#payment_type").val(order.payment_type);
+//                         $("#payment_type").prop("disabled", true);
+//                         $("#amount").val(order.amount);
+//                         $("#amount").prop("disabled", true);
+//                         $('input[name="status"]').prop('checked', false);
+//                         // Select the radio that matches the status
+//                         $(`input[name="status"][value="${order.status}"]`).prop('checked', true);
+//                         $('input[name="status"]').prop("disabled", true);
+//                         $("#modalTitle").text("View Order");
+//                         //$(".save").prop("hidden", true);
+//                         $("#orderModal").modal("show");
+//         }
+//     }
+//     if(status == "Deleted"){
+        
+//         url: '/order/' + orderId + '/loaddelete', // or whatever route you use
+//         type: 'GET',
+//         data: {
+//             requestId: requestId,
+//         },
+//         success: function(response) {
+//                         $("#id").val(response.order.id);
+//                         $("#id").prop("disabled", true);
+//                         $("#product_div").prop("hidden", true);
+//                         $("#quantity_div").prop("hidden", true);
+//                         $("#addProductUpdate").prop("hidden", true);
+//                         let dropdown = $("#customer_id"); // Select dropdown
+//                         dropdown.empty(); // Clear existing options
+//                         dropdown.append('<option value="">Select Customer</option>'); // Default option
+//                         // Loop through JSON array and add options
+//                         $.each(response.customers, function(index, customer) {
+//                             dropdown.append('<option value="' + customer.id + '">' + customer.name + '</option>');
+//                         });
+//                         $("#customer_id").val(response.order.customer_id);
+//                         $("#customer_id").prop("disabled", true);
+
+//                         let tableBody = $("#productTableBody");
+//                         tableBody.empty(); // Clear existing data
+
+//                         $.each(response.products, function (index, product) {
+//                             //Log::info('Product:',$product);
+//                             tableBody.append(`
+//                                 <tr>
+//                                     <td>${product.id}</td>
+//                                     <td>${product.name}</td>
+//                                     <td>${product.pivot.quantity}</td>
+//                                     <td>${product.price}</td>
+//                                 </tr>
+//                             `);
+//                         });
+                        
+//                         $("#date").val(response.order.date);
+//                         $("#date").prop("disabled", true);
+//                         $("#payment_type").val(response.order.payment_type);
+//                         $("#payment_type").prop("disabled", true);
+//                         $("#amount").val(response.order.amount);
+//                         $("#amount").prop("disabled", true);
+//                         $('input[name="status"]').prop('checked', false);
+//                         // Select the radio that matches the status
+//                         $(`input[name="status"][value="${response.order.status}"]`).prop('checked', true);
+//                         $('input[name="status"]').prop("disabled", true);
+//                         $("#modalTitle").text("View Order");
+//                         //$(".save").prop("hidden", true);
+//                         $("#orderModal").modal("show");
+//         }
+
+//     }
+//     });
+// });
 
 $('.approve').on('click', function () {
     console.log($('#request_id').val());
