@@ -74,6 +74,8 @@ Route::middleware(['auth'])->group(function () {
 
     //AJAX
     Route::get('/order/{id}/change', [OrderController::class, 'orderedit']);
+    Route::get('/order/{id}/load', [OrderController::class, 'orderapproveload']);
+    Route::get('/order/{id}/loaddelete', [OrderController::class, 'orderdeleteload']);
     Route::post('/order/store', [OrderController::class, 'orderstore']);
     Route::get('/order/newfetch', [OrderController::class, 'newfetch']);
     //Route::post('/order/new', [OrderController::class, 'ordernew']);
@@ -84,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/orderproduct/store', [OrderController::class, 'storeOrder']);
     Route::post('/orderproduct/checkInvent', [OrderController::class, 'checkInvent']);
     Route::post('/orderproduct/edit', [OrderController::class, 'editOrder']);
+
 
     //productsearch
     Route::get('/order/search', [OrderController::class, 'search'])->name('order.search');
