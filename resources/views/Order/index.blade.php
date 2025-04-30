@@ -194,28 +194,7 @@
                     <option value="card">Card</option>
                 </select>
             </div>
-            <!-- <div class="input-group mb-3">
-            <label class="input-group-text" id="inputGroup-sizing-default">Status</label>
-            <div style="padding:5px">
-                <div class="form-check form-switch form-check-reverse">
-                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="new" name="status">
-                <label class="form-check-label" for="switchCheckReverse">New</label>
-                </div>
-                <div class="form-check form-switch form-check-reverse">
-                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="processing" name="status">
-                <label class="form-check-label" for="switchCheckReverse">Processing</label>
-                </div>
-                <div class="form-check form-switch form-check-reverse">
-                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="completed" name="status">
-                <label class="form-check-label" for="switchCheckReverse">Completed</label>
-                </div>
-                <div class="form-check form-switch form-check-reverse">
-                <input class="form-check-input" type="checkbox" id="switchCheckReverse" value="cancelled" name="status">
-                <label class="form-check-label" for="switchCheckReverse">Cancelled</label>
-                </div>
-                </div>
-            </div>
-             -->
+
              <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Status</label>
                 <div style="padding: 5px">
@@ -507,7 +486,7 @@
         let price = $("#prod_id").find("option:selected").data('price');   
         if (productId && quantity > 0) {
             let row = `
-                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" >
+                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}">
                     <td>${productId}</td>
                     <td>${productName}</td>
                     <td>${quantity}</td>
@@ -718,7 +697,7 @@
                         $.each(response.order.products, function (index, product) {
                             //Log::info('Product:',$product);
                             tableBody.append(`
-                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}" data-price="${product.price}">                               
+                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}" data-price="${product.price}" data-name="${product.name}">                               
                                     <td>${product.id}</td>
                                     <td>${product.name}</td>
                                     <td>${product.pivot.quantity}</td>
@@ -773,11 +752,15 @@
             e.preventDefault(); // Prevent default form submission        
             var id = $("#id").val();
             let selectedProducts = [];
+             // Debug: Check what's being sent
+            //console.log("editData contents:", $("#editData").val());
 
             $("#productTableBody tr").each(function () {
                 let productId = $(this).data("id");
                 let quantity = $(this).data("quantity");
-                selectedProducts.push({ product_id: productId, quantity: quantity });
+                let price = $(this).data("price");
+                let name = $(this).data("name");
+                selectedProducts.push({ product_id: productId, quantity: quantity, price: price, name: name});
             
             });
 
@@ -787,12 +770,24 @@
                 return;
             }
 
-            $("#editData").val(JSON.stringify(selectedProducts));
-            var formData = $(this).serialize();
+            // $("#editData").val(JSON.stringify(selectedProducts));
+            // var formData = $(this).serialize();
+
+             // Create FormData object instead of using serialize()
+            let formData = new FormData(this);
+            formData.append('editData', JSON.stringify(selectedProducts));
+
+            // Get CSRF token properly
+            let csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
                         url: "/orderproduct/edit",
                         type: "POST",
                         data: formData,
+                        processData: false,  // Required for FormData
+                        contentType: false,  // Required for FormData
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        },
                         success: function (response) {
                             //alert(response.message);
                             //location.reload(); // Refresh page
