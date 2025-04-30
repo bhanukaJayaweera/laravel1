@@ -26,7 +26,7 @@ class AddRequestedChangesToOrderDeletionRequestsTable extends Migration
     public function down()
     {
         Schema::table('order_deletion_requests', function (Blueprint $table) {
-            //
+            $table->dropColumn('requested_changes');
         });
     }
 }

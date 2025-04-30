@@ -342,75 +342,118 @@ class OrderController extends Controller
         // ]);
 
     //save edit
-    public function editOrder(Request $request) {
-        //$order = Order::find($request->id); // or whatever field you're sending
-        $order = Order::with('products')->find($request->id);//eager load the products relationship
-        if (!$order) {
-            return response()->json(['message' => 'Order not found.'], 404);
-        }
+    // public function editOrder(Request $request) {
 
-        // Now safe to log
-        //Log::info('Request Id:', ['id' => $order->id]);
- 
-        if (OrderDeletionRequest::where('order_id', $order->id)->where('status', 'Updated')->exists()) {
-            return response()->json(['message' => 'A Update request already exists for this order.'], 409);
-        }
-        // Get updated products from the request
-        $editedProducts = json_decode($request->editData, true); // Parse the JSON you sent from JS
-
-        // Prepare products for requested_changes
-        $products = collect($editedProducts)->map(function($product) {
-            return [
-                'id' => $product['product_id'],              
-                'quantity' => $product['quantity'],
-
-            ];
-        })->toArray();
-        OrderDeletionRequest::create([
-            'order_id' => $order->id,
-            'requested_by' => auth()->id(),
-            'status' => 'Updated',
-            'requested_changes' => json_encode([
-                'customer_id' => $request->customer_id,
-                'payment_type' => $request->payment_type,
-                'products' => $products,
-                'date'=> $request->date,
-                'amount' => $request->amount,
-                'status'=> $request->status,
-            ]),
-        ]);
-        return response()->json(['message' => 'Order update submitted for approval']);
-        // Log::info('Request Data:', $request->all()); // Log the request data
-        // $products = json_decode($request->products, true);  
-        // // if (!$products) {
-        // //     return back()->with('error', 'No products selected!');
-        // // }  
-        // $data = $request->validate(
-        //     [
-        //     'customer_id' => 'required|exists:customers,id',
-        //     //'product_id' => 'required',
-        //     'date'=> 'required|date',
-        //     'payment_type'=> 'required',
-        //     'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-        //     'status'=> 'required',
-        //     ]
-        // );
-        // Log::info('Validated Order Data:', $data);
-        // $order = Order::findOrFail($request->id); // find the existing order
-        // $order->update($data);
-        // Log::info('Order Edited:', ['id' => $order->id]);
-
-        // // First, remove existing pivot records
-        // $order->products()->detach();
-
-        // // Attach products to order (Pivot Table)
-        // //$order->products()->attach($productIds);
-        // foreach ($products as $product) {
-        //     Log::info('Attaching Product:', $product);
-        //     $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
-        // }
-       
+        public function editOrder(Request $request) 
+        {
+            \Log::info('2. Raw editData from request:', ['editData' => $request->editData]);
+        
+            try {
+                \DB::beginTransaction();
+                \Log::info('3. Transaction started');  
+                // Find the order
+                \Log::info('4. Finding order with ID: ' . $request->id);
+                $order = Order::with('products')->find($request->id);
+                
+                \Log::info('5. Order found?', ['exists' => !is_null($order)]);
+                if (!$order) {
+                    \Log::warning('Order not found', ['id' => $request->id]);
+                    return response()->json(['message' => 'Order not found.'], 404);
+                }
+        
+                // Check for existing update request
+                \Log::info('6. Checking for existing update requests');
+                // if (OrderDeletionRequest::where('order_id', $order->id)
+                //                       ->where('status', 'Updated')
+                //                       ->exists()) {
+                //     \Log::notice('Duplicate update request', ['order_id' => $order->id]);
+                //     return response()->json([
+                //         'message' => 'An update request already exists for this order.'
+                //     ], 409);
+                // }
+        
+                // Decode and validate products
+                \Log::info('7. Decoding product data');
+                $editedProducts = json_decode($request->editData, true);
+                
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    \Log::error('JSON decode failed', [
+                        'error' => json_last_error_msg(),
+                        'input' => $request->editData
+                    ]);
+                    return response()->json([
+                        'message' => 'Invalid product data format',
+                        'error' => json_last_error_msg()
+                    ], 400);
+                }
+        
+                // Prepare products
+                \Log::info('8. Processing products', ['count' => count($editedProducts)]);
+                $products = [];
+                foreach ($editedProducts as $index => $product) {
+                    if (!isset($product['product_id'], $product['quantity'], $product['price'])) {
+                        \Log::error('Missing product fields at index: ' . $index, ['product' => $product]);
+                        return response()->json([
+                            'message' => "Product at index $index is missing required fields"
+                        ], 400);
+                    }
+                    
+                    $products[] = [
+                        'id' => $product['product_id'],
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                        'name'=> $product['name'],
+                    ];
+                }
+        
+                // Prepare changes
+                \Log::info('9. Preparing requested changes');
+                $requestedChanges = [
+                    'customer_id' => $request->customer_id,
+                    'payment_type' => $request->payment_type,
+                    'products' => $products,
+                    'date' => $request->date,
+                    'amount' => $request->amount,
+                    'status' => $request->status,
+                ];
+        
+                \Log::info('10. Creating OrderDeletionRequest', [
+                    'order_id' => $order->id,
+                    'changes' => $requestedChanges
+                ]);
+        
+                $deletionRequest = OrderDeletionRequest::create([
+                    'order_id' => $order->id,
+                    'requested_by' => auth()->id(),
+                    'status' => 'Updated',
+                    'requested_changes' => json_encode($requestedChanges),
+                ]);
+        
+                \DB::commit();
+                \Log::info('11. Transaction committed');
+                \Log::info('12. Request created successfully', [
+                    'request_id' => $deletionRequest->id
+                ]);
+    
+                return response()->json([
+                    'message' => 'Order update submitted for approval',
+                    'request_id' => $deletionRequest->id
+                ]);
+        
+            } catch (\Exception $e) {
+                \DB::rollBack();
+                \Log::error('13. Error in editOrder: ' . $e->getMessage(), [
+                    'exception' => $e,
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json([
+                    'message' => 'Failed to submit update request',
+                    'error' => config('app.debug') ? $e->getMessage() : null
+                ], 500);
+            }
+      
     }
+        
 
     public function approveUpdate($id) {
         //Log::info('Request Data:', $request->all()); // Log the request data
