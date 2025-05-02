@@ -140,10 +140,10 @@
             <div class="modal-footer">
                 
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary approve">Approve</button>
-                <button type="button" class="btn btn-primary reject">Reject</button>
-                <button type="button" class="btn btn-primary approveUpdate">Approve Update</button>
-                <button type="button" class="btn btn-primary rejectUpdate">Reject Update</button>
+                <button type="button" class="btn btn-primary approve" hidden>Approve Delete</button>
+                <button type="button" class="btn btn-primary reject" hidden>Reject Delete</button>
+                <button type="button" class="btn btn-primary approveUpdate" hidden>Approve Update</button>
+                <button type="button" class="btn btn-primary rejectUpdate" hidden>Reject Update</button>
 
             </div>
         <!-- </form> -->
@@ -222,11 +222,20 @@ $(document).ready(function () {
         ? '/order/' + orderId + '/load' 
         : '/order/' + orderId + '/loaddelete';
     
+    
     $.ajax({
         url: url,
         type: 'GET',
         data: { requestId: requestId },
         success: function(response) {
+                if(status == "Updated"){
+                    $(".approveUpdate").prop("hidden", false);
+                    $(".rejectUpdate").prop("hidden", false);
+                }
+                if(status == "Deleted"){
+                    $(".approve").prop("hidden", false);
+                    $(".reject").prop("hidden", false);
+                }
             // Common setup for both Updated and Deleted cases
             $("#id").val(response.order.id).prop("disabled", true);
             $("#product_div, #quantity_div, #addProductUpdate").prop("hidden", true);
@@ -295,6 +304,119 @@ $(document).ready(function () {
         }
     });
 });
+
+
+$('.approve').on('click', function () {
+    console.log($('#request_id').val());
+    var requestId = $('#request_id').val();
+
+        $.ajax({
+            url: '/order-approve/' + requestId, // or whatever route you use
+            type: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                $("#orderModal").modal("hide"); // Close modal
+                $('button[data-request-id="'+requestId+'"]').closest('tr').remove(); // Remove the table row
+                $("#d").text(response.message).show();
+                $("#messageModal").modal("show");
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            },
+            error: function (xhr) {
+                        //alert("Error saving order!");
+                $("#orderModal").modal("hide"); // Close modal
+                $("#derror").show();
+                $("#messageModal").modal("show");
+            },
+
+        });
+});
+
+$('.reject').on('click', function () {
+    console.log($('#request_id').val());
+    var requestId = $('#request_id').val();
+
+        $.ajax({
+            url: '/order-reject/' + requestId, // or whatever route you use
+            type: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                $("#orderModal").modal("hide"); // Close modal
+                $('button[data-request-id="'+requestId+'"]').closest('tr').remove();
+                $("#d").text(response.message).show();
+                $("#messageModal").modal("show");
+            },
+            error: function (xhr) {
+                        //alert("Error saving order!");
+                $("#orderModal").modal("hide"); // Close modal
+                $("#derror").show();
+                $("#messageModal").modal("show");
+            },
+
+        });
+});
+
+$('.approveUpdate').on('click', function () {
+    
+    var requestId = $('#request_id').val();
+
+        $.ajax({
+            url: '/update-approve/' + requestId, // or whatever route you use
+            type: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                $("#orderModal").modal("hide"); // Close modal
+                $('button[data-request-id="'+requestId+'"]').closest('tr').remove(); // Remove the table row
+                $("#d").text(response.message).show();
+                $("#messageModal").modal("show");
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            },
+            error: function (xhr) {
+                        //alert("Error saving order!");
+                $("#orderModal").modal("hide"); // Close modal
+                $("#derror").show();
+                $("#messageModal").modal("show");
+            },
+
+        });
+});
+$('.rejectUpdate').on('click', function () {
+    console.log($('#request_id').val());
+    var requestId = $('#request_id').val();
+
+        $.ajax({
+            url: '/update-reject/' + requestId, // or whatever route you use
+            type: 'POST',
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                $("#orderModal").modal("hide"); // Close modal
+                $('button[data-request-id="'+requestId+'"]').closest('tr').remove();
+                $("#d").text(response.message).show();
+                $("#messageModal").modal("show");
+            },
+            error: function (xhr) {
+                        //alert("Error saving order!");
+                $("#orderModal").modal("hide"); // Close modal
+                $("#derror").show();
+                $("#messageModal").modal("show");
+            },
+
+        });
+});
+
+});
+
 //     $.ajax({
 //         if(status == "Updated"){
 //         url: '/order/' + orderId + '/load', // or whatever route you use
@@ -425,117 +547,6 @@ $(document).ready(function () {
 //     }
 //     });
 // });
-
-$('.approve').on('click', function () {
-    console.log($('#request_id').val());
-    var requestId = $('#request_id').val();
-
-        $.ajax({
-            url: '/order-approve/' + requestId, // or whatever route you use
-            type: 'POST',
-            headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                $("#orderModal").modal("hide"); // Close modal
-                $('button[data-request-id="'+requestId+'"]').closest('tr').remove(); // Remove the table row
-                $("#d").text(response.message).show();
-                $("#messageModal").modal("show");
-                setTimeout(function() {
-                    location.reload();
-                }, 2000);
-            },
-            error: function (xhr) {
-                        //alert("Error saving order!");
-                $("#orderModal").modal("hide"); // Close modal
-                $("#derror").show();
-                $("#messageModal").modal("show");
-            },
-
-        });
-});
-
-$('.reject').on('click', function () {
-    console.log($('#request_id').val());
-    var requestId = $('#request_id').val();
-
-        $.ajax({
-            url: '/order-reject/' + requestId, // or whatever route you use
-            type: 'POST',
-            headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                $("#orderModal").modal("hide"); // Close modal
-                $('button[data-request-id="'+requestId+'"]').closest('tr').remove();
-                $("#d").text(response.message).show();
-                $("#messageModal").modal("show");
-            },
-            error: function (xhr) {
-                        //alert("Error saving order!");
-                $("#orderModal").modal("hide"); // Close modal
-                $("#derror").show();
-                $("#messageModal").modal("show");
-            },
-
-        });
-});
-
-$('.approveUpdate').on('click', function () {
-    
-    var requestId = $('#request_id').val();
-
-        $.ajax({
-            url: '/update-approve/' + requestId, // or whatever route you use
-            type: 'POST',
-            headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                $("#orderModal").modal("hide"); // Close modal
-                $('button[data-request-id="'+requestId+'"]').closest('tr').remove(); // Remove the table row
-                $("#d").text(response.message).show();
-                $("#messageModal").modal("show");
-                setTimeout(function() {
-                    location.reload();
-                }, 2000);
-            },
-            error: function (xhr) {
-                        //alert("Error saving order!");
-                $("#orderModal").modal("hide"); // Close modal
-                $("#derror").show();
-                $("#messageModal").modal("show");
-            },
-
-        });
-});
-$('.rejectUpdate').on('click', function () {
-    console.log($('#request_id').val());
-    var requestId = $('#request_id').val();
-
-        $.ajax({
-            url: '/update-reject/' + requestId, // or whatever route you use
-            type: 'POST',
-            headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                $("#orderModal").modal("hide"); // Close modal
-                $('button[data-request-id="'+requestId+'"]').closest('tr').remove();
-                $("#d").text(response.message).show();
-                $("#messageModal").modal("show");
-            },
-            error: function (xhr) {
-                        //alert("Error saving order!");
-                $("#orderModal").modal("hide"); // Close modal
-                $("#derror").show();
-                $("#messageModal").modal("show");
-            },
-
-        });
-});
-
-});
 </script>
 </x-app-layout>
 

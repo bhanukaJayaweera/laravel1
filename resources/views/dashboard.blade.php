@@ -16,25 +16,25 @@
                     <h2 class="font-bold">You're logged in!</h2>
                     <br><br>
                     @can('handle users')
-                    <a class="btn btn-primary" href="{{route('user-role.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Assign Roles to Users</a>            
+                    <a class="btn btn-primary" href="{{route('user-role.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>  Assign Roles to Users</a>            
                     <br><br>             
-                    <a class="btn btn-success" href="{{route( 'roles.permissions.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Assign Permissions to Roles</a>
+                    <a class="btn btn-success" href="{{route( 'roles.permissions.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>  Assign Permissions to Roles</a>
                     @endcan
                     <br><br>
                     @can('handle products')
-                    <a class="btn btn-success" href="{{route('product.index')}}" class="text-red-600"><i class="fa fa-box"></i> Product page</a>  
+                    <a class="btn btn-success" href="{{route('product.index')}}" class="text-red-600"><i class="fa fa-box"></i>  Product page</a>  
                     @endcan                
                     <br><br>
                     @can('handle customers')
-                    <a class="btn btn-danger" href="{{route('customer.index')}}"><i class="fa fa-user"></i> Customer page</a>
+                    <a class="btn btn-danger" href="{{route('customer.index')}}"><i class="fa fa-user"></i>  Customer page</a>
                     @endcan
                     <br><br>
                     @can('handle orders')
-                    <a class="btn btn-primary" href="{{route('order.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i> Order page</a>
+                    <a class="btn btn-primary" href="{{route('order.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>  Order page</a>
                     @endcan
                     <br><br>
                     @can('approve orders')
-                    <a class="btn btn-primary" href="{{route('order.approvals')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>Approve Orders</a>
+                    <a class="btn btn-primary" href="{{route('order.approvals')}}" class="text-red-600"> <i class="fas fa-check"></i>  Approve Orders</a>
                     @endcan
                 </div>
             </div>

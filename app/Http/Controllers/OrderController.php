@@ -358,18 +358,18 @@ class OrderController extends Controller
                 \Log::info('5. Order found?', ['exists' => !is_null($order)]);
                 if (!$order) {
                     \Log::warning('Order not found', ['id' => $request->id]);
-                    return response()->json(['message' => 'Order not found.'], 404);
+                    return response()->json(['message' => 'Order not found.']);
                 }
         
                 // Check for existing update request
-                \Log::info('6. Checking for existing update requests');
+                // \Log::info('6. Checking for existing update requests');
                 // if (OrderDeletionRequest::where('order_id', $order->id)
                 //                       ->where('status', 'Updated')
                 //                       ->exists()) {
                 //     \Log::notice('Duplicate update request', ['order_id' => $order->id]);
                 //     return response()->json([
                 //         'message' => 'An update request already exists for this order.'
-                //     ], 409);
+                //     ]);
                 // }
         
                 // Decode and validate products
@@ -384,7 +384,7 @@ class OrderController extends Controller
                     return response()->json([
                         'message' => 'Invalid product data format',
                         'error' => json_last_error_msg()
-                    ], 400);
+                    ]);
                 }
         
                 // Prepare products
@@ -395,7 +395,7 @@ class OrderController extends Controller
                         \Log::error('Missing product fields at index: ' . $index, ['product' => $product]);
                         return response()->json([
                             'message' => "Product at index $index is missing required fields"
-                        ], 400);
+                        ]);
                     }
                     
                     $products[] = [
@@ -478,6 +478,15 @@ class OrderController extends Controller
                 'date' =>$changes['date'],
             ]);
         }
+
+        foreach ($changes['products'] as $product) {
+            Log::info('Attaching Product:', $product);
+            $order->products()->attach($product['id'], ['quantity' => $product['quantity']]);
+        }
+        $request->status = 'update_approved';
+        $request->save();    
+        return response()->json(['message' => 'Order update approved.']); 
+
         // $data = $order->validate(
         //     [
         //     'customer_id' => 'required|exists:customers,id',
@@ -499,13 +508,7 @@ class OrderController extends Controller
         // Attach products to order (Pivot Table)
         //$order->products()->attach($productIds);
         //$products = json_decode($order->products, true);  
-        foreach ($changes['products'] as $product) {
-            Log::info('Attaching Product:', $product);
-            $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
-        }
-        $request->status = 'update_approved';
-        $request->save();    
-        return response()->json(['message' => 'Order update approved.']); 
+       
 
     }
     public function rejectUpdate($id) {
