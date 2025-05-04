@@ -36,6 +36,9 @@
                     @can('approve orders')
                     <a class="btn btn-primary" href="{{route('order.approvals')}}" class="text-red-600"> <i class="fas fa-check"></i>  Approve Orders</a>
                     @endcan
+                    @can('approve orders')
+                    <a class="btn btn-primary" href="{{route('order.approvals')}}" class="text-red-600"> <i class="fas fa-check"></i>  Manage Promotions</a>
+                    @endcan
                 </div>
             </div>
         </div>
