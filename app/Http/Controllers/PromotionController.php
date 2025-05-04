@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Promotion;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\OrderImport;
 use Illuminate\Support\Facades\Log; // Import Log facade
@@ -20,83 +21,26 @@ class OrderController extends Controller
         //     abort(403, 'Unauthorized');
         // }
         if (auth()->user()->can('handle orders')) {
-            $orders = Order::all();
-            return view('Order.index',compact('orders'));
+            $promotions = Promotion::all();
+            return view('Promotion.index',compact('promotions'));
         }
 
     }
-   
-    public function create()
-    {
-        $customers = Customer::all(); // Fetch all customers
-        $products = Product::all(); // Fetch all customers
-        return view('Order.create', compact('customers','products'));
-        
-    }
-   
-    public function store(Request $request){
-        $data = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            //'product_id' => 'required',
-            'date'=> 'required|date',
-            'payment_type'=> 'required',
-            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-        ]);
-
-        $newOrder = Order::create($data);
-        return redirect(route('order.index'));
-    } 
-
-    
 
     public function generatepdfSelect(Request $request){
-        $orderIds = $request->input('order_ids');
-        if (!$orderIds) {
+        $promotionIds = $request->input('promotion_ids');
+        if (!$promotionIds) {
             return back()->with('error', 'No products selected!');
         }
     
-        $orders = Order::whereIn('id', $orderIds)->get();
+        $promotions = Promotion::whereIn('id', $promotionIds)->get();
         // Load view with selected products
-        $pdf = PDF::loadView('Order.pdf_template', compact('orders'));
-        return $pdf->stream("order_list.pdf"); // 👈 This opens in browser
+        $pdf = PDF::loadView('Promotion.pdf_template', compact('promotions'));
+        return $pdf->stream("Promotion_list.pdf"); // 👈 This opens in browser
     // Download PDF
         //return $pdf->download('generated.pdf');
     }
 
-   
-
-    public function view(Order $order){
-        #dd($product); #used to check the data sent 
-        return view('Order.view',compact('order'));
-        // return view('Order.index',compact('order'));
-    }
-    public function edit(Order $order){ 
-        $selectedCustomerId = $order->customer_id;
-        $selectedProductId = $order->product_id;
-        $selectedPaymentType= $order->payment_type;
-        $customers = Customer::all(); // Fetch all customers
-        $products = Product::all(); // Fetch all customers
-        return view('Order.edit',compact('customers','products','order','selectedCustomerId','selectedProductId','selectedPaymentType'));
-    }
-   
-    public function update(Order $order, Request $request){
-        $data = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'product_id' => 'required|exists:products,id',
-            'date'=> 'required|date',
-            'payment_type'=> 'required',
-            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-        ]);
-        $order -> update($data);
-        return redirect(route('order.index'))->with('success','Order updated successfully');
-    }
-
-    //AJAX
-    
-            // $order = Order::findOrFail($orderId); // fetch single order
-            // $order->products()->detach(); // Remove pivot table entries
-            // $order->delete();
-            //return response()->json(['message' => 'Order deleted successfully']);
         public function destroy($orderId){
             $order = Order::findOrFail($orderId);
 
@@ -113,7 +57,7 @@ class OrderController extends Controller
                
         }
 
-    public function showApprovalRequests()
+        public function showApprovalRequests()
         {
             $requests = OrderDeletionRequest::with('order', 'user')
             ->whereIn('status', ['Deleted', 'Updated'])
@@ -242,43 +186,18 @@ class OrderController extends Controller
     }
     }
 
-    public function checkInvent(Request $request){
-        $productId = $request->input('productId');
-        $quantity = $request->input('quantity');
-        $productModel = Product::find($productId);
-            if ($productModel) {
-                $newInventory = $productModel->quantity - $quantity;
-                if ($newInventory < 0) {
-                    Log::warning('Inventory would go negative. Skipping product: ' . $productModel->name);
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => "Not enough inventory for {$productModel->name}. Available: {$productModel->quantity}, Requested: $quantity."
-                    ], 422);            
-                }
-                else{
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => "Sufficient inventory for {$productModel->name}."
-                    ]);
-                }
-            }
-    }
     // Load data for editing
-    public function orderedit($id,Request $request)
+    public function orderedit($id)
     {
-        $requestId = $request->input('requestId'); 
-        $customers = Customer::all(); // Fetch all customers
+        //$requestId = $request->input('requestId'); 
+        //$customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
-        $request = OrderDeletionRequest::find($requestId);
+        $promotion = Promotion::find($id);
         //$order = Order::findOrFail($id);
-        $order = Order::with(['products' => function($q) {
-            $q->withPivot('quantity');
-        }])->find($id);
         return response()->json([
-            'order' => $order,
-            'customers' => $customers,
             'products' => $products,
-            'request' => $request,
+            'promotion' => $promotion,
+  
            ]);
 
     }
@@ -286,16 +205,15 @@ class OrderController extends Controller
     public function orderdeleteload($id,Request $request)
     {
         $requestId = $request->input('requestId'); 
-        $customers = Customer::all(); // Fetch all customers
+        //$customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
         $request = OrderDeletionRequest::find($requestId);
         //$order = Order::findOrFail($id);
-        $order = Order::with(['products' => function($q) {
-            $q->withPivot('quantity');
-        }])->find($id);
+        $promotion = Promotion::find($id);
+        
         return response()->json([
-            'order' => $order,
-            'customers' => $customers,
+            'promotion' => $promotion,
+            //'customers' => $customers,
             'products' => $products,
             'request' => $request,
            ]);
@@ -304,16 +222,11 @@ class OrderController extends Controller
     public function orderapproveload($id,Request $request)
     {
         $requestId = $request->input('requestId'); 
-        $customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
         $request = OrderDeletionRequest::find($requestId);
-        //$order = Order::findOrFail($id);
-        $order = Order::with(['products' => function($q) {
-            $q->withPivot('quantity');
-        }])->find($id);
+        $promotion = Promotion::find($id);
         return response()->json([
-            'order' => $order,
-            'customers' => $customers,
+            'promotion' => $promotion,
             'products' => $products,
             'requested_changes' => $request ? json_decode($request->requested_changes, true) : null,]);
 
@@ -321,28 +234,13 @@ class OrderController extends Controller
 
     public function newfetch()
     {
-        $customers = Customer::all(); // Fetch all customers
+        //$customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
        
         return response()->json([
-            'customers' => $customers,
             'products' => $products]);
 
     }
-
-    
-        // $validated = $request->validate([
-        //     'id' => 'required|exists:orders,id',
-        //     'customer_id' => 'required|exists:customers,id',
-        //     'products' => 'required|array',
-        //     'date'=> 'required|date',
-        //     'payment_type'=> 'required',
-        //     'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-        //     'status'=> 'required',
-        // ]);
-
-    //save edit
-    // public function editOrder(Request $request) {
 
         public function editOrder(Request $request) 
         {
@@ -521,64 +419,12 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order Update request rejected.']); 
     }
 
-     //productsearch page
-    public function showSearch(){
-        // $orders = Order::all();
-    if (auth()->user()->can('handle orders')) {
-         $customers = Customer::all(); // Fetch all customers
-         $products = Product::all(); // Fetch all customers
-         return view('Order.productsearch', compact('customers','products'));
-    }
-    } 
+   
  
-     public function search(Request $request)
-     {
-        // if (auth()->user()->can('handle orders')) {
-         $products = Product::all();
-         $orders = [];
- 
-         if ($request->filled('product_id')) {
-             $orders = Order::whereHas('products', function ($query) use ($request) {
-                 $query->where('product_id', $request->product_id);
-             })->with('customer')->get();
-         }
-         $selectedProductId = $request->input('product_id');
-         return view('Order.productsearch', compact('products', 'orders','selectedProductId'));
-        // }
-     }
+     
 
         
 
 
-    // Store or update 
-    // public function orderstore(Request $request)
-    // {
-    //     $order = Order::updateOrCreate(
-    //         ['id' => $request->id], // If ID exists, update; otherwise, create new
-    //         [
-    //             'customer_id' => $request->customer_id,
-    //             'product_id' => $request->product_id,
-    //             'date' => $request->date,
-    //             'payment_type' => $request->payment_type,
-    //             'amount' => $request->amount
-    //         ]
-    //     );
-
-    //     return response()->json(['message' => 'Order updated successfully!']);
-    // }
-
-    // public function ordernew(Request $request)
-    // {
-    //     $order = Order::updateOrCreate(
-    //         [
-    //             'customer_id' => $request->customer_id,
-    //             'product_id' => $request->product_id,
-    //             'date' => $request->date,
-    //             'payment_type' => $request->payment_type,
-    //             'amount' => $request->amount
-    //         ]
-    //     );
-
-    //     return response()->json(['message' => 'Order saved successfully!']);
-    // }
+   
 }
