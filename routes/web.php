@@ -118,9 +118,15 @@ Route::middleware(['auth'])->group(function () {
     //Route::post('/promotion/store', [PromotionController::class, 'orderstore']);
     Route::get('/promotion/newfetch', [PromotionController::class, 'newfetch']);
     //Route::post('/order/new', [OrderController::class, 'ordernew']);
-    Route::delete('/promotion/{orderId}',[PromotionController::class,'destroy']);
+    Route::delete('/promotion/{promotionId}',[PromotionController::class,'destroy']);
     Route::delete('/promotion/delete-multiple', [PromotionController::class, 'deleteMultiple'])->name('orders.delete-multiple');
     Route::post('/promotion/store', [PromotionController::class, 'storeOrder']);
     Route::post('/promotion/edit', [PromotionController::class, 'editOrder']);
+
+    Route::get('/promotion-approvals', [PromotionController::class, 'showApprovalRequests'])->name('Promotion.approvals');
+    Route::post('/promotion-approve/{id}', [PromotionController::class, 'approveDelete'])->name('promotion.approve');
+    Route::post('/promotion-reject/{id}', [PromotionController::class, 'rejectDelete'])->name('promotion.reject');
+    Route::post('/update-approve/{id}', [PromotionController::class, 'approveUpdate']);
+    Route::post('/update-reject/{id}', [PromotionController::class, 'rejectUpdate']);
 });
 require __DIR__.'/auth.php';
