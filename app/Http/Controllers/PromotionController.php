@@ -12,9 +12,10 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\OrderImport;
 use Illuminate\Support\Facades\Log; // Import Log facade
 use PDF;
-use App\Models\OrderDeletionRequest;
+use App\Models\PromotionApproveRequest;
 
-class OrderController extends Controller
+
+class PromotionController extends Controller
 {
     public function index(){
         // if (!Auth::user()->hasRole('admin')) {
@@ -41,150 +42,138 @@ class OrderController extends Controller
         //return $pdf->download('generated.pdf');
     }
 
-        public function destroy($orderId){
-            $order = Order::findOrFail($orderId);
+        public function destroy($promotionId){
+            $promotion = Promotion::findOrFail($promotionId);
 
             // Check if a pending deletion request already exists
-            if (OrderDeletionRequest::where('order_id', $orderId)->where('status', 'Deleted')->exists()) {
-                return response()->json(['message' => 'A deletion request already exists for this order.'], 409);
+            if (PromotionApproveRequest::where('promotion_id', $promotionId)->where('status', 'Deleted')->exists()) {
+                return response()->json(['message' => 'A deletion request already exists for this Record.'], 409);
             }
-            OrderDeletionRequest::create([
-                'order_id' => $order->id,
+            PromotionApproveRequest::create([
+                'promotion_id' => $promotion->id,
                 'requested_by' => auth()->id(),
                 'status' => 'Deleted',
             ]);
-            return response()->json(['message' => 'Orders delete submitted for approval']); 
+            return response()->json(['message' => 'Promotion delete submitted for approval']); 
                
         }
 
         public function showApprovalRequests()
         {
-            $requests = OrderDeletionRequest::with('order', 'user')
+            $requests = PromotionApproveRequest::with('promotion', 'user')
             ->whereIn('status', ['Deleted', 'Updated'])
             ->get();
-            return view('Order.approvals', compact('requests'));
+            return view('Promotion.approvals', compact('requests'));
         }
 
         public function approveDelete($id)
         {           
             Log::info('Request Id:', ['id' => $id]); // ✅ correct
-            $request = OrderDeletionRequest::findOrFail($id);
-            $order = $request->order;
-            if ($order) {
-                $order->products()->detach();
-                $order->delete();
+            $request = PromotionApproveRequest::findOrFail($id);
+            $promotion = $request->promotion;
+            if ($promotion) {
+                $promotion->delete();
             }
            
             $request->status = 'delete_approved';
             $request->save();    
-            return response()->json(['message' => 'Order deletion approved and order removed.']); 
+            return response()->json(['message' => 'Promotion deletion approved and order removed.']); 
         }
 
         public function rejectDelete($id)
         {
             Log::info('Request Id:', ['id' => $id]); // ✅ correct
-            $request = OrderDeletionRequest::findOrFail($id);
+            $request = PromotionApproveRequest::findOrFail($id);
             $request->status = 'delete_rejected';
             $request->save();
 
             //return back()->with('info', 'Order deletion request rejected.');
-            return response()->json(['message' => 'Order deletion request rejected.']); 
+            return response()->json(['message' => 'Promotion deletion request rejected.']); 
         }
 
 
     public function deleteMultiple(Request $request)
     {
         $request->validate([
-            'order_ids' => 'required|array',
-            'order_ids.*' => 'exists:orders,id'
+            'promotion_ids' => 'required|array',
+            'promotion_ids.*' => 'exists:promotions,id'
         ]);
-        $orderIds = $request->input('order_ids');  
-        Log::info('Deleting orders:', ['order_ids' => $orderIds]);
+        $promotionIds = $request->input('promotion_ids');  
+        Log::info('Deleting orders:', ['order_ids' => $promotionIds]);
         try {
-            $orders = Order::whereIn('id', $orderIds)->get();          
-            foreach ($orders as $order) {
-                $order->products()->detach();
-                $order->delete();
+            $promotions = Order::whereIn('id', $promotionIds)->get();          
+            foreach ($promotions as $promotions) {
+                $promotions->delete();
             }         
             return response()->json([
                 'success' => true,
-                'message' => 'Orders deleted successfully'
+                'message' => 'Promotion deleted successfully'
             ]);        
         } catch (\Exception $e) {
-            Log::error('Error deleting orders:', ['error' => $e->getMessage()]);         
+            Log::error('Error deleting Promotion:', ['error' => $e->getMessage()]);         
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete orders'
+                'message' => 'Failed to delete Promotion'
             ], 500);
         }
     }
 
-    public function showUploadForm()
-    {
-        if (auth()->user()->can('handle orders')) {
-            return view('Order.upload');
-        }
-    }
+    // public function showUploadForm()
+    // {
+    //     if (auth()->user()->can('handle orders')) {
+    //         return view('Order.upload');
+    //     }
+    // }
 
-    public function importorder(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
-        ]);
+    // public function importorder(Request $request)
+    // {
+    //     $request->validate([
+    //         'file' => 'required|mimes:xlsx,xls',
+    //     ]);
 
-        try {
-            Excel::import(new OrderImport, $request->file('file'));
-            return back()->with('success', 'Orders imported successfully!');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Import failed: ' . $e->getMessage());
-        }
-    }
+    //     try {
+    //         Excel::import(new OrderImport, $request->file('file'));
+    //         return back()->with('success', 'Orders imported successfully!');
+    //     } catch (\Exception $e) {
+    //         return back()->with('error', 'Import failed: ' . $e->getMessage());
+    //     }
+    // }
 
 
      //orderproduct new 
     public function storeOrder(Request $request) {
     if (auth()->user()->can('handle orders')) {
         Log::info('Request Data:', $request->all()); // Log the request data
-        $products = json_decode($request->products, true);  
-        if (!$products) {
-            return back()->with('error', 'No products selected!');
-        }  
+        // $products = json_decode($request->products, true);  
+        // if (!$products) {
+        //     return back()->with('error', 'No products selected!');
+        // }  
         $data = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'date'=> 'required|date',
-            'payment_type'=> 'required',
-            'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+            'product_id' => 'required',      
+            'description'=> 'required',
+            'discount_percentage'=> 'required',
+            'start_date'=> 'required|date',
+            'end_date'=> 'required|date',
+            'is_active'=> 'required',
+            'usage_limit' => 'required|regex:/^\d+(\.\d{1,2})?$/',
         ]);
-        Log::info('Validated Order Data:', $data);
-        $order = Order::create($data);
-        Log::info('Order Created:', ['id' => $order->id]);
-        // Attach products to order (Pivot Table)
-        //$order->products()->attach($productIds);
-        foreach ($products as $product) {
-            Log::info('Attaching Product:', $product);
-            $order->products()->attach($product['product_id'], ['quantity' => $product['quantity']]);
-            // Update inventory
-            $productModel = Product::find($product['product_id']);
-            if ($productModel) {
-                $newInventory = $productModel->quantity - $product['quantity'];
-                $productModel->quantity = $newInventory;
-                $productModel->save();
-            }
+        Log::info('Validated Promotion Data:', $data);
+        $promotion = Promotion::create($data);
+        Log::info(' Created:', ['id' => $promotion->id]);
+        
         }
         // Generate the PDF
-        $pdf = PDF::loadView('Order.invoice', compact('order'));
-
+        //$pdf = PDF::loadView('Order.invoice', compact('order'));
         // Optionally save to storage
-        $fileName = 'invoice_'.$order->id.'.pdf';
-        $pdf->save(storage_path('app/public/invoices/' . $fileName));
-        $url = asset('storage/invoices/' . $fileName);//create url to open in new tab
+        //$fileName = 'invoice_'.$order->id.'.pdf';
+        //$pdf->save(storage_path('app/public/invoices/' . $fileName));
+       // $url = asset('storage/invoices/' . $fileName);//create url to open in new tab
         return response()->json([
             'status' => 'success',
-            'message' => 'Order saved successfully!',
-            'invoice_url' => $url
-        ], 200);
+            'message' => 'Promotion saved successfully!',
+        ]);
     }
-    }
+    
 
     // Load data for editing
     public function orderedit($id)
@@ -207,7 +196,7 @@ class OrderController extends Controller
         $requestId = $request->input('requestId'); 
         //$customers = Customer::all(); // Fetch all customers
         $products = Product::all(); // Fetch all customers
-        $request = OrderDeletionRequest::find($requestId);
+        $request = PromotionApproveRequest::find($requestId);
         //$order = Order::findOrFail($id);
         $promotion = Promotion::find($id);
         
@@ -223,7 +212,7 @@ class OrderController extends Controller
     {
         $requestId = $request->input('requestId'); 
         $products = Product::all(); // Fetch all customers
-        $request = OrderDeletionRequest::find($requestId);
+        $request = PromotionApproveRequest::find($requestId);
         $promotion = Promotion::find($id);
         return response()->json([
             'promotion' => $promotion,
@@ -244,19 +233,19 @@ class OrderController extends Controller
 
         public function editOrder(Request $request) 
         {
-            \Log::info('2. Raw editData from request:', ['editData' => $request->editData]);
+            //\Log::info('2. Raw editData from request:', ['editData' => $request->editData]);
         
             try {
                 \DB::beginTransaction();
                 \Log::info('3. Transaction started');  
                 // Find the order
-                \Log::info('4. Finding order with ID: ' . $request->id);
-                $order = Order::with('products')->find($request->id);
+                \Log::info('4. Finding promotion with ID: ' . $request->id);
+                $promotion = Promotion::find($request->id);
                 
-                \Log::info('5. Order found?', ['exists' => !is_null($order)]);
-                if (!$order) {
-                    \Log::warning('Order not found', ['id' => $request->id]);
-                    return response()->json(['message' => 'Order not found.']);
+                \Log::info('5. Promotion found?', ['exists' => !is_null($promotion)]);
+                if (!$promotion) {
+                    \Log::warning('Promotion not found', ['id' => $request->id]);
+                    return response()->json(['message' => 'promotion not found.']);
                 }
         
                 // Check for existing update request
@@ -271,57 +260,41 @@ class OrderController extends Controller
                 // }
         
                 // Decode and validate products
-                \Log::info('7. Decoding product data');
-                $editedProducts = json_decode($request->editData, true);
+                // \Log::info('7. Decoding product data');
+                // //$editedProducts = json_decode($request->editData, true);
                 
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    \Log::error('JSON decode failed', [
-                        'error' => json_last_error_msg(),
-                        'input' => $request->editData
-                    ]);
-                    return response()->json([
-                        'message' => 'Invalid product data format',
-                        'error' => json_last_error_msg()
-                    ]);
-                }
-        
-                // Prepare products
-                \Log::info('8. Processing products', ['count' => count($editedProducts)]);
-                $products = [];
-                foreach ($editedProducts as $index => $product) {
-                    if (!isset($product['product_id'], $product['quantity'], $product['price'])) {
-                        \Log::error('Missing product fields at index: ' . $index, ['product' => $product]);
-                        return response()->json([
-                            'message' => "Product at index $index is missing required fields"
-                        ]);
-                    }
-                    
-                    $products[] = [
-                        'id' => $product['product_id'],
-                        'quantity' => $product['quantity'],
-                        'price' => $product['price'],
-                        'name'=> $product['name'],
-                    ];
-                }
+                // if (json_last_error() !== JSON_ERROR_NONE) {
+                //     \Log::error('JSON decode failed', [
+                //         'error' => json_last_error_msg(),
+                //         'input' => $request->editData
+                //     ]);
+                //     return response()->json([
+                //         'message' => 'Invalid product data format',
+                //         'error' => json_last_error_msg()
+                //     ]);
+                // }
+    
         
                 // Prepare changes
                 \Log::info('9. Preparing requested changes');
                 $requestedChanges = [
-                    'customer_id' => $request->customer_id,
-                    'payment_type' => $request->payment_type,
-                    'products' => $products,
-                    'date' => $request->date,
-                    'amount' => $request->amount,
-                    'status' => $request->status,
+                    'product_id' => $request->product_id,
+                    'description' => $request->description,
+                    'discount_percentage' => $request->discount_percentage,
+                    'start_date' => $request->start_date,
+                    'end_date' => $request->end_date,
+                    'is_active' => $request->is_active,
+                    'usage_limit' => $request->usage_limit,
                 ];
+
         
                 \Log::info('10. Creating OrderDeletionRequest', [
-                    'order_id' => $order->id,
+                    'promotion_id' => $promotion->id,
                     'changes' => $requestedChanges
                 ]);
         
-                $deletionRequest = OrderDeletionRequest::create([
-                    'order_id' => $order->id,
+                $updateRequest = PromotionApproveRequest::create([
+                    'promotion_id' => $promotion->id,
                     'requested_by' => auth()->id(),
                     'status' => 'Updated',
                     'requested_changes' => json_encode($requestedChanges),
@@ -330,12 +303,12 @@ class OrderController extends Controller
                 \DB::commit();
                 \Log::info('11. Transaction committed');
                 \Log::info('12. Request created successfully', [
-                    'request_id' => $deletionRequest->id
+                    'request_id' => $updateRequest->id
                 ]);
     
                 return response()->json([
                     'message' => 'Order update submitted for approval',
-                    'request_id' => $deletionRequest->id
+                    'request_id' => $updateRequest->id
                 ]);
         
             } catch (\Exception $e) {
@@ -356,34 +329,30 @@ class OrderController extends Controller
     public function approveUpdate($id) {
         //Log::info('Request Data:', $request->all()); // Log the request data
         
-        $request = OrderDeletionRequest::findOrFail($id);
-        $order = $request->order;
+        $request = PromotionApproveRequest::findOrFail($id);
+        $promotion = $request->promotion;
         
         // if (!$products) {
         //     return back()->with('error', 'No products selected!');
         // }  
         
-        // First, remove existing pivot records
-        $order->products()->detach();
         if ($request->requested_changes) {
             $changes = json_decode($request->requested_changes, true);
     
-            $order->update([
-                'customer_id' => $changes['customer_id'],
-                'payment_type' => $changes['payment_type'],
-                'amount' =>$changes['amount'],
-                'status' =>$changes['status'],
-                'date' =>$changes['date'],
+            $promotion->update([
+                'product_id' => $changes['product_id'],
+                'description' => $changes['description'],
+                'discount_percentage' =>$changes['discount_percentage'],
+                'start_date' =>$changes['start_date'],
+                'end_date' =>$changes['end_date'],
+                'is_active' =>$changes['is_active'],
+                'usage_limit' =>$changes['usage_limit'],
             ]);
         }
 
-        foreach ($changes['products'] as $product) {
-            Log::info('Attaching Product:', $product);
-            $order->products()->attach($product['id'], ['quantity' => $product['quantity']]);
-        }
         $request->status = 'update_approved';
         $request->save();    
-        return response()->json(['message' => 'Order update approved.']); 
+        return response()->json(['message' => 'Promotion update approved.']); 
 
         // $data = $order->validate(
         //     [
@@ -411,12 +380,12 @@ class OrderController extends Controller
     }
     public function rejectUpdate($id) {
         Log::info('Request Id:', ['id' => $id]); // ✅ correct
-        $request = OrderDeletionRequest::findOrFail($id);
+        $request = PromotionApproveRequest::findOrFail($id);
         $request->status = 'update_rejected';
         $request->save();
 
         //return back()->with('info', 'Order deletion request rejected.');
-        return response()->json(['message' => 'Order Update request rejected.']); 
+        return response()->json(['message' => 'Promotion Update request rejected.']); 
     }
 
    

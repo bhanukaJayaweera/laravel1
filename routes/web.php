@@ -108,19 +108,25 @@ Route::middleware(['auth'])->group(function () {
 
 
     //promotions
-    Route::get('/promotion',[PromotionController::class,'index'])->name('order.index');
-    Route::post('/promotion/select', [PromotionController::class, 'generatepdfSelect'])->name('order.select');
+    Route::get('/promotion',[PromotionController::class,'index'])->name('Promotion.index');
+    Route::post('/promotion/select', [PromotionController::class, 'generatepdfSelect'])->name('Promotion.select');
     Route::post('/importpromotion', [PromotionController::class, 'importorder'])->name('importorder');
-    Route::get('promotion/upload', [PromotionController::class, 'showUploadForm'])->name('order.upload');
+    Route::get('promotion/upload', [PromotionController::class, 'showUploadForm'])->name('Promotion.upload');
     Route::get('/promotion/{id}/change', [PromotionController::class, 'orderedit']);
     Route::get('/promotion/{id}/load', [PromotionController::class, 'orderapproveload']);
     Route::get('/promotion/{id}/loaddelete', [PromotionController::class, 'orderdeleteload']);
     //Route::post('/promotion/store', [PromotionController::class, 'orderstore']);
     Route::get('/promotion/newfetch', [PromotionController::class, 'newfetch']);
     //Route::post('/order/new', [OrderController::class, 'ordernew']);
-    Route::delete('/promotion/{orderId}',[PromotionController::class,'destroy']);
+    Route::delete('/promotion/{promotionId}',[PromotionController::class,'destroy']);
     Route::delete('/promotion/delete-multiple', [PromotionController::class, 'deleteMultiple'])->name('orders.delete-multiple');
     Route::post('/promotion/store', [PromotionController::class, 'storeOrder']);
     Route::post('/promotion/edit', [PromotionController::class, 'editOrder']);
+
+    Route::get('/promotion-approvals', [PromotionController::class, 'showApprovalRequests'])->name('Promotion.approvals');
+    Route::post('/promotion-approve/{id}', [PromotionController::class, 'approveDelete'])->name('promotion.approve');
+    Route::post('/promotion-reject/{id}', [PromotionController::class, 'rejectDelete'])->name('promotion.reject');
+    Route::post('/update-approve/{id}', [PromotionController::class, 'approveUpdate']);
+    Route::post('/update-reject/{id}', [PromotionController::class, 'rejectUpdate']);
 });
 require __DIR__.'/auth.php';
