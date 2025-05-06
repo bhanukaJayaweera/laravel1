@@ -53,7 +53,7 @@
         <!-- <form id="orderForm"> -->
             <!-- @csrf   -->
             <div class="input-group mb-3" hidden>
-                <label class="input-group-text">Order ID</label>
+                <label class="input-group-text">Promotion ID</label>
                 <input type="text" name="id" id="id" class="form-control">
             </div> 
             <input type="hidden" name="request_id" id="request_id" class="form-control">
@@ -103,13 +103,11 @@
                     @endphp
 
                     @foreach($statuses as $status)
-                        <div class="form-check form-check-reverse">
-                            <!-- @foreach($orders as $order) -->
+                        <div class="form-check form-check-reverse">                      
                             <input class="form-check-input" type="radio" 
                                 id="is_active" 
                                 name="is_active" 
-                                value="{{ $status }}">
-                            <!-- @endforeach -->
+                                value="{{ $status }}">             
                             <label class="form-check-label" for="{{ $status }}">
                                 {{ ucfirst($status) }}
                             </label>
@@ -221,7 +219,7 @@ $(document).ready(function () {
                 }
             // Common setup for both Updated and Deleted cases
             $("#id").val(response.promotion.id).prop("disabled", true);
-            $("#product_div, #quantity_div, #addProductUpdate").prop("hidden", true);
+            $("#product_div").prop("hidden", false);
             
             // Customer dropdown setup
             let dropdown = $("#prod_id");
@@ -342,7 +340,7 @@ $('.approveUpdate').on('click', function () {
             success: function(response) {
                 $("#orderModal").modal("hide"); // Close modal
                 $('button[data-request-id="'+requestId+'"]').closest('tr').remove(); // Remove the table row
-                $("#d").text(response.message).show();
+                $("#u").text(response.message).show();
                 $("#messageModal").modal("show");
                 setTimeout(function() {
                     location.reload();
@@ -351,7 +349,7 @@ $('.approveUpdate').on('click', function () {
             error: function (xhr) {
                         //alert("Error saving order!");
                 $("#orderModal").modal("hide"); // Close modal
-                $("#derror").show();
+                $("#uerror").show();
                 $("#messageModal").modal("show");
             },
 

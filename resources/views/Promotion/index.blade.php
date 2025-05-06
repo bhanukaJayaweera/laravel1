@@ -62,7 +62,7 @@
         <div class="w3-sidebar w3-light-grey w3-bar-block" style="width:15%">
         <h3 class="w3-bar-item">Menu</h3>
         <!-- <button type="button" class="btn btn-primary createOrder" data-bs-toggle="modal" data-bs-target="#orderModal">New Order <i class="fa fa-plus"></i></button><br/> <br> -->
-        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Order </button>     
+        <button type="button" class="btn btn-primary createOrderProduct" data-bs-toggle="modal" data-bs-target="#orderproductModal"><i class="fa fa-plus"></i> Promotion </button>     
         <br><br><a class="btn btn-success" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Home</a>
         <br><br><a class="btn btn-success" href="{{route('order.upload')}}"><i class="fa fa-plus"></i> Upload Excel</a>
 
@@ -242,7 +242,7 @@
 
 
                     <!-- Hidden input field to store product data -->
-                <input type="hidden" name="products" id="productsData">                 
+                <!-- <input type="hidden" name="products" id="productsData">                  -->
                 <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Description</label>
                 <input type="text" name="description" id="description" class="form-control">
@@ -436,7 +436,7 @@
         
         //fetchcreateOrderProduct
         $(".createOrderProduct").click(function () {
-            
+            $("#is_active").prop("disabled", false);;
             $("#orderproductModal").show();
            // $("#orderForm")[0].reset(); // Clear Form
              $("#modalTitle1").text("New Promotion");
@@ -515,7 +515,7 @@
                         $("#orderForm")[0].reset(); // Clear Form
                         $("#product_div").prop("hidden", false);
                         $("#id").val(response.promotion.id);  
-                        $("#prod_id").prop("hidden", false) 
+                        //$("#prod_id").prop("hidden", false) 
 
                         let dropdown1 = $("#prod_id"); // Select dropdown
                         dropdown1.empty(); // Clear existing options
@@ -524,6 +524,7 @@
                         $.each(response.products, function(index, product) {
                             dropdown1.append('<option value="' + product.id + '" data-price="'+product.price+'">' + product.name + '</option>');
                         });
+                        $("#prod_id").val(response.promotion.product_id);
                         $("#prod_id").prop("disabled", false);
                         $('input[name="is_active"]').prop("disabled", false);
                         $("#description").val(response.promotion.description);

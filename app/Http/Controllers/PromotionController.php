@@ -289,7 +289,7 @@ class PromotionController extends Controller
 
         
                 \Log::info('10. Creating OrderDeletionRequest', [
-                    'order_id' => $promotion->id,
+                    'promotion_id' => $promotion->id,
                     'changes' => $requestedChanges
                 ]);
         
