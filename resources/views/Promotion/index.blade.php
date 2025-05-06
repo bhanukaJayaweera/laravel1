@@ -137,9 +137,9 @@
         <div class="modal-body">
         <form id="orderForm">
             @csrf  
-            <div class="input-group mb-3" hidden>
+            <div class="input-group mb-3">
                 <label class="input-group-text">Promotion ID</label>
-                <input type="text" name="id" id="id" class="form-control">
+                <input type="text" name="id" id="id" class="form-control" disabled>
             </div> 
         
             <div class="input-group mb-3" id="product_div">
@@ -191,12 +191,12 @@
 
                     @foreach($statuses as $status)
                         <div class="form-check form-check-reverse">
-                            <!-- @foreach($orders as $order) -->
+                            
                             <input class="form-check-input" type="radio" 
                                 id="is_active" 
                                 name="is_active" 
                                 value="{{ $status }}">
-                            <!-- @endforeach -->
+                           
                             <label class="form-check-label" for="{{ $status }}">
                                 {{ ucfirst($status) }}
                             </label>
@@ -228,7 +228,7 @@
         <form id="orderProductForm">
             @csrf  
             <div class="input-group mb-3" hidden>
-                <label class="input-group-text">Order ID</label>
+                <label class="input-group-text">Promotion ID</label>
                 <input type="text" name="id" id="id" class="form-control">
             </div> 
             
@@ -271,13 +271,11 @@
                     @endphp
 
                     @foreach($statuses as $status)
-                        <div class="form-check form-check-reverse">
-                            <!-- @foreach($orders as $order) -->
+                        <div class="form-check form-check-reverse">          
                             <input class="form-check-input" type="radio" 
-                                id="status" 
-                                name="status" 
-                                value="{{ $status }}">
-                            <!-- @endforeach -->
+                                id="is_active" 
+                                name="is_active" 
+                                value="{{ $status }}">          
                             <label class="form-check-label" for="{{ $status }}">
                                 {{ ucfirst($status) }}
                             </label>
@@ -329,9 +327,9 @@
                 <th>Description</th>
                 <th>Percentage</th>
                 <th>Start Date</th>
-                <th>End Date</th>
-                <th>Status</th>
+                <th>End Date</th>              
                 <th>Usage Limit</th>
+                <th>Active</th>
                 <th>View</th>
                 <th>Update</th>
                 <th>Delete</th>
@@ -342,7 +340,6 @@
                 <tr>
                     <td><input type="checkbox" class="orderCheckbox" name="promotion_ids[]" value="{{ $promotion->id }}"></td>
                     <td>{{$promotion->id}}</td>
-                    <!-- <td>{{$order->customer_id}}</td> -->
                     <td>{{$promotion->product->name}}</td>
                     <td>{{$promotion->description}}</td>
                     <td>{{$promotion->discount_percentage}}</td>
@@ -368,11 +365,11 @@
        
                     <td>
                     <button type="button" class="btn btn-primary viewOrder" data-id="{{ $promotion->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-eye"></i></button> 
-                        <!-- <a class="btn btn-primary" href="{{route('order.view', ['order' => $order])}}">View</a>
-                    </td> -->
+                      
+                    </td> 
                     <td>
                     <button type="button" class="btn btn-success editOrder" data-id="{{ $promotion->id }}" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fa fa-edit"></i></button> 
-                        <!-- <a class="btn btn-success" href="{{route('order.edit', ['order' => $order])}}">Edit</a> -->
+                       
                     </td>
                     <td>  
                         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -414,9 +411,9 @@
                             //alert(response.message);
                             //location.reload(); // Refresh page
 
-                            if (response.invoice_url) {
-                                window.open(response.invoice_url, '_blank'); // 👈 Opens in new tab
-                            } 
+                            // if (response.invoice_url) {
+                            //     window.open(response.invoice_url, '_blank'); // 👈 Opens in new tab
+                            // } 
                             $("#orderproductModal").modal("hide"); // Close modal
                             $("#u").text(response.message).show(); 
                             $("#messageModal").modal("show");
@@ -472,17 +469,17 @@
                         $("#orderForm")[0].reset(); // Clear Form
                         $("#id").val(response.promotion.id);
                         $("#id").prop("disabled", true);
-                        $("#product_div").prop("hidden", true);
+                        $("#product_div").prop("hidden", false);
 
-                        let dropdown = $("#product_id"); // Select dropdown
+                        let dropdown = $("#prod_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Product</option>'); // Default option
                         // Loop through JSON array and add options
                         $.each(response.products, function(index, product) {
                             dropdown.append('<option value="' + product.id + '">' + product.name + '</option>');
                         });
-                        $("#product_id").val(response.promotion.product_id);
-                        $("#product_id").prop("disabled", true);
+                        $("#prod_id").val(response.promotion.product_id);
+                        $("#prod_id").prop("disabled", true);
 
                         $("#description").val(response.promotion.description);
                         $("#description").prop("disabled", true);
@@ -512,7 +509,7 @@
           $(".editOrder").click(function () {
                 var promotionId = $(this).data("id");
                 $.ajax({
-                    url: "/order/" + promotionId + "/change",
+                    url: "/promotion/" + promotionId + "/change",
                     type: "GET",
                     success: function (response) {
                         $("#orderForm")[0].reset(); // Clear Form
@@ -528,13 +525,13 @@
                             dropdown1.append('<option value="' + product.id + '" data-price="'+product.price+'">' + product.name + '</option>');
                         });
                         $("#prod_id").prop("disabled", false);
+                        $('input[name="is_active"]').prop("disabled", false);
                         $("#description").val(response.promotion.description);
                         $("#discount_percentage").val(response.promotion.discount_percentage);                    
                         $("#usage_limit").val(response.promotion.usage_limit);                    
                         $("#start_date").val(response.promotion.start_date);              
                         $("#end_date").val(response.promotion.end_date);
                        
-                        $('input[name="is_active"]').prop('checked', false);
                         // Select the radio that matches the status
                         $(`input[name="is_active"][value="${response.promotion.is_active}"]`).prop('checked', true);
 

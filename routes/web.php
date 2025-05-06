@@ -108,10 +108,10 @@ Route::middleware(['auth'])->group(function () {
 
 
     //promotions
-    Route::get('/promotion',[PromotionController::class,'index'])->name('order.index');
-    Route::post('/promotion/select', [PromotionController::class, 'generatepdfSelect'])->name('order.select');
+    Route::get('/promotion',[PromotionController::class,'index'])->name('Promotion.index');
+    Route::post('/promotion/select', [PromotionController::class, 'generatepdfSelect'])->name('Promotion.select');
     Route::post('/importpromotion', [PromotionController::class, 'importorder'])->name('importorder');
-    Route::get('promotion/upload', [PromotionController::class, 'showUploadForm'])->name('order.upload');
+    Route::get('promotion/upload', [PromotionController::class, 'showUploadForm'])->name('Promotion.upload');
     Route::get('/promotion/{id}/change', [PromotionController::class, 'orderedit']);
     Route::get('/promotion/{id}/load', [PromotionController::class, 'orderapproveload']);
     Route::get('/promotion/{id}/loaddelete', [PromotionController::class, 'orderdeleteload']);

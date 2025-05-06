@@ -12,9 +12,10 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\OrderImport;
 use Illuminate\Support\Facades\Log; // Import Log facade
 use PDF;
-use App\Models\OrderDeletionRequest;
+use App\Models\PromotionApproveRequest;
 
-class OrderController extends Controller
+
+class PromotionController extends Controller
 {
     public function index(){
         // if (!Auth::user()->hasRole('admin')) {
@@ -148,7 +149,7 @@ class OrderController extends Controller
         //     return back()->with('error', 'No products selected!');
         // }  
         $data = $request->validate([
-            'product_id' => 'required|exists:products,id',      
+            'product_id' => 'required',      
             'description'=> 'required',
             'discount_percentage'=> 'required',
             'start_date'=> 'required|date',
@@ -172,7 +173,7 @@ class OrderController extends Controller
             'message' => 'Promotion saved successfully!',
         ]);
     }
-    }
+    
 
     // Load data for editing
     public function orderedit($id)
