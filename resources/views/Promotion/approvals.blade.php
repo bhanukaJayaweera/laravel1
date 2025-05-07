@@ -1,4 +1,4 @@
-@can('approve orders')
+@can('approve promotions')
 <x-app-layout>
 
     <x-slot name="header">

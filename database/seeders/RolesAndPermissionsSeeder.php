@@ -21,7 +21,7 @@ class RolesAndPermissionsSeeder extends Seeder
          app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
          // Create permissions
-         $permissions = ['handle customers', 'handle products', 'handle orders', 'approve customers', 'approve products', 'approve orders', 'handle users'];
+         $permissions = ['handle customers', 'handle products', 'handle orders', 'approve customers', 'approve products', 'approve orders', 'handle users','handle promotions','approve promotions'];
          foreach ($permissions as $permission) {
              Permission::firstOrCreate(['name' => $permission]);
          }
@@ -33,7 +33,7 @@ class RolesAndPermissionsSeeder extends Seeder
  
          $adminRole->givePermissionTo('handle users');
          $entryRole->givePermissionTo(['handle customers', 'handle products']);
-         $approveRole->givePermissionTo(['handle customers', 'handle products','handle orders','approve customers', 'approve products', 'approve orders']);
+         $approveRole->givePermissionTo(['handle customers', 'handle products','handle orders','handle promotions','approve customers', 'approve products', 'approve orders','approve promotions']);
          
  
          // Assign roles to users

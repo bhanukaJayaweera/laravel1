@@ -22,24 +22,26 @@
                     @endcan
                     <br><br>
                     @can('handle products')
-                    <a class="btn btn-success" href="{{route('product.index')}}" class="text-red-600"><i class="fa fa-box"></i>  Product page</a>  
+                    <a class="btn btn-success" href="{{route('product.index')}}" class="text-red-600"><i class="fa fa-box"></i>  Manage Products</a>  
                     @endcan                
                     <br><br>
                     @can('handle customers')
-                    <a class="btn btn-danger" href="{{route('customer.index')}}"><i class="fa fa-user"></i>  Customer page</a>
+                    <a class="btn btn-danger" href="{{route('customer.index')}}"><i class="fa fa-user"></i>  Manage Customers</a>
                     @endcan
                     <br><br>
                     @can('handle orders')
-                    <a class="btn btn-primary" href="{{route('order.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>  Order page</a>
+                    <a class="btn btn-success" href="{{route('order.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>  Manage Orders</a>
                     @endcan
                     <br><br>
                     @can('approve orders')
                     <a class="btn btn-primary" href="{{route('order.approvals')}}" class="text-red-600"> <i class="fas fa-check"></i>  Approve Orders</a>
                     @endcan
-                    @can('approve orders')
-                    <a class="btn btn-primary" href="{{route('Promotion.index')}}" class="text-red-600"> <i class="fas fa-check"></i>  Manage Promotions</a>
+                    <br><br>
+                    @can('handle promotions')
+                    <a class="btn btn-success" href="{{route('Promotion.index')}}" class="text-red-600"> <i class="fas fa-money-bill-wave"></i>  Manage Promotions</a>
                     @endcan
-                    @can('approve orders')
+                    <br><br>
+                    @can('approve promotions')
                     <a class="btn btn-primary" href="{{route('Promotion.approvals')}}" class="text-red-600"> <i class="fas fa-check"></i>  Approve Promotions</a>
                     @endcan
                 </div>

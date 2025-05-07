@@ -245,6 +245,10 @@ class OrderController extends Controller
     public function checkInvent(Request $request){
         $productId = $request->input('productId');
         $quantity = $request->input('quantity');
+        // $promotions = Promotion::where('product_id', $productId)
+        // ->whereDate('start_date', '<=', now())
+        // ->whereDate('end_date', '>=', now())
+        // ->get();
         $productModel = Product::find($productId);
             if ($productModel) {
                 $newInventory = $productModel->quantity - $quantity;
@@ -258,7 +262,8 @@ class OrderController extends Controller
                 else{
                     return response()->json([
                         'status' => 'success',
-                        'message' => "Sufficient inventory for {$productModel->name}."
+                        'message' => "Sufficient inventory for {$productModel->name}.",
+                        //'promotions' => $promotions,
                     ]);
                 }
             }
