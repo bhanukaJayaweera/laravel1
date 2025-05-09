@@ -281,7 +281,12 @@
                     </table>
                     
                     <!-- Hidden input field to store product data -->
-                    <input type="hidden" name="products" id="productsData">                 
+                    <input type="hidden" name="products" id="productsData">  
+            <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Discount</label>
+                <input type="text" name="discount" id="discount" class="form-control" readonly>
+                <button type="button" id="calDiscount" class="btn btn-primary">View Discount</button>
+            </div>          
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Total Amount</label>
                 <input type="text" name="amount" id="amounts" class="form-control" readonly>
@@ -968,8 +973,68 @@
         });
 
 
+        $('#calDiscount').on('click', function () {
+            let selectedProducts = [];
+            $("#productTableBodyNew tr").each(function () {
+                let productId = $(this).data("id");
+                selectedProducts.push({ product_id: productId });
+
+            });
+
+            if (selectedProducts.length === 0) {
+                alert("Please add at least one product.");
+                e.preventDefault();
+                return;
+            }
+
+            $.ajax({
+                    url: "/orderproduct/promotion",
+                    type: "POST",
+                    contentType: "application/json",  // Important for sending JSON
+                    data: JSON.stringify({
+                        products: selectedProducts,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    }),
+                    success: function (response) {
+            //get the total
+                        let total = 0; // Moved outside the loop
+                        $("#productTableBodyNew tr").each(function () {
+                            let quantity = $(this).data("quantity");
+                            let price = $(this).data('price');
+                            productPrice = quantity*price;
+                            total += productPrice;
+                        });
+                        //let discount = 0; 
+                        let discountSum = 0;  
+                        //let promotions = []; 
+                        let promotions = response.promotions || [];
+                        $("#productTableBodyNew tr").each(function () {          
+                                let product_id = $(this).data("id");
+                                let quantity = $(this).data("quantity");
+                                let price = $(this).data('price');
+                                productPrice = quantity*price;      
+                                promotions.forEach(function(promotion) {
+                                    if((promotion.usage_limit >= total) && (promotion.product_id == product_id)){
+                                        discount = productPrice*promotion.discount_percentage
+                                        discountSum += discount;
+                                    }
+                                });
+                
+                            });
+                    
+                        $('#discount').val(discountSum.toFixed(2));
+                      
+                    }
+                        error: function (xhr) {
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                alert(xhr.responseJSON.message);
+                            } else {
+                                alert('An error occurred');
+                            }
+                        },
+                    });
     });
- 
+});
 </script>
 
 
