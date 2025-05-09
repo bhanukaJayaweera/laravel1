@@ -290,11 +290,15 @@ class OrderController extends Controller
         foreach ($selectedProducts as $product) {
             $productId = $product['product_id'] ?? null;
            $promotions = Promotion::where('product_id', $productId)
+            ->where('is_active', 'yes') 
             ->whereDate('start_date', '<=', now())
             ->whereDate('end_date', '>=', now())
             ->get();
         }
-    
+        \Log::info("Found promotions for product $productId", [
+            'promotions_count' => $promotions->count(),
+            'promotions' => $promotions->toArray()
+        ]);
         // Return the promotions or whatever data you need
         return response()->json([
             'promotions' => $promotions,

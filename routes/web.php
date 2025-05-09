@@ -88,7 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/orderproduct/store', [OrderController::class, 'storeOrder']);
     Route::post('/orderproduct/checkInvent', [OrderController::class, 'checkInvent']);
     Route::post('/orderproduct/edit', [OrderController::class, 'editOrder']);
-    Route::get('/orderproduct/promotion', [OrderController::class, 'getPromotions']);
+    Route::post('/orderproduct/promotion', [OrderController::class, 'getPromotions']);
 
     //productsearch
     Route::get('/order/search', [OrderController::class, 'search'])->name('order.search');

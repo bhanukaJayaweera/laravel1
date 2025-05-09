@@ -480,7 +480,9 @@
                 productPrice = quantity*price;
                 amount += productPrice;
             });
-        $('#amounts').val(amount); // Set to some input
+        let discount = $('#discount').val();
+        amountDiscount = amount - discount;
+        $('#amounts').val(amountDiscount.toFixed(2)); // Set to some input
     });
 
 
@@ -749,7 +751,10 @@
                 productPrice = quantity*price;
                 amount += productPrice;
             });
-        $('#amount').val(amount); // Set to some input
+        // let discount = $('#discount').val();
+        // amountDiscount = amount - discount;
+        // $('#amounts').val(amountDiscount.toFixed(2)); // Set to some input
+
     });
 
     // Update Customer (AJAX Form Submission)
@@ -972,68 +977,130 @@
             }
         });
 
-
-        $('#calDiscount').on('click', function () {
+        $('#calDiscount').click(function (e) {
+            e.preventDefault();
             let selectedProducts = [];
+            
             $("#productTableBodyNew tr").each(function () {
                 let productId = $(this).data("id");
                 selectedProducts.push({ product_id: productId });
-
             });
 
             if (selectedProducts.length === 0) {
                 alert("Please add at least one product.");
-                e.preventDefault();
                 return;
             }
 
             $.ajax({
-                    url: "/orderproduct/promotion",
-                    type: "POST",
-                    contentType: "application/json",  // Important for sending JSON
-                    data: JSON.stringify({
-                        products: selectedProducts,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    }),
-                    success: function (response) {
-            //get the total
-                        let total = 0; // Moved outside the loop
-                        $("#productTableBodyNew tr").each(function () {
-                            let quantity = $(this).data("quantity");
-                            let price = $(this).data('price');
-                            productPrice = quantity*price;
-                            total += productPrice;
-                        });
-                        //let discount = 0; 
-                        let discountSum = 0;  
-                        //let promotions = []; 
-                        let promotions = response.promotions || [];
-                        $("#productTableBodyNew tr").each(function () {          
-                                let product_id = $(this).data("id");
-                                let quantity = $(this).data("quantity");
-                                let price = $(this).data('price');
-                                productPrice = quantity*price;      
-                                promotions.forEach(function(promotion) {
-                                    if((promotion.usage_limit >= total) && (promotion.product_id == product_id)){
-                                        discount = productPrice*promotion.discount_percentage
-                                        discountSum += discount;
-                                    }
-                                });
-                
-                            });
-                    
-                        $('#discount').val(discountSum.toFixed(2));
-                      
-                    }
-                        error: function (xhr) {
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                alert(xhr.responseJSON.message);
-                            } else {
-                                alert('An error occurred');
-                            }
-                        },
+                url: "/orderproduct/promotion",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    products: selectedProducts,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                }),
+                success: function (response) {
+                    // Calculate total
+                    let total = 0;
+                    $("#productTableBodyNew tr").each(function () {
+                        let quantity = parseFloat($(this).data("quantity"));
+                        let price = parseFloat($(this).data('price'));
+                        let productPrice = quantity * price;
+                        total += productPrice;
                     });
-    });
+                    
+                    // Calculate discount
+                    let discountSum = 0;  
+                    let promotions = response.promotions || [];
+                    
+                    $("#productTableBodyNew tr").each(function () {          
+                        let product_id = $(this).data("id");
+                        let quantity = parseFloat($(this).data("quantity"));
+                        let price = parseFloat($(this).data('price'));
+                        let productPrice = quantity * price;
+                        
+                        promotions.forEach(function(promotion) {
+                            let discountPercentage = parseFloat(promotion.discount_percentage) / 100;
+                            if ((promotion.usage_limit <= total) && (promotion.product_id == product_id)) {
+                                let discount = productPrice * discountPercentage;
+                                discountSum += discount;
+                            }
+                        });
+                    });
+                    
+                    $('#discount').val(discountSum.toFixed(2));
+                },
+                error: function (xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        alert(xhr.responseJSON.message);
+                    } else {
+                        alert('An error occurred while calculating discount');
+                    }
+                }
+            });
+        });
+
+
+    //     $('#calDiscount').click(function (e) {
+    //         let selectedProducts = [];
+    //         $("#productTableBodyNew tr").each(function () {
+    //             let productId = $(this).data("id");
+    //             selectedProducts.push({ product_id: productId });
+
+    //         });
+
+    //         if (selectedProducts.length === 0) {
+    //             alert("Please add at least one product.");
+    //             e.preventDefault();
+    //             return;
+    //         }
+
+    //         $.ajax({
+    //                 url: "/orderproduct/promotion",
+    //                 type: "POST",
+    //                 contentType: "application/json",  // Important for sending JSON
+    //                 data: JSON.stringify({
+    //                     products: selectedProducts,
+    //                     _token: $('meta[name="csrf-token"]').attr('content')
+    //                 }),
+    //                 success: function (response) {
+    //         //get the total
+    //                     let total = 0; // Moved outside the loop
+    //                     $("#productTableBodyNew tr").each(function () {
+    //                         let quantity = $(this).data("quantity");
+    //                         let price = $(this).data('price');
+    //                         productPrice = quantity*price;
+    //                         total += productPrice;
+    //                     });
+    //                     //let discount = 0; 
+    //                     let discountSum = 0;  
+    //                     //let promotions = []; 
+    //                     let promotions = response.promotions || [];
+    //                     $("#productTableBodyNew tr").each(function () {          
+    //                             let product_id = $(this).data("id");
+    //                             let quantity = $(this).data("quantity");
+    //                             let price = $(this).data('price');
+    //                             productPrice = quantity*price;      
+    //                             promotions.forEach(function(promotion) {
+    //                                 if((promotion.usage_limit >= total) && (promotion.product_id == product_id)){
+    //                                     discount = productPrice*promotion.discount_percentage
+    //                                     discountSum += discount;
+    //                                 }
+    //                             });             
+    //                         });
+                    
+    //                     $('#discount').val(discountSum.toFixed(2));
+                      
+    //                 }
+    //                     error: function (xhr) {
+    //                         if (xhr.responseJSON && xhr.responseJSON.message) {
+    //                             alert(xhr.responseJSON.message);
+    //                         } else {
+    //                             alert('An error occurred');
+    //                         }
+    //                     },
+    //                 });
+    // });
 });
 </script>
 
