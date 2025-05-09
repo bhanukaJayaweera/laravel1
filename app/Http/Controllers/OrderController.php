@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Promotion;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\OrderImport;
 use Illuminate\Support\Facades\Log; // Import Log facade
@@ -245,6 +246,10 @@ class OrderController extends Controller
     public function checkInvent(Request $request){
         $productId = $request->input('productId');
         $quantity = $request->input('quantity');
+        // $promotions = Promotion::where('product_id', $productId)
+        // ->whereDate('start_date', '<=', now())
+        // ->whereDate('end_date', '>=', now())
+        // ->get();
         $productModel = Product::find($productId);
             if ($productModel) {
                 $newInventory = $productModel->quantity - $quantity;
@@ -258,11 +263,49 @@ class OrderController extends Controller
                 else{
                     return response()->json([
                         'status' => 'success',
-                        'message' => "Sufficient inventory for {$productModel->name}."
+                        'message' => "Sufficient inventory for {$productModel->name}.",
+                        // 'promotions' => $promotions,
                     ]);
                 }
             }
     }
+
+
+    public function getPromotions(Request $request){
+        if (!$request->isJson()) {
+            return response()->json(['error' => 'Invalid data format'], 400);
+        }
+    
+        // Get the JSON content
+        $data = $request->json()->all();
+        // Access the products array
+        $selectedProducts = $data['products'] ?? [];
+    
+        // Validate the data structure
+        if (empty($selectedProducts)) {
+            return response()->json(['error' => 'No products selected'], 400);
+        }
+    
+        // Process each product
+        foreach ($selectedProducts as $product) {
+            $productId = $product['product_id'] ?? null;
+           $promotions = Promotion::where('product_id', $productId)
+            ->where('is_active', 'yes') 
+            ->whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now())
+            ->get();
+        }
+        \Log::info("Found promotions for product $productId", [
+            'promotions_count' => $promotions->count(),
+            'promotions' => $promotions->toArray()
+        ]);
+        // Return the promotions or whatever data you need
+        return response()->json([
+            'promotions' => $promotions,
+        ]);
+    }
+
+
     // Load data for editing
     public function orderedit($id,Request $request)
     {

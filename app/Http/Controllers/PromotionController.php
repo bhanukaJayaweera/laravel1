@@ -21,7 +21,7 @@ class PromotionController extends Controller
         // if (!Auth::user()->hasRole('admin')) {
         //     abort(403, 'Unauthorized');
         // }
-        if (auth()->user()->can('handle orders')) {
+        if (auth()->user()->can('handle promotions')) {
             $promotions = Promotion::all();
             return view('Promotion.index',compact('promotions'));
         }
@@ -142,7 +142,7 @@ class PromotionController extends Controller
 
      //orderproduct new 
     public function storeOrder(Request $request) {
-    if (auth()->user()->can('handle orders')) {
+    if (auth()->user()->can('handle promotions')) {
         Log::info('Request Data:', $request->all()); // Log the request data
         // $products = json_decode($request->products, true);  
         // if (!$products) {
