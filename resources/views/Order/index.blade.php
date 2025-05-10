@@ -272,6 +272,7 @@
                                 <th>Product Name</th>
                                 <th>Quantity</th>
                                 <th>Unit Price</th>
+                                <th>Discount</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -282,6 +283,7 @@
                     
                     <!-- Hidden input field to store product data -->
                     <input type="hidden" name="products" id="productsData">  
+
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Discount</label>
                 <input type="text" name="discount" id="discount" class="form-control" readonly>
@@ -430,11 +432,12 @@
                         if (response.status === 'success') {  
                             if (productId && quantity > 0) {
                                 let row = `
-                                    <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}">
+                                    <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-discount="">
                                         <td>${productId}</td>
                                         <td>${productName}</td>
                                         <td>${quantity}</td>
                                         <td>${price}</td>
+                                        <td class="discount"></td>
                                         <td>
                                             <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
                                         </td>
@@ -535,7 +538,8 @@
             $("#productTableBodyNew tr").each(function () {
                 let productId = $(this).data("id");
                 let quantity = $(this).data("quantity");
-                selectedProducts.push({ product_id: productId, quantity: quantity });
+                let discount = $(this).data("discount");
+                selectedProducts.push({ product_id: productId, quantity: quantity, discount: discount});
             
             });
 
@@ -546,11 +550,15 @@
             }
 
             $("#productsData").val(JSON.stringify(selectedProducts));
-            var formData = $(this).serialize();
+            //var discount = $('#discount').val();
+            // Prepare form data
+            var formData = $(this).serializeArray();
+             // Add discount to the form data
+           // formData.push({name: 'discount', value: discount});
             $.ajax({
                         url: "/orderproduct/store",
                         type: "POST",
-                        data: formData,
+                        data: $.param(formData), // Convert array to URL-encoded string
                         success: function (response) {
                             //alert(response.message);
                             //location.reload(); // Refresh page
@@ -1013,16 +1021,20 @@
                     let discountSum = 0;  
                     let promotions = response.promotions || [];
                     
-                    $("#productTableBodyNew tr").each(function () {          
+                    $("#productTableBodyNew tr").each(function () {    
+                        let $row = $(this);      
                         let product_id = $(this).data("id");
                         let quantity = parseFloat($(this).data("quantity"));
                         let price = parseFloat($(this).data('price'));
                         let productPrice = quantity * price;
                         
-                        promotions.forEach(function(promotion) {
+                        promotions[product_id].forEach(function(promotion) {
                             let discountPercentage = parseFloat(promotion.discount_percentage) / 100;
                             if ((promotion.usage_limit <= total) && (promotion.product_id == product_id)) {
                                 let discount = productPrice * discountPercentage;
+                                  // Update the discount display in this row
+                                $row.find('.discount').text(discount.toFixed(2));
+                                $row.attr('data-discount', discount.toFixed(2));
                                 discountSum += discount;
                             }
                         });

@@ -228,8 +228,13 @@ class OrderController extends Controller
                 $productModel->save();
             }
         }
+        
         // Generate the PDF
-        $pdf = PDF::loadView('Order.invoice', compact('order'));
+        $pdf = PDF::loadView('Order.invoice', [
+            'order' => $order,
+            'products' => $products,
+
+        ]);
 
         // Optionally save to storage
         $fileName = 'invoice_'.$order->id.'.pdf';
@@ -271,40 +276,87 @@ class OrderController extends Controller
     }
 
 
-    public function getPromotions(Request $request){
+    // public function getPromotions(Request $request){
+    //     if (!$request->isJson()) {
+    //         return response()->json(['error' => 'Invalid data format'], 400);
+    //     }
+    
+    //     // Get the JSON content
+    //     $data = $request->json()->all();
+    //     // Access the products array
+    //     $selectedProducts = $data['products'] ?? [];
+       
+    //     // Validate the data structure
+    //     if (empty($selectedProducts)) {
+    //         return response()->json(['error' => 'No products selected'], 400);
+    //     }
+    //     $productPromotions = []; // Array to store promotions for all products
+    //     // Process each product
+    //     foreach ($selectedProducts as $product) {
+    //         \Log::info("products: ", [
+    //             'product' => $product,              
+    //         ]);
+    //         $productId = $product['product_id'] ?? null;
+    //         $promotions = Promotion::where('product_id', $productId)
+    //         ->where('is_active', 'yes') 
+    //         ->whereDate('start_date', '<=', now())
+    //         ->whereDate('end_date', '>=', now())
+    //         ->get();
+
+    //           // Store promotions for this product
+    //         $productPromotions[] = $promotions->toArray();
+    //     }
+    //     \Log::info("Found promotions for product $productId", [
+    //         'promotions_count' => $promotions->count(),
+    //         'promotions' => $promotions->toArray()
+    //     ]);
+    //     // Return the promotions or whatever data you need
+    //     return response()->json([
+    //         'promotions' => $productPromotions,
+    //     ]);
+    // }
+
+    public function getPromotions(Request $request)
+    {
         if (!$request->isJson()) {
             return response()->json(['error' => 'Invalid data format'], 400);
         }
-    
-        // Get the JSON content
+
         $data = $request->json()->all();
-        // Access the products array
         $selectedProducts = $data['products'] ?? [];
-    
-        // Validate the data structure
+
         if (empty($selectedProducts)) {
             return response()->json(['error' => 'No products selected'], 400);
         }
-    
-        // Process each product
+
+        $productPromotions = []; // This will store promotions keyed by product ID
+
         foreach ($selectedProducts as $product) {
             $productId = $product['product_id'] ?? null;
-           $promotions = Promotion::where('product_id', $productId)
-            ->where('is_active', 'yes') 
-            ->whereDate('start_date', '<=', now())
-            ->whereDate('end_date', '>=', now())
-            ->get();
+            if (!$productId) continue;
+
+            // Get active promotions for this product
+            $promotions = Promotion::where('product_id', $productId)
+                ->where('is_active', 'yes')
+                ->whereDate('start_date', '<=', now())
+                ->whereDate('end_date', '>=', now())
+                ->get();
+
+            // Store promotions with product ID as key
+            $productPromotions[$productId] = $promotions->toArray();
+
+            \Log::info("Promotions for product {$productId}", [
+                'count' => $promotions->count(),
+                'promotions' => $promotions->toArray()
+            ]);
         }
-        \Log::info("Found promotions for product $productId", [
-            'promotions_count' => $promotions->count(),
-            'promotions' => $promotions->toArray()
-        ]);
-        // Return the promotions or whatever data you need
+
         return response()->json([
-            'promotions' => $promotions,
+            'success' => true,
+            'promotions' => $productPromotions,
+            'message' => 'Promotions retrieved successfully'
         ]);
     }
-
 
     // Load data for editing
     public function orderedit($id,Request $request)

@@ -28,16 +28,46 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($order->products as $product)
+            
+                
                 <tr>
+                @foreach($order->products as $product)
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->pivot->quantity }}</td>
                     <td>{{ $product->price }}</td>
                     <td>{{ number_format($product->pivot->quantity * $product->price, 2) }}</td>
+                @endforeach
+                
                 </tr>
-            @endforeach
+            
         </tbody>
     </table>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Discount</th>
+            </tr>
+        </thead>
+        <tbody>                   
+                <tr>
+                
+                @foreach($products as $product)
+                    @php
+                        $discount = $product['discount'] ?? 0;
+                    @endphp
+                    <td>{{ number_format($discount, 2) }}</td>
+                @endforeach
+
+                
+                </tr>
+            
+        </tbody>
+    </table>
+    <!-- <div style="text-align: right; margin-top: 30px;">
+        <p><strong>Discount:</strong> {{ number_format($discount,2) }}</p>
+    </div> -->
+
 
     <div style="text-align: right; margin-top: 30px;">
         <p><strong>Grand Total:</strong> {{ number_format($order->amount,2) }}</p>
