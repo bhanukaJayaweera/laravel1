@@ -228,12 +228,16 @@ class OrderController extends Controller
                 $productModel->save();
             }
         }
+        $totalDiscount = 0;
+        foreach ($products as $product) {
+            $totalDiscount += (float)($product['discount']);
+        }
         
         // Generate the PDF
         $pdf = PDF::loadView('Order.invoice', [
             'order' => $order,
             'products' => $products,
-
+            'totaldiscount' => $totalDiscount,
         ]);
 
         // Optionally save to storage

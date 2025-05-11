@@ -18,56 +18,66 @@
     <p><strong>Payment Type:</strong> {{ $order->payment_type }}</p>
 
     <h3>Products</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Sub Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            
-                
-                <tr>
-                @foreach($order->products as $product)
-                    <td>{{ $product->name }}</td>
-                    <td>{{ $product->pivot->quantity }}</td>
-                    <td>{{ $product->price }}</td>
-                    <td>{{ number_format($product->pivot->quantity * $product->price, 2) }}</td>
-                @endforeach
-                
-                </tr>
-            
-        </tbody>
-    </table>
     
     <table>
-        <thead>
-            <tr>
-                <th>Discount</th>
-            </tr>
-        </thead>
-        <tbody>                   
-                <tr>
-                
-                @foreach($products as $product)
-                    @php
-                        $discount = $product['discount'] ?? 0;
-                    @endphp
-                    <td>{{ number_format($discount, 2) }}</td>
-                @endforeach
-
-                
-                </tr>
-            
-        </tbody>
-    </table>
-    <!-- <div style="text-align: right; margin-top: 30px;">
-        <p><strong>Discount:</strong> {{ number_format($discount,2) }}</p>
-    </div> -->
-
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Sub Total</th>
+            <th>Discount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($order->products as $index => $product)
+        <tr>
+            <td>{{ $product->name }}</td>
+            <td>{{ $product->pivot->quantity }}</td>
+            <td>{{ $product->price }}</td>
+            <td>{{ number_format($product->pivot->quantity * $product->price, 2) }}</td>
+            <td>
+                @if(isset($products[$index]['discount']))
+                    {{ number_format((float)$products[$index]['discount'],2)}}
+                @else
+                    0.00
+                @endif
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+<table>
+    <thead>
+        <tr>
+            <th>Promotion</th>
+            <th>Discount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($products as $product)
+        <tr>
+            <td>      
+                @isset($product['promotion'])
+                @if(!empty($product['promotion']))
+                    {{ $product['promotion'] }}
+                @endif
+                @endisset
+            </td>
+            <td>
+                @isset($product['discount']) 
+                 @if((float)$product['discount'] != 0)
+                    {{ number_format((float)$product['discount'],2)}}
+                @endif
+                @endisset
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+    <div style="text-align: right; margin-top: 30px;">
+        <p><strong>Total Discount:</strong> {{ number_format($totaldiscount,2) }}</p>
+    </div>
 
     <div style="text-align: right; margin-top: 30px;">
         <p><strong>Grand Total:</strong> {{ number_format($order->amount,2) }}</p>

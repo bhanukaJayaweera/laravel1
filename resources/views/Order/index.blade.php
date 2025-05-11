@@ -432,12 +432,12 @@
                         if (response.status === 'success') {  
                             if (productId && quantity > 0) {
                                 let row = `
-                                    <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-discount="">
+                                    <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-discount="" data-promotion="">
                                         <td>${productId}</td>
                                         <td>${productName}</td>
                                         <td>${quantity}</td>
                                         <td>${price}</td>
-                                        <td class="discount"></td>
+                                        <td class="discount" data-value="0.00">0.00</td>
                                         <td>
                                             <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
                                         </td>
@@ -539,7 +539,20 @@
                 let productId = $(this).data("id");
                 let quantity = $(this).data("quantity");
                 let discount = $(this).data("discount");
-                selectedProducts.push({ product_id: productId, quantity: quantity, discount: discount});
+                let promotion = $(this).data("promotion");
+                // Create the base product object
+                const product = {
+                        product_id: productId,
+                        quantity: quantity,
+                        discount: discount
+                    };
+
+                    // Only add 'promotion' if it exists and is not an empty string
+                    if (promotion && promotion !== "") {
+                        product.promotion = promotion;
+                    }
+
+                    selectedProducts.push(product);
             
             });
 
@@ -1035,6 +1048,7 @@
                                   // Update the discount display in this row
                                 $row.find('.discount').text(discount.toFixed(2));
                                 $row.attr('data-discount', discount.toFixed(2));
+                                $row.attr('data-promotion', promotion.description );
                                 discountSum += discount;
                             }
                         });
