@@ -168,6 +168,7 @@
                                 <th>Product Name</th>
                                 <th>Quantity</th>
                                 <th>Unit price</th>
+                                <th>Discount</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -177,7 +178,12 @@
                     </table>
                 </div>
             <!-- Hidden input field to store product data -->
-            <input type="hidden" name="products" id="editData">   
+            <input type="hidden" name="products" id="editData">  
+             <div class="input-group mb-3">
+                <label class="input-group-text" id="inputGroup-sizing-default">Discount</label>
+                <input type="text" name="discount" id="discount" class="form-control" readonly>
+                <button type="button" id="calDisc" class="btn btn-primary">View Discount</button>
+            </div>   
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Total Amount</label>
                 <input type="text" name="amount" id="amount" class="form-control" readonly>
@@ -474,7 +480,7 @@
        
     });
 
-    //load full amount 
+    //load total amount - add new
     $('#amounts').on('click', function () {
         let amount = 0; // Moved outside the loop
         $("#productTableBodyNew tr").each(function () {
@@ -488,6 +494,21 @@
         $('#amounts').val(amountDiscount.toFixed(2)); // Set to some input
     });
 
+     //load total amount - update
+     $('#amount').on('click', function () {
+        let amount = 0; // Moved outside the loop
+        $("#productTableBody tr").each(function () {
+                let quantity = $(this).data("quantity");
+                let price = $(this).data('price');
+                productPrice = quantity*price;
+                amount += productPrice;
+            });
+        let discount = $('#discount').val();
+        amountDiscount = amount - discount;
+        $('#amount').val(amountDiscount.toFixed(2)); // Set to some input
+
+    });
+
 
         $("#addProductUpdate").click(function () {
         let productId = $("#prod_id").val();
@@ -496,11 +517,12 @@
         let price = $("#prod_id").find("option:selected").data('price');   
         if (productId && quantity > 0) {
             let row = `
-                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}">
+                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}" data-discount="" data-promotion="">
                     <td>${productId}</td>
                     <td>${productName}</td>
                     <td>${quantity}</td>
                     <td>${price}</td>
+                    <td class="discount" data-value="0.00">0.00</td>
                     <td>
                         <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
                     </td>
@@ -636,7 +658,14 @@
 
     //view order
         $(".viewOrder").click(function () {
-                var orderId = $(this).data("id");
+             //e.preventDefault();
+            var orderId = $(this).data("id");  
+            // let selectedProducts = [];
+            
+            // $("#productTableBody tr").each(function () {
+            //     let productId = $(this).data("id");
+            //     selectedProducts.push({ product_id: productId });
+            // });
                 $.ajax({
                     url: "/order/" + orderId + "/change",
                     type: "GET",
@@ -725,11 +754,12 @@
                         $.each(response.order.products, function (index, product) {
                             //Log::info('Product:',$product);
                             tableBody.append(`
-                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}" data-price="${product.price}" data-name="${product.name}">                               
+                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}" data-price="${product.price}" data-name="${product.name}" data-discount="" data-promotion="">                               
                                     <td>${product.id}</td>
                                     <td>${product.name}</td>
                                     <td>${product.pivot.quantity}</td>
                                     <td>${product.price}</td>
+                                    <td class="discount" data-value="0.00">0.00</td>
                                     <td>
                                         <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
                                     </td>
@@ -763,20 +793,7 @@
                 });
             });
 
-     //load full amount 
-     $('#amount').on('click', function () {
-        let amount = 0; // Moved outside the loop
-        $("#productTableBody tr").each(function () {
-                let quantity = $(this).data("quantity");
-                let price = $(this).data('price');
-                productPrice = quantity*price;
-                amount += productPrice;
-            });
-        // let discount = $('#discount').val();
-        // amountDiscount = amount - discount;
-        // $('#amounts').val(amountDiscount.toFixed(2)); // Set to some input
-
-    });
+    
 
     // Update Customer (AJAX Form Submission)
     $("#orderForm").submit(function (e){
@@ -997,7 +1014,7 @@
                 alert("No orders selected for deletion!");
             }
         });
-
+       //add new - calculate discount
         $('#calDiscount').click(function (e) {
             e.preventDefault();
             let selectedProducts = [];
@@ -1049,6 +1066,74 @@
                                 $row.find('.discount').text(discount.toFixed(2));
                                 $row.attr('data-discount', discount.toFixed(2));
                                 $row.attr('data-promotion', promotion.description );
+                                discountSum += discount;
+                            }
+                        });
+                    });
+                    
+                    $('#discount').val(discountSum.toFixed(2));
+                },
+                error: function (xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        alert(xhr.responseJSON.message);
+                    } else {
+                        alert('An error occurred while calculating discount');
+                    }
+                }
+            });
+        });
+             //update window calculate discount
+           $('#calDisc').click(function (e) {
+            e.preventDefault();
+            let selectedProducts = [];
+            
+            $("#productTableBody tr").each(function () {
+                let productId = $(this).data("id");
+                selectedProducts.push({ product_id: productId });
+            });
+
+            if (selectedProducts.length === 0) {
+                alert("Please add at least one product.");
+                return;
+            }
+
+            $.ajax({
+                url: "/orderproduct/promotion",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    products: selectedProducts,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                }),
+                success: function (response) {
+                    // Calculate total
+                    let total = 0;
+                    $("#productTableBody tr").each(function () {
+                        let quantity = parseFloat($(this).data("quantity"));
+                        let price = parseFloat($(this).data('price'));
+                        let productPrice = quantity * price;
+                        total += productPrice;
+                    });
+                    
+                    // Calculate discount
+                    let discountSum = 0;  
+                    let promotions = response.promotions || [];
+                    
+                    $("#productTableBody tr").each(function () {    
+                        let $row = $(this);      
+                        let product_id = $(this).data("id");
+                        let quantity = parseFloat($(this).data("quantity"));
+                        let price = parseFloat($(this).data('price'));
+                        let productPrice = quantity * price;
+                        
+                        promotions[product_id].forEach(function(promotion) {
+                            let discountPercentage = parseFloat(promotion.discount_percentage) / 100;
+                            if ((promotion.usage_limit <= total) && (promotion.product_id == product_id)) {
+                                let discount = productPrice * discountPercentage;
+                                  // Update the discount display in this row
+                                $row.find('.discount').text(discount.toFixed(2));
+                                $row.attr('data-discount', discount.toFixed(2));
+                                $row.attr('data-promotion', promotion.description);
                                 discountSum += discount;
                             }
                         });

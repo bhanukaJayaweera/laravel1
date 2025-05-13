@@ -66,7 +66,7 @@
             </td>
             <td>
                 @isset($product['discount']) 
-                 @if((float)$product['discount'] != 0)
+                @if((float)$product['discount'] != 0)
                     {{ number_format((float)$product['discount'],2)}}
                 @endif
                 @endisset
