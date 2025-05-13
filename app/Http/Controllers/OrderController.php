@@ -558,8 +558,9 @@ class OrderController extends Controller
         //Log::info('Request Data:', $request->all()); // Log the request data
         
         $request = OrderDeletionRequest::findOrFail($id);
+        Log::info('Request:',$request); 
         $order = $request->order;
-        
+        Log::info('Order:', $order); 
         // if (!$products) {
         //     return back()->with('error', 'No products selected!');
         // }  

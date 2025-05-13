@@ -7,7 +7,7 @@
         </h2>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <!-- DataTables CSS -->
@@ -41,7 +41,7 @@
             </div>
         </div>
     </div>
-       <!-- Modal view/update-->
+       <!-- Modal view-->
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -383,7 +383,7 @@ $('.approveUpdate').on('click', function () {
             error: function (xhr) {
                         //alert("Error saving order!");
                 $("#orderModal").modal("hide"); // Close modal
-                $("#derror").show();
+                $("#uerror").show();
                 $("#messageModal").modal("show");
             },
 
@@ -408,7 +408,7 @@ $('.rejectUpdate').on('click', function () {
             error: function (xhr) {
                         //alert("Error saving order!");
                 $("#orderModal").modal("hide"); // Close modal
-                $("#derror").show();
+                $("#uerror").show();
                 $("#messageModal").modal("show");
             },
 
