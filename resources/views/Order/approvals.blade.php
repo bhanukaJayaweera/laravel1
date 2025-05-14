@@ -5,9 +5,11 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Order Update/Delete Approvals
         </h2>
+        <!-- <meta name="csrf-token" content="{{ csrf_token() }}"> -->
+
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <!-- <meta name="csrf-token" content="{{ csrf_token() }}"> -->
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <!-- DataTables CSS -->
@@ -366,7 +368,7 @@ $('.approveUpdate').on('click', function () {
     var requestId = $('#request_id').val();
 
         $.ajax({
-            url: '/update-approve/' + requestId, // or whatever route you use
+            url: '/order-updateapprove/' + requestId, // or whatever route you use
             type: 'POST',
             headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -394,7 +396,7 @@ $('.rejectUpdate').on('click', function () {
     var requestId = $('#request_id').val();
 
         $.ajax({
-            url: '/update-reject/' + requestId, // or whatever route you use
+            url: '/order-updatereject/' + requestId, // or whatever route you use
             type: 'POST',
             headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
