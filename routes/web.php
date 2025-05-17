@@ -34,6 +34,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 
     Route::get('/product',[ProductController::class,'index'])->name('product.index');
     Route::get('/product/create',[ProductController::class,'create'])->name('product.create');

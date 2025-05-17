@@ -33,6 +33,12 @@
         </div>
     @endif
     
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8">
+            <a href="{{ route('users.create') }}" class="btn btn-primary">Create New User</a>
+        </div>
+    </div>
+
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -44,6 +50,8 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Email</th>
+                                <th>Active</th>
+                                <th>Enable</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -53,7 +61,24 @@
                                     <td>{{ $user->name }}</td>
                                     <td>{{ $user->email }}</td>
                                     <td>
-                                        <!-- Add edit/delete buttons here -->
+                                        <span class="badge bg-{{ $user->is_active ? 'success' : 'danger' }}">
+                                            {{ $user->is_active ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                     <td>
+                                        <span class="badge bg-{{ $user->is_enabled ? 'success' : 'danger' }}">
+                                            {{ $user->is_enabled ? 'Enabled' : 'Disabled' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-primary">Edit</a>
+                                        <form action="{{ route('users.toggle-status', $user) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm btn-{{ $user->is_active ? 'warning' : 'success' }}">
+                                                {{ $user->is_active ? 'Disable' : 'Enable' }}
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
