@@ -16,9 +16,12 @@
                     <h2 class="font-bold">You're logged in!</h2>
                     <br><br>
                     @can('handle users')
+          
+                      <a class="btn btn-primary" href="{{route('users.index')}}" class="text-red-600"><i class="fa fa-user"></i> Manage User</a>            
+                    <br><br>  
                     <a class="btn btn-primary" href="{{route('user-role.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>  Assign Roles to Users</a>            
                     <br><br>             
-                    <a class="btn btn-success" href="{{route( 'roles.permissions.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>  Assign Permissions to Roles</a>
+                    <a class="btn btn-success" href="{{route( 'roles.permissions.index')}}" class="text-red-600"><i class="fa fa-shopping-cart"></i>  Assign Permissions to Roles</a>   
                     @endcan
                     <br><br>
                     @can('handle products')

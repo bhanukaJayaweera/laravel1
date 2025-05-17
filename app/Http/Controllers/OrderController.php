@@ -555,62 +555,111 @@ class OrderController extends Controller
         
 
     public function approveUpdate($id) {
-        //Log::info('Request Data:', $request->all()); // Log the request data
-        
-        $request = OrderDeletionRequest::findOrFail($id);
-        Log::info('Request:',$request); 
-        $order = $request->order;
-        Log::info('Order:', $order); 
-        // if (!$products) {
-        //     return back()->with('error', 'No products selected!');
-        // }  
-        
-        // First, remove existing pivot records
-        $order->products()->detach();
-        if ($request->requested_changes) {
+        try {
+            // 1. Find the request
+            $request = OrderDeletionRequest::findOrFail($id);
+            \Log::info("[REQUEST FOUND]", $request->toArray());
+
+            // 2. Get associated order
+            $order = $request->order;
+            if (!$order) {
+                \Log::error("[ORDER MISSING] No order associated with request", ['request_id' => $id]);
+                throw new \Exception("No order found for this request");
+            }
+
+            // 4. Detach existing products
+            $order->products()->detach();
+
+            // 5. Process requested changes
+            if (!$request->requested_changes) {
+                throw new \Exception("No changes data found in request");
+            }
+
             $changes = json_decode($request->requested_changes, true);
-    
+
+            // 6. Update order fields
             $order->update([
-                'customer_id' => $changes['customer_id'],
-                'payment_type' => $changes['payment_type'],
-                'amount' =>$changes['amount'],
-                'status' =>$changes['status'],
-                'date' =>$changes['date'],
+                'customer_id' => $changes['customer_id'] ?? $order->customer_id,
+                'payment_type' => $changes['payment_type'] ?? $order->payment_type,
+                'amount' => $changes['amount'] ?? $order->amount,
+                'status' => $changes['status'] ?? $order->status,
+                'date' => $changes['date'] ?? $order->date,
+            ]);
+            \Log::info("[ORDER UPDATED]", $order->fresh()->toArray());
+
+            // 7. Attach new products
+            if (empty($changes['products'])) {
+                \Log::error("[NO PRODUCTS] No products in changes payload");
+                throw new \Exception("No products data in changes");
+            }
+
+            foreach ($changes['products'] as $product) {
+                
+                $order->products()->attach($product['id'], [
+                    'quantity' => $product['quantity']
+                ]);
+            }
+
+            // 8. Update request status
+            $request->status = 'update_approved';
+            $request->save();
+            \Log::info("[REQUEST APPROVED]");
+
+            // 9. Final verification
+            \Log::info("[FINAL CHECK]", [
+                'attached_products' => $order->products()->count(),
+                'new_amount' => $order->amount,
+                'request_status' => $request->status
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order update approved successfully',
+                'order_id' => $order->id
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error("[APPROVAL FAILED]", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_id' => $id ?? 'unknown'
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Approval failed: ' . $e->getMessage()
             ]);
         }
-
-        foreach ($changes['products'] as $product) {
-            Log::info('Attaching Product:', $product);
-            $order->products()->attach($product['id'], ['quantity' => $product['quantity']]);
-        }
-        $request->status = 'update_approved';
-        $request->save();    
-        return response()->json(['message' => 'Order update approved.']); 
-
-        // $data = $order->validate(
-        //     [
-        //     'customer_id' => 'required|exists:customers,id',
-        //     //'product_id' => 'required',
-        //     'date'=> 'required|date',
-        //     'payment_type'=> 'required',
-        //     'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-        //     'status'=> 'required',
-        //     ]
-        // );
-       // Log::info('Validated Order Data:', $data);
-        //$order = Order::findOrFail($request->id); // find the existing order
-        //$order->update($data);
-        //Log::info('Order Edited:', ['id' => $order->id]);
-
-        // First, remove existing pivot records
-        // $order->products()->detach();
-
-        // Attach products to order (Pivot Table)
-        //$order->products()->attach($productIds);
-        //$products = json_decode($order->products, true);  
-       
+      
 
     }
+     // $request = OrderDeletionRequest::findOrFail($id);
+
+        // $order = $request->order;
+
+        // // First, remove existing pivot records
+        // $order->products()->detach();
+        // if ($request->requested_changes) {
+        //     $changes = json_decode($request->requested_changes, true);
+    
+        //     $order->update([
+        //         'customer_id' => $changes['customer_id'],
+        //         'payment_type' => $changes['payment_type'],
+        //         'amount' =>$changes['amount'],
+        //         'status' =>$changes['status'],
+        //         'date' =>$changes['date'],
+        //     ]);
+        // }
+
+        // foreach ($changes['products'] as $product) {
+        //     Log::info('Attaching Product:', $product);
+        //     $order->products()->attach($product['id'], ['quantity' => $product['quantity']]);
+        // }
+        // $request->status = 'update_approved';
+        // $request->save();    
+        // return response()->json(['message' => 'Order update approved.']); 
+
+
     public function rejectUpdate($id) {
         Log::info('Request Id:', ['id' => $id]); // ✅ correct
         $request = OrderDeletionRequest::findOrFail($id);

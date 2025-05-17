@@ -8,6 +8,7 @@ use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 
 /*
@@ -29,6 +30,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+
     Route::get('/product',[ProductController::class,'index'])->name('product.index');
     Route::get('/product/create',[ProductController::class,'create'])->name('product.create');
     Route::post('/product',[ProductController::class,'store'])->name('product.store');
@@ -103,8 +112,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/order-approvals', [OrderController::class, 'showApprovalRequests'])->name('order.approvals');
     Route::post('/order-approve/{id}', [OrderController::class, 'approveDelete'])->name('order.approve');
     Route::post('/order-reject/{id}', [OrderController::class, 'rejectDelete'])->name('order.reject');
-    Route::post('/update-approve/{id}', [OrderController::class, 'approveUpdate'])->name('order.approveUpdate');
-    Route::post('/update-reject/{id}', [OrderController::class, 'rejectUpdate'])->name('order.rejectUpdate');
+    Route::post('/order-updateapprove/{id}', [OrderController::class, 'approveUpdate']);
+    Route::post('/order-updatereject/{id}', [OrderController::class, 'rejectUpdate']);
 
 
     //promotions
