@@ -59,9 +59,13 @@
         <tr>
             <td>      
                 @isset($product['promotion'])
-                @if(!empty($product['promotion']))
-                    {{ $product['promotion'] }}
-                @endif
+                    @if(!empty($product['promotion']))
+                        {{ $product['promotion'] }}
+                    @else
+                        No promotion
+                    @endif
+                @else
+                    No promotion
                 @endisset
             </td>
             <td>

@@ -181,7 +181,7 @@
             <input type="hidden" name="products" id="editData">  
              <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Discount</label>
-                <input type="text" name="discount" id="discount" class="form-control" readonly>
+                <input type="text" name="discount" id="discountUpdate" class="form-control" readonly>
                 <button type="button" id="calDisc" class="btn btn-primary">View Discount</button>
             </div>   
             <div class="input-group mb-3">
@@ -503,7 +503,7 @@
                 productPrice = quantity*price;
                 amount += productPrice;
             });
-        let discount = $('#discount').val();
+        let discount = $('#discountUpdate').val();
         amountDiscount = amount - discount;
         $('#amount').val(amountDiscount.toFixed(2)); // Set to some input
 
@@ -1139,7 +1139,7 @@
                         });
                     });
                     
-                    $('#discount').val(discountSum.toFixed(2));
+                    $('#discountUpdate').val(discountSum.toFixed(2));
                 },
                 error: function (xhr) {
                     if (xhr.responseJSON && xhr.responseJSON.message) {

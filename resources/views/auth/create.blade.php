@@ -97,12 +97,19 @@
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Register') }}
                                 </button>
+                                    <a class="btn btn-danger" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Back</a>
                             </div>
                         </div>
+                      
+            
                     </form>
+                  
+
                 </div>
             </div>
+            
         </div>
+
     </div>
 </div>
 </body>
