@@ -141,6 +141,10 @@
                 <label class="input-group-text">Order ID</label>
                 <input type="text" name="id" id="id" class="form-control">
             </div> 
+             <div class="input-group mb-3">
+                <label class="input-group-text">Cashier Name</label>
+                <input type="text" name="cashier_name" id="cashier_name" class="form-control" readonly>
+            </div> 
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
                 <select class="form-select" name="customer_id" id="customer_id" required>
@@ -179,7 +183,7 @@
                 </div>
             <!-- Hidden input field to store product data -->
             <input type="hidden" name="products" id="editData">  
-             <div class="input-group mb-3">
+             <div class="input-group mb-3 discountDiv">
                 <label class="input-group-text" id="inputGroup-sizing-default">Discount</label>
                 <input type="text" name="discount" id="discountUpdate" class="form-control" readonly>
                 <button type="button" id="calDisc" class="btn btn-primary">View Discount</button>
@@ -189,7 +193,7 @@
                 <input type="text" name="amount" id="amount" class="form-control" readonly>
             </div>
             <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
+                <label class="input-group-text" id="inputGroup-sizing-default">Delivery Date</label>
                 <input type="date" name="date" id="date" class="form-control">
             </div>
             <div class="input-group mb-3">
@@ -250,6 +254,10 @@
                 <label class="input-group-text">Order ID</label>
                 <input type="text" name="id" id="id" class="form-control">
             </div> 
+             <div class="input-group mb-3">
+                <label class="input-group-text">Cashier Name</label>
+                <input type="text" name="cashier_name" id="cashier_name" class="form-control" value="{{ auth()->check() ? auth()->user()->name : 'Guest' }}" readonly>
+            </div> 
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
                 <select class="form-select" name="customer_id" id="cus_id" required>
@@ -300,7 +308,7 @@
                 <input type="text" name="amount" id="amounts" class="form-control" readonly>
             </div>
             <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
+                <label class="input-group-text" id="inputGroup-sizing-default">Delivery Date</label>
                 <input type="date" name="date" id="date" class="form-control">
             </div>
             <div class="input-group mb-3">
@@ -344,7 +352,7 @@
                 <!-- <th>Cus ID</th> -->
                 <th>Customer Name</th>
                 <!-- <th>Product ID</th> -->
-                <th>Date</th>
+                <th>Delivery Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -673,6 +681,7 @@
                         $("#orderForm")[0].reset(); // Clear Form
                         $("#id").val(response.order.id);
                         $("#id").prop("disabled", true);
+                        $(".discountDiv").prop("hidden", true);
                         $("#product_div").prop("hidden", true);
                         $("#quantity_div").prop("hidden", true);
                         $("#addProductUpdate").prop("hidden", true);
@@ -685,7 +694,8 @@
                         });
                         $("#customer_id").val(response.order.customer_id);
                         $("#customer_id").prop("disabled", true);
-
+                        $("#cashier_name").val(response.order.cashier_name);
+                        $("#cashier_name").prop("disabled", true);
                         let tableBody = $("#productTableBody");
                         tableBody.empty(); // Clear existing data
 
@@ -727,6 +737,7 @@
                     type: "GET",
                     success: function (response) {
                         $("#orderForm")[0].reset(); // Clear Form
+                        $(".discountDiv").prop("hidden", false);
                         $("#product_div").prop("hidden", false);
                         $("#quantity_div").prop("hidden", false);
                         $("#addProductUpdate").prop("hidden", false);
@@ -739,7 +750,8 @@
                         });
                         $("#customer_id").val(response.order.customer_id);
                         $("#prod_id").prop("hidden", false) 
-
+                         $("#cashier_name").val(response.order.cashier_name);
+                        $("#cashier_name").prop("disabled", true);
                         let dropdown1 = $("#prod_id"); // Select dropdown
                         dropdown1.empty(); // Clear existing options
                         dropdown1.append('<option value="">Select Product</option>'); // Default option

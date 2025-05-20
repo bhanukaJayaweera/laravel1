@@ -212,6 +212,15 @@ class OrderController extends Controller
             'payment_type'=> 'required',
             'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
         ]);
+        //check the delivery date is in the past
+        $deliveryDate = $request->input('date');
+        if (strtotime($deliveryDate) < strtotime(today()->toDateString())) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Delivery date cannot be in the past'
+            ]);
+        }
+        $data['cashier_name'] = auth()->user()->name; // Force-set the cashier name
         Log::info('Validated Order Data:', $data);
         $order = Order::create($data);
         Log::info('Order Created:', ['id' => $order->id]);

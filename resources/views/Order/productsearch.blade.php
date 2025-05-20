@@ -58,7 +58,7 @@
                 <th>Order ID</th>
                 <th>Customer Name</th> 
                 <th>Product Name</th>     
-                <th>Date</th>
+                <th>Delivery Date</th>
                 <th>Payment Type</th>
                 <th>Quantity</th>
                 <th>Status</th>

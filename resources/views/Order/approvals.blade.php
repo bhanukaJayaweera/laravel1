@@ -59,7 +59,10 @@
                 <input type="text" name="id" id="id" class="form-control">
             </div> 
             <input type="hidden" name="request_id" id="request_id" class="form-control">
-
+            <div class="input-group mb-3">
+                <label class="input-group-text">Cashier Name</label>
+                <input type="text" name="cashier_name" id="cashier_name" class="form-control" readonly>
+            </div> 
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
                 <select class="form-select" name="customer_id" id="customer_id" required>
@@ -67,6 +70,7 @@
                    
                 </select>
             </div>
+
             <div class="input-group mb-3" id="product_div">
                     <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
                     <select class="form-select" name="product_id" id="prod_id">
@@ -102,7 +106,7 @@
                 <input type="text" name="amount" id="amount" class="form-control" readonly>
             </div>
             <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
+                <label class="input-group-text" id="inputGroup-sizing-default">Delivery Date</label>
                 <input type="date" name="date" id="date" class="form-control">
             </div>
             <div class="input-group mb-3">
@@ -199,8 +203,9 @@
                     </tr>
                     @endforeach
                     </tbody>
-
+                </table>
             </div>
+            <br><br><a class="btn btn-danger" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Home</a>
         </div>
     </div>
 
@@ -240,6 +245,7 @@ $(document).ready(function () {
                 }
             // Common setup for both Updated and Deleted cases
             $("#id").val(response.order.id).prop("disabled", true);
+            $("#cashier_name").val(response.order.cashier_name).prop("disabled", true);
             $("#product_div, #quantity_div, #addProductUpdate").prop("hidden", true);
             
             // Customer dropdown setup
@@ -287,10 +293,12 @@ $(document).ready(function () {
                 
                 // Update dropdown with potentially changed customer
                 dropdown.val(order.customer_id);
+
             }
             
             // Set other form values
             $("#date").val(response.order.date).prop("disabled", true);
+           
             $("#payment_type").val(response.order.payment_type).prop("disabled", true);
             $("#amount").val(response.order.amount).prop("disabled", true);
             $(`input[name="status"][value="${response.order.status}"]`)
