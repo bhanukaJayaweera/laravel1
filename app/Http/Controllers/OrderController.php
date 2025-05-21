@@ -695,10 +695,19 @@ class OrderController extends Controller
          $products = Product::all();
          $orders = [];
  
-         if ($request->filled('product_id')) {
-             $orders = Order::whereHas('products', function ($query) use ($request) {
-                 $query->where('product_id', $request->product_id);
-             })->with('customer')->get();
+         if ($request->filled('product_id') || $request->filled('date')) {
+               $orders = Order::where(function($query) use ($request) {
+                    if ($request->filled('product_id')) {
+                        $query->whereHas('products', function ($q) use ($request) {
+                            $q->where('product_id', $request->product_id);
+                        });
+                    }
+                    if ($request->filled('date')) {
+                        $query->where('date', $request->date);
+                    }               
+                })
+                ->with('customer')
+                ->get();
          }
          $selectedProductId = $request->input('product_id');
          return view('Order.productsearch', compact('products', 'orders','selectedProductId'));
