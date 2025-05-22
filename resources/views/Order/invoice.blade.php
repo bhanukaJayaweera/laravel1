@@ -13,9 +13,11 @@
 </head>
 <body>
     <h2>Invoice #{{ $order->id }}</h2>
-    <p><strong>Customer:</strong> {{ $order->customer->name }}</p>
+    
     <p><strong>Cashier:</strong> {{ $order->cashier_name }}</p>
-    <p><strong>Date:</strong> {{ $order->date }}</p>
+    <p><strong>Invoice Date & Time:</strong> {{ $order->created_at }}</p>
+    <p><strong>Customer:</strong> {{ $order->customer->name }}</p>
+    <p><strong>Delivery Date:</strong> {{ $order->date }}</p>
     <p><strong>Payment Type:</strong> {{ $order->payment_type }}</p>
 
     <h3>Products</h3>

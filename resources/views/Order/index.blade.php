@@ -352,9 +352,11 @@
                 <!-- <th>Cus ID</th> -->
                 <th>Customer Name</th>
                 <!-- <th>Product ID</th> -->
+               
                 <th>Delivery Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
+                <th>Order DateTime</th>
                 <th>Status</th>
                 <th>View</th>
                 <th>Update</th>
@@ -369,9 +371,11 @@
                     <!-- <td>{{$order->customer_id}}</td> -->
                     <td>{{$order->customer->name}}</td>
                     <!-- <td>{{$order->product_id}}</td> -->
+                   
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
-                    <td>{{$order->amount}}</td>    
+                    <td>{{$order->amount}}</td> 
+                     <td>{{$order->created_at}}</td>   
                     <td>
                     @php
                         $statusClass = match($order->status) {

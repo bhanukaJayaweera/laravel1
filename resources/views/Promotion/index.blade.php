@@ -612,7 +612,7 @@
 
         // View Selected Orders
         document.getElementById('viewSelected').addEventListener('click', function() {
-            let selectedOrders = [];
+            let selectedPromotions = [];
             document.querySelectorAll('input[name="promotion_ids[]"]:checked').forEach(checkbox => {
                 let row = checkbox.closest('tr');
                 let promotionData = {
@@ -634,13 +634,13 @@
 
                  // Create form dynamically inside the modal
                 modalBody.innerHTML = `
-                    <form id="selectedProductsForm" method="POST" action="{{ route('order.select') }}"  target="_blank">
+                    <form id="selectedProductsForm" method="POST" action="{{ route('Promotion.select') }}"  target="_blank">
                         @csrf
                         <ul>
                             ${selectedPromotions.map(promotion => 
                                 `<li>
                                     <strong>Promotion ID:</strong> ${promotion.id} 
-                                    | <strong>Production Name:</strong> ${promotion.product.name} 
+                                    | <strong>Production Name:</strong> ${promotion.product_name} 
                                     | <strong>Description:</strong> ${promotion.description} 
                                     | <strong>Discount Percentage:</strong> ${promotion.discount_percentage} 
                                     | <strong>Start Date:</strong> ${promotion.start_date} 
