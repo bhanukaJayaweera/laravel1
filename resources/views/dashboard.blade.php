@@ -12,7 +12,7 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 bg-white border-b border-gray-200">
-                <h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
+                <!-- <h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1> -->
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- User Management Section -->
@@ -60,16 +60,16 @@
                     @endcan
 
                     <!-- Order Management Section -->
-                  
+                  @can('handle orders')
                     <div class="bg-purple-50 p-5 rounded-lg border border-purple-100">
                         <h2 class="text-lg font-semibold text-purple-800 mb-4 flex items-center">
                             <i class="fas fa-shopping-cart mr-2"></i> Order Management
                         </h2>
                         <div class="space-y-3">
-                            @can('handle orders')
+                            
                             <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('order.index')}}">
                                 <i class="fas fa-clipboard-list mr-2"></i> Manage Orders
-                            </a> @endcan<br><br>
+                            </a> <br><br>
                             @can('approve orders')
                             <a class="btn btn-primary w-full text-left py-3 flex items-center" href="{{route('order.approvals')}}">
                                 <i class="fas fa-check-circle mr-2"></i> Approve Orders
@@ -77,19 +77,19 @@
                             @endcan
                         </div>
                     </div>
-                   
+                   @endcan
 
                     <!-- Promotion Management Section -->
-                    
+                    @can('handle promotions')
                     <div class="bg-yellow-50 p-5 rounded-lg border border-yellow-100">
                         <h2 class="text-lg font-semibold text-yellow-800 mb-4 flex items-center">
                             <i class="fas fa-percentage mr-2"></i> Promotion Management
                         </h2>
                         <div class="space-y-3">
-                            @can('handle promotions')
+                            
                             <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('Promotion.index')}}">
                                 <i class="fas fa-money-bill-wave mr-2"></i> Manage Promotions
-                            </a> @endcan
+                            </a> 
                             <br><br>
                             @can('approve promotions')
                             <a class="btn btn-primary w-full text-left py-3 flex items-center" href="{{route('Promotion.approvals')}}">
@@ -98,7 +98,7 @@
                             @endcan
                         </div>
                     </div>
-                   
+                   @endcan
                 </div>
 
                 <!-- Quick Stats Section (Optional) -->
