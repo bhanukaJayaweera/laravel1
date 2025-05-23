@@ -126,6 +126,58 @@
         </div>
     </div>
 
+     <!-- Customer Modal -->
+        <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Customer Details</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+               
+                        <div class="modal-body">
+                            <!-- <div class="input-group mb-3" hidden>
+                                <label class="input-group-text">Customer ID</label>
+                                <input type="text" name="cusid" id="cusid" class="form-control">
+                            </div>    -->
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Name</label>
+                                <input type="text" name="cusname" id="cusname" class="form-control">
+                            </div> 
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Gender</label><br>
+                                <div class="form-check form-check-inline" style="margin-left:3%">
+                                <input class="form-check-input" type="radio" name="gender" id="Male" value="Male">
+                                <label class="form-check-label" for="Male">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" id="Female" value="Female">
+                                <label class="form-check-label" for="Female">Female</label>
+                                </div>
+
+                            </div>
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Address</label>
+                                <input type="text" name="address" id="address" class="form-control">
+                            </div> 
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Email</label>
+                                <input type="email" name="email" id="email" class="form-control">
+                            </div>
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Phone</label>
+                                <input type="text" name="phone" id="phone" class="form-control">
+                            </div>   
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                       
+                    </div>
+                
+            </div>
+        </div>
+    </div>
+
     <!-- Modal view/update-->
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -152,6 +204,8 @@
                    
                 </select>
             </div>
+            <button type="button" id="viewCustomer" class="btn btn-primary" hidden>View Customer</button>
+
             <div class="input-group mb-3" id="product_div">
                     <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
                     <select class="form-select" name="product_id" id="prod_id">
@@ -160,7 +214,7 @@
             </div>
                 <div class="mb-3" id="quantity_div">
                     <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" id="quantity" class="form-control" class="form-control">
+                    <input type="number" name="quantity" id="quantity" class="form-control">
                 </div>    
                 <button type="button" id="addProductUpdate" class="btn btn-primary">Add to Table</button>
 
@@ -689,6 +743,7 @@
                         $("#product_div").prop("hidden", true);
                         $("#quantity_div").prop("hidden", true);
                         $("#addProductUpdate").prop("hidden", true);
+                         $("#viewCustomer").prop("hidden", false);
                         let dropdown = $("#customer_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Customer</option>'); // Default option
@@ -745,6 +800,7 @@
                         $("#product_div").prop("hidden", false);
                         $("#quantity_div").prop("hidden", false);
                         $("#addProductUpdate").prop("hidden", false);
+                        $("#viewCustomer").prop("hidden", true);
                         let dropdown = $("#customer_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Customer</option>'); // Default option
@@ -1167,6 +1223,45 @@
             });
         });
 
+        //load customer details
+        $('#viewCustomer').click(function (e) {
+            e.preventDefault();      
+            let customer_id = $("#customer_id").val();
+              $.ajax({
+                        url: "/orderproduct/getCustomer",
+                        type: "POST",
+                        data: {
+                            customer_id: customer_id,
+                            _token: '{{ csrf_token() }}' // Add CSRF token for Laravel
+                        },
+                        success: function (response) {
+                            $("#cusname").val(response.customer.name);
+                            $("#cusname").prop("disabled", true);
+                            $("#address").val(response.customer.address);
+                            $("#address").prop("disabled", true);
+                            $("#email").val(response.customer.email);
+                            $("#email").prop("disabled", true);
+                            $("#phone").val(response.customer.phone);
+                            $("#phone").prop("disabled", true);
+                            $('input[name="gender"]').prop('checked', false);
+                            // Select the radio that matches the status
+                            $(`input[name="gender"][value="${response.customer.gender}"]`).prop('checked', true);
+                            $('input[name="gender"]').prop("disabled", true);
+                            //$("#modalTitle").text("View Order");
+                            // Ensure modal is on top and shown
+                            $('#customerModal').css('z-index', '99999').modal('show');
+                        },
+                        error: function (xhr) {
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                alert(xhr.responseJSON.message);
+                            } else {
+                                alert('An error occurred while getting details');
+                            }
+                        }
+
+                });   
+
+        });
 
     //     $('#calDiscount').click(function (e) {
     //         let selectedProducts = [];

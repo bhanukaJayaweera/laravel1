@@ -574,7 +574,7 @@ class OrderController extends Controller
             if (!$order) {
                 \Log::error("[ORDER MISSING] No order associated with request", ['request_id' => $id]);
                 throw new \Exception("No order found for this request");
-            }
+            }       
 
             // 4. Detach existing products
             $order->products()->detach();
@@ -615,11 +615,11 @@ class OrderController extends Controller
             \Log::info("[REQUEST APPROVED]");
 
             // 9. Final verification
-            \Log::info("[FINAL CHECK]", [
-                'attached_products' => $order->products()->count(),
-                'new_amount' => $order->amount,
-                'request_status' => $request->status
-            ]);
+            // \Log::info("[FINAL CHECK]", [
+            //     'attached_products' => $order->products()->count(),
+            //     'new_amount' => $order->amount,
+            //     'request_status' => $request->status
+            // ]);
 
             return response()->json([
                 'success' => true,
@@ -627,21 +627,23 @@ class OrderController extends Controller
                 'order_id' => $order->id
             ]);
 
-        } catch (\Exception $e) {
-            \Log::error("[APPROVAL FAILED]", [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'request_id' => $id ?? 'unknown'
-            ]);
+        } 
+
+  
+    catch (\Exception $e) {
+            // \Log::error("[APPROVAL FAILED]", [
+            //     'error' => $e->getMessage(),
+            //     'trace' => $e->getTraceAsString(),
+            //     'request_id' => $id ?? 'unknown'
+            // ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Approval failed: ' . $e->getMessage()
             ]);
         }
-      
-
     }
+        }
      // $request = OrderDeletionRequest::findOrFail($id);
 
         // $order = $request->order;
@@ -714,6 +716,25 @@ class OrderController extends Controller
         // }
      }
 
+        public function getCustomer(Request $request)
+        {
+            try {
+                $customer = Customer::findOrFail($request->customer_id);
+                return response()->json([
+                    'customer' => $customer,
+                    'status' => 'success'
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Customer not found',
+                    'status' => 'error'
+                ], 404);
+            }
+        }
+    //  public function getCustomer($customerId){
+    //     $customer = Customer::findOrFail($customerId);
+    //     return view('Order.index', compact('customer'));
+    //  }
         
 
 
