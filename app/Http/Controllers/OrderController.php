@@ -574,7 +574,7 @@ class OrderController extends Controller
             if (!$order) {
                 \Log::error("[ORDER MISSING] No order associated with request", ['request_id' => $id]);
                 throw new \Exception("No order found for this request");
-            }       
+            }
 
             // 4. Detach existing products
             $order->products()->detach();
@@ -627,10 +627,7 @@ class OrderController extends Controller
                 'order_id' => $order->id
             ]);
 
-        } 
-
-  
-    catch (\Exception $e) {
+        } catch (\Exception $e) {
             // \Log::error("[APPROVAL FAILED]", [
             //     'error' => $e->getMessage(),
             //     'trace' => $e->getTraceAsString(),
@@ -642,8 +639,9 @@ class OrderController extends Controller
                 'message' => 'Approval failed: ' . $e->getMessage()
             ]);
         }
+      
+
     }
-        }
      // $request = OrderDeletionRequest::findOrFail($id);
 
         // $order = $request->order;
