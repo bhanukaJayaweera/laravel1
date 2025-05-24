@@ -126,6 +126,58 @@
         </div>
     </div>
 
+     <!-- Customer Modal -->
+        <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Customer Details</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+               
+                        <div class="modal-body">
+                            <!-- <div class="input-group mb-3" hidden>
+                                <label class="input-group-text">Customer ID</label>
+                                <input type="text" name="cusid" id="cusid" class="form-control">
+                            </div>    -->
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Name</label>
+                                <input type="text" name="cusname" id="cusname" class="form-control">
+                            </div> 
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Gender</label><br>
+                                <div class="form-check form-check-inline" style="margin-left:3%">
+                                <input class="form-check-input" type="radio" name="gender" id="Male" value="Male">
+                                <label class="form-check-label" for="Male">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" id="Female" value="Female">
+                                <label class="form-check-label" for="Female">Female</label>
+                                </div>
+
+                            </div>
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Address</label>
+                                <input type="text" name="address" id="address" class="form-control">
+                            </div> 
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Email</label>
+                                <input type="email" name="email" id="email" class="form-control">
+                            </div>
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Phone</label>
+                                <input type="text" name="phone" id="phone" class="form-control">
+                            </div>   
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                       
+                    </div>
+                
+            </div>
+        </div>
+    </div>
+
     <!-- Modal view/update-->
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -141,6 +193,10 @@
                 <label class="input-group-text">Order ID</label>
                 <input type="text" name="id" id="id" class="form-control">
             </div> 
+             <div class="input-group mb-3">
+                <label class="input-group-text">Cashier Name</label>
+                <input type="text" name="cashier_name" id="cashier_name" class="form-control" readonly>
+            </div> 
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
                 <select class="form-select" name="customer_id" id="customer_id" required>
@@ -148,6 +204,8 @@
                    
                 </select>
             </div>
+            <button type="button" id="viewCustomer" class="btn btn-primary" hidden>View Customer</button>
+
             <div class="input-group mb-3" id="product_div">
                     <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
                     <select class="form-select" name="product_id" id="prod_id">
@@ -156,7 +214,7 @@
             </div>
                 <div class="mb-3" id="quantity_div">
                     <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" id="quantity" class="form-control" class="form-control">
+                    <input type="number" name="quantity" id="quantity" class="form-control">
                 </div>    
                 <button type="button" id="addProductUpdate" class="btn btn-primary">Add to Table</button>
 
@@ -179,9 +237,9 @@
                 </div>
             <!-- Hidden input field to store product data -->
             <input type="hidden" name="products" id="editData">  
-             <div class="input-group mb-3">
+             <div class="input-group mb-3 discountDiv">
                 <label class="input-group-text" id="inputGroup-sizing-default">Discount</label>
-                <input type="text" name="discount" id="discount" class="form-control" readonly>
+                <input type="text" name="discount" id="discountUpdate" class="form-control" readonly>
                 <button type="button" id="calDisc" class="btn btn-primary">View Discount</button>
             </div>   
             <div class="input-group mb-3">
@@ -189,7 +247,7 @@
                 <input type="text" name="amount" id="amount" class="form-control" readonly>
             </div>
             <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
+                <label class="input-group-text" id="inputGroup-sizing-default">Delivery Date</label>
                 <input type="date" name="date" id="date" class="form-control">
             </div>
             <div class="input-group mb-3">
@@ -250,6 +308,10 @@
                 <label class="input-group-text">Order ID</label>
                 <input type="text" name="id" id="id" class="form-control">
             </div> 
+             <div class="input-group mb-3">
+                <label class="input-group-text">Cashier Name</label>
+                <input type="text" name="cashier_name" id="cashier_name" class="form-control" value="{{ auth()->check() ? auth()->user()->name : 'Guest' }}" readonly>
+            </div> 
             <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
                 <select class="form-select" name="customer_id" id="cus_id" required>
@@ -300,7 +362,7 @@
                 <input type="text" name="amount" id="amounts" class="form-control" readonly>
             </div>
             <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Date</label>
+                <label class="input-group-text" id="inputGroup-sizing-default">Delivery Date</label>
                 <input type="date" name="date" id="date" class="form-control">
             </div>
             <div class="input-group mb-3">
@@ -344,9 +406,11 @@
                 <!-- <th>Cus ID</th> -->
                 <th>Customer Name</th>
                 <!-- <th>Product ID</th> -->
-                <th>Date</th>
+               
+                <th>Delivery Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
+                <th>Order DateTime</th>
                 <th>Status</th>
                 <th>View</th>
                 <th>Update</th>
@@ -361,9 +425,11 @@
                     <!-- <td>{{$order->customer_id}}</td> -->
                     <td>{{$order->customer->name}}</td>
                     <!-- <td>{{$order->product_id}}</td> -->
+                   
                     <td>{{$order->date}}</td>     
                     <td>{{$order->payment_type}}</td>  
-                    <td>{{$order->amount}}</td>    
+                    <td>{{$order->amount}}</td> 
+                     <td>{{$order->created_at}}</td>   
                     <td>
                     @php
                         $statusClass = match($order->status) {
@@ -480,6 +546,69 @@
        
     });
 
+     //order-product Modal- update product
+        $("#addProductUpdate").click(function () {
+        let productId = $("#prod_id").val();
+        let productName = $("#prod_id").find("option:selected").text(); 
+        let quantity = $("#quantity").val();
+        let price = $("#prod_id").find("option:selected").data('price');
+        console.log({ productId, productName, quantity }); // ✅ Check what you're getting
+        $.ajax({
+                        url: "/orderproduct/checkInvent",
+                        type: "POST",
+                        data: {
+                            productId: productId,
+                            quantity: quantity,
+                            _token: $('input[name="_token"]').val() // important for POST!
+                        },
+                        success: function (response) {
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                        if (response.status === 'success') {  
+                            if (productId && quantity > 0) {
+                                let row = `
+                                    <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}" data-discount="" data-promotion="">
+                                        <td>${productId}</td>
+                                        <td>${productName}</td>
+                                        <td>${quantity}</td>
+                                        <td>${price}</td>
+                                        <td class="discount" data-value="0.00">0.00</td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
+                                        </td>
+                                    </tr>
+                                `;
+                                let exists = false;
+                                $("#productTableBody tr").each(function () {
+                                    if ($(this).data("id") == productId) {
+                                        exists = true;
+                                        return false;
+                                    }
+                                });
+                                if (exists) {
+                                    alert("This product is already added.");
+                                    return;
+                                }
+                                $("#productTableBody").append(row);
+                                $("#prod_id").val('');
+                                $("#quantity").val(1);
+                            } else {
+                                alert("Please select a product and enter a valid quantity.");
+                            }
+                                  
+                        }
+                        },
+                        error: function (xhr) {
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                alert(xhr.responseJSON.message);
+                            } else {
+                                alert('An error occurred');
+                            }
+                        }
+                    });
+       
+    });
+
     //load total amount - add new
     $('#amounts').on('click', function () {
         let amount = 0; // Moved outside the loop
@@ -503,49 +632,49 @@
                 productPrice = quantity*price;
                 amount += productPrice;
             });
-        let discount = $('#discount').val();
+        let discount = $('#discountUpdate').val();
         amountDiscount = amount - discount;
         $('#amount').val(amountDiscount.toFixed(2)); // Set to some input
 
     });
 
 
-        $("#addProductUpdate").click(function () {
-        let productId = $("#prod_id").val();
-        let productName = $("#prod_id").find("option:selected").text(); 
-        let quantity = $("#quantity").val();
-        let price = $("#prod_id").find("option:selected").data('price');   
-        if (productId && quantity > 0) {
-            let row = `
-                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}" data-discount="" data-promotion="">
-                    <td>${productId}</td>
-                    <td>${productName}</td>
-                    <td>${quantity}</td>
-                    <td>${price}</td>
-                    <td class="discount" data-value="0.00">0.00</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
-                    </td>
-                </tr>
-            `;
-            let exists = false;
-            $("#productTableBody tr").each(function () {
-                if ($(this).data("id") == productId) {
-                    exists = true;
-                    return false;
-                }
-            });
-            if (exists) {
-                alert("This product is already added.");
-                return;
-            }
-            $("#productTableBody").append(row);
-            $("#prod_id").val('');
-            $("#quantity").val(1);
-        } else {
-            alert("Please select a product and enter a valid quantity.");
-        }
-    });
+    //     $("#addProductUpdate").click(function () {
+    //     let productId = $("#prod_id").val();
+    //     let productName = $("#prod_id").find("option:selected").text(); 
+    //     let quantity = $("#quantity").val();
+    //     let price = $("#prod_id").find("option:selected").data('price');   
+    //     if (productId && quantity > 0) {
+    //         let row = `
+    //             <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}" data-discount="" data-promotion="">
+    //                 <td>${productId}</td>
+    //                 <td>${productName}</td>
+    //                 <td>${quantity}</td>
+    //                 <td>${price}</td>
+    //                 <td class="discount" data-value="0.00">0.00</td>
+    //                 <td>
+    //                     <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
+    //                 </td>
+    //             </tr>
+    //         `;
+    //         let exists = false;
+    //         $("#productTableBody tr").each(function () {
+    //             if ($(this).data("id") == productId) {
+    //                 exists = true;
+    //                 return false;
+    //             }
+    //         });
+    //         if (exists) {
+    //             alert("This product is already added.");
+    //             return;
+    //         }
+    //         $("#productTableBody").append(row);
+    //         $("#prod_id").val('');
+    //         $("#quantity").val(1);
+    //     } else {
+    //         alert("Please select a product and enter a valid quantity.");
+    //     }
+    // });
 
     $(document).on("click", ".removeProduct", function () {
         $(this).closest("tr").remove();
@@ -673,9 +802,11 @@
                         $("#orderForm")[0].reset(); // Clear Form
                         $("#id").val(response.order.id);
                         $("#id").prop("disabled", true);
+                        $(".discountDiv").prop("hidden", true);
                         $("#product_div").prop("hidden", true);
                         $("#quantity_div").prop("hidden", true);
                         $("#addProductUpdate").prop("hidden", true);
+                         $("#viewCustomer").prop("hidden", false);
                         let dropdown = $("#customer_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Customer</option>'); // Default option
@@ -685,7 +816,8 @@
                         });
                         $("#customer_id").val(response.order.customer_id);
                         $("#customer_id").prop("disabled", true);
-
+                        $("#cashier_name").val(response.order.cashier_name);
+                        $("#cashier_name").prop("disabled", true);
                         let tableBody = $("#productTableBody");
                         tableBody.empty(); // Clear existing data
 
@@ -727,9 +859,11 @@
                     type: "GET",
                     success: function (response) {
                         $("#orderForm")[0].reset(); // Clear Form
+                        $(".discountDiv").prop("hidden", false);
                         $("#product_div").prop("hidden", false);
                         $("#quantity_div").prop("hidden", false);
                         $("#addProductUpdate").prop("hidden", false);
+                        $("#viewCustomer").prop("hidden", true);
                         let dropdown = $("#customer_id"); // Select dropdown
                         dropdown.empty(); // Clear existing options
                         dropdown.append('<option value="">Select Customer</option>'); // Default option
@@ -739,7 +873,8 @@
                         });
                         $("#customer_id").val(response.order.customer_id);
                         $("#prod_id").prop("hidden", false) 
-
+                         $("#cashier_name").val(response.order.cashier_name);
+                        $("#cashier_name").prop("disabled", true);
                         let dropdown1 = $("#prod_id"); // Select dropdown
                         dropdown1.empty(); // Clear existing options
                         dropdown1.append('<option value="">Select Product</option>'); // Default option
@@ -1139,7 +1274,7 @@
                         });
                     });
                     
-                    $('#discount').val(discountSum.toFixed(2));
+                    $('#discountUpdate').val(discountSum.toFixed(2));
                 },
                 error: function (xhr) {
                     if (xhr.responseJSON && xhr.responseJSON.message) {
@@ -1151,6 +1286,45 @@
             });
         });
 
+        //load customer details
+        $('#viewCustomer').click(function (e) {
+            e.preventDefault();      
+            let customer_id = $("#customer_id").val();
+              $.ajax({
+                        url: "/orderproduct/getCustomer",
+                        type: "POST",
+                        data: {
+                            customer_id: customer_id,
+                            _token: '{{ csrf_token() }}' // Add CSRF token for Laravel
+                        },
+                        success: function (response) {
+                            $("#cusname").val(response.customer.name);
+                            $("#cusname").prop("disabled", true);
+                            $("#address").val(response.customer.address);
+                            $("#address").prop("disabled", true);
+                            $("#email").val(response.customer.email);
+                            $("#email").prop("disabled", true);
+                            $("#phone").val(response.customer.phone);
+                            $("#phone").prop("disabled", true);
+                            $('input[name="gender"]').prop('checked', false);
+                            // Select the radio that matches the status
+                            $(`input[name="gender"][value="${response.customer.gender}"]`).prop('checked', true);
+                            $('input[name="gender"]').prop("disabled", true);
+                            //$("#modalTitle").text("View Order");
+                            // Ensure modal is on top and shown
+                            $('#customerModal').css('z-index', '99999').modal('show');
+                        },
+                        error: function (xhr) {
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                alert(xhr.responseJSON.message);
+                            } else {
+                                alert('An error occurred while getting details');
+                            }
+                        }
+
+                });   
+
+        });
 
     //     $('#calDiscount').click(function (e) {
     //         let selectedProducts = [];

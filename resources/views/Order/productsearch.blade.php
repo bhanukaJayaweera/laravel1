@@ -25,7 +25,7 @@
     <div class="container col-md-6 brounded-lg border p-4" style="margin-left:25%; border: 1px solid #ccc; border-radius: 12px; padding: 16px;">
     <form method="GET" action="{{ route('order.search') }}" class="row row-cols-lg-auto g-3 align-items-center">
         <div class="col-12">
-            <label class="visually-hidden" for="inlineFormSelectPref">Products</label>
+            <label for="inlineFormSelectPref">Product</label>
             <select class="form-select" id="inlineFormSelectPref" name="product_id" id="product_id">
             <option selected>-- Choose Product --</option>
             @foreach($products as $product)
@@ -33,6 +33,10 @@
             @endforeach
             </select>
             
+        </div>
+          <div class="col-12">
+            <label for="inlineFormSelectPref">Delivery Date</label>
+            <input type="date" name="date" class="form-control" id="inlineFormSelectPref">
         </div>
 
         <div class="col-12">
@@ -58,7 +62,7 @@
                 <th>Order ID</th>
                 <th>Customer Name</th> 
                 <th>Product Name</th>     
-                <th>Date</th>
+                <th>Delivery Date</th>
                 <th>Payment Type</th>
                 <th>Quantity</th>
                 <th>Status</th>

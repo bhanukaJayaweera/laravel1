@@ -43,7 +43,7 @@
                 <th>ID</th>
                 <th>Customer ID</th>
                 <th>Customer Name</th>
-                <th>Date</th>
+                <th>Delivery Date</th>
                 <th>Payment Type</th>
                 <th>Amount</th>
                 

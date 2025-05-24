@@ -27,10 +27,11 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // Route::get('/dashboard', function () {
+    //     return view('dashboard');
+    // })->name('dashboard');
 
+    Route::get('/dashboard', [UserController::class, 'stats'])->name('dashboard');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -98,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/orderproduct/checkInvent', [OrderController::class, 'checkInvent']);
     Route::post('/orderproduct/edit', [OrderController::class, 'editOrder']);
     Route::post('/orderproduct/promotion', [OrderController::class, 'getPromotions']);
+    Route::post('/orderproduct/getCustomer', [OrderController::class, 'getCustomer']);
 
     //productsearch
     Route::get('/order/search', [OrderController::class, 'search'])->name('order.search');

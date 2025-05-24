@@ -212,6 +212,15 @@ class OrderController extends Controller
             'payment_type'=> 'required',
             'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
         ]);
+        //check the delivery date is in the past
+        $deliveryDate = $request->input('date');
+        if (strtotime($deliveryDate) < strtotime(today()->toDateString())) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Delivery date cannot be in the past'
+            ]);
+        }
+        $data['cashier_name'] = auth()->user()->name; // Force-set the cashier name
         Log::info('Validated Order Data:', $data);
         $order = Order::create($data);
         Log::info('Order Created:', ['id' => $order->id]);
@@ -441,7 +450,6 @@ class OrderController extends Controller
         // ]);
 
     //save edit
-    // public function editOrder(Request $request) {
 
         public function editOrder(Request $request) 
         {
@@ -451,12 +459,10 @@ class OrderController extends Controller
                 \DB::beginTransaction();
                 \Log::info('3. Transaction started');  
                 // Find the order
-                \Log::info('4. Finding order with ID: ' . $request->id);
+                // \Log::info('4. Finding order with ID: ' . $request->id);
                 $order = Order::with('products')->find($request->id);
                 
-                \Log::info('5. Order found?', ['exists' => !is_null($order)]);
                 if (!$order) {
-                    \Log::warning('Order not found', ['id' => $request->id]);
                     return response()->json(['message' => 'Order not found.']);
                 }
         
@@ -476,13 +482,18 @@ class OrderController extends Controller
                 $editedProducts = json_decode($request->editData, true);
                 
                 if (json_last_error() !== JSON_ERROR_NONE) {
-                    \Log::error('JSON decode failed', [
-                        'error' => json_last_error_msg(),
-                        'input' => $request->editData
-                    ]);
                     return response()->json([
                         'message' => 'Invalid product data format',
                         'error' => json_last_error_msg()
+                    ]);
+                }
+                
+                //check the delivery date is in the past
+                $deliveryDate = $request->date;
+                if (strtotime($deliveryDate) < strtotime(today()->toDateString())) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Delivery date cannot be in the past'
                     ]);
                 }
         
@@ -516,10 +527,10 @@ class OrderController extends Controller
                     'status' => $request->status,
                 ];
         
-                \Log::info('10. Creating OrderDeletionRequest', [
-                    'order_id' => $order->id,
-                    'changes' => $requestedChanges
-                ]);
+                // \Log::info('10. Creating OrderDeletionRequest', [
+                //     'order_id' => $order->id,
+                //     'changes' => $requestedChanges
+                // ]);
         
                 $deletionRequest = OrderDeletionRequest::create([
                     'order_id' => $order->id,
@@ -529,10 +540,10 @@ class OrderController extends Controller
                 ]);
         
                 \DB::commit();
-                \Log::info('11. Transaction committed');
-                \Log::info('12. Request created successfully', [
-                    'request_id' => $deletionRequest->id
-                ]);
+                // \Log::info('11. Transaction committed');
+                // \Log::info('12. Request created successfully', [
+                //     'request_id' => $deletionRequest->id
+                // ]);
     
                 return response()->json([
                     'message' => 'Order update submitted for approval',
@@ -541,10 +552,10 @@ class OrderController extends Controller
         
             } catch (\Exception $e) {
                 \DB::rollBack();
-                \Log::error('13. Error in editOrder: ' . $e->getMessage(), [
-                    'exception' => $e,
-                    'trace' => $e->getTraceAsString()
-                ]);
+                // \Log::error('13. Error in editOrder: ' . $e->getMessage(), [
+                //     'exception' => $e,
+                //     'trace' => $e->getTraceAsString()
+                // ]);
                 return response()->json([
                     'message' => 'Failed to submit update request',
                     'error' => config('app.debug') ? $e->getMessage() : null
@@ -595,9 +606,18 @@ class OrderController extends Controller
 
             foreach ($changes['products'] as $product) {
                 
+                //get old quantity
+                
                 $order->products()->attach($product['id'], [
                     'quantity' => $product['quantity']
                 ]);
+                // Update inventory
+                $productModel = Product::find($product['id']);
+                if ($productModel) {
+                    $newInventory = $productModel->quantity - $product['quantity'];
+                    $productModel->quantity = $newInventory;
+                    $productModel->save();
+                }
             }
 
             // 8. Update request status
@@ -606,11 +626,11 @@ class OrderController extends Controller
             \Log::info("[REQUEST APPROVED]");
 
             // 9. Final verification
-            \Log::info("[FINAL CHECK]", [
-                'attached_products' => $order->products()->count(),
-                'new_amount' => $order->amount,
-                'request_status' => $request->status
-            ]);
+            // \Log::info("[FINAL CHECK]", [
+            //     'attached_products' => $order->products()->count(),
+            //     'new_amount' => $order->amount,
+            //     'request_status' => $request->status
+            // ]);
 
             return response()->json([
                 'success' => true,
@@ -619,11 +639,11 @@ class OrderController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error("[APPROVAL FAILED]", [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'request_id' => $id ?? 'unknown'
-            ]);
+            // \Log::error("[APPROVAL FAILED]", [
+            //     'error' => $e->getMessage(),
+            //     'trace' => $e->getTraceAsString(),
+            //     'request_id' => $id ?? 'unknown'
+            // ]);
 
             return response()->json([
                 'success' => false,
@@ -686,16 +706,44 @@ class OrderController extends Controller
          $products = Product::all();
          $orders = [];
  
-         if ($request->filled('product_id')) {
-             $orders = Order::whereHas('products', function ($query) use ($request) {
-                 $query->where('product_id', $request->product_id);
-             })->with('customer')->get();
+         if ($request->filled('product_id') || $request->filled('date')) {
+               $orders = Order::where(function($query) use ($request) {
+                    if ($request->filled('product_id')) {
+                        $query->whereHas('products', function ($q) use ($request) {
+                            $q->where('product_id', $request->product_id);
+                        });
+                    }
+                    if ($request->filled('date')) {
+                        $query->where('date', $request->date);
+                    }               
+                })
+                ->with('customer')
+                ->get();
          }
          $selectedProductId = $request->input('product_id');
          return view('Order.productsearch', compact('products', 'orders','selectedProductId'));
         // }
      }
 
+        public function getCustomer(Request $request)
+        {
+            try {
+                $customer = Customer::findOrFail($request->customer_id);
+                return response()->json([
+                    'customer' => $customer,
+                    'status' => 'success'
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Customer not found',
+                    'status' => 'error'
+                ], 404);
+            }
+        }
+    //  public function getCustomer($customerId){
+    //     $customer = Customer::findOrFail($customerId);
+    //     return view('Order.index', compact('customer'));
+    //  }
         
 
 

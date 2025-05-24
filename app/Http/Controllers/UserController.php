@@ -3,11 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Customer;
+use App\Models\Order;
+use App\Models\Promotion;
+use App\Models\OrderDeletionRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    public function stats()
+    {
+        $stats = [];
+        
+        if (auth()->user()->can('handle orders')) {
+            $stats['new_orders'] = \App\Models\Order::where('status', 'new')->count();
+            $stats['pending_approvals'] = \App\Models\OrderDeletionRequest::where('status', 'Updated')->count();
+        }
+        
+        if (auth()->user()->can('handle customers')) {
+            $stats['new_customers'] = \App\Models\Customer::where('created_at', '>', now()->subDays(7))->count();
+        }
+        
+        if (auth()->user()->can('handle promotions')) {
+            $stats['active_promotions'] = \App\Models\Promotion::where('is_active', 'yes')->count();
+        }
+        
+        return view('dashboard', compact('stats'));
+    }
+        
+    
     public function create()
     {
         return view('auth.create');

@@ -84,6 +84,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <br>
+                <a class="btn btn-danger" href="{{route('dashboard')}}"><i class="fa fa-home"></i> Back</a>
+
                 </div>
             </div>
         </div>
