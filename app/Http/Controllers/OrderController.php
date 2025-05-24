@@ -450,7 +450,6 @@ class OrderController extends Controller
         // ]);
 
     //save edit
-    // public function editOrder(Request $request) {
 
         public function editOrder(Request $request) 
         {
@@ -460,12 +459,10 @@ class OrderController extends Controller
                 \DB::beginTransaction();
                 \Log::info('3. Transaction started');  
                 // Find the order
-                \Log::info('4. Finding order with ID: ' . $request->id);
+                // \Log::info('4. Finding order with ID: ' . $request->id);
                 $order = Order::with('products')->find($request->id);
                 
-                \Log::info('5. Order found?', ['exists' => !is_null($order)]);
                 if (!$order) {
-                    \Log::warning('Order not found', ['id' => $request->id]);
                     return response()->json(['message' => 'Order not found.']);
                 }
         
@@ -485,13 +482,18 @@ class OrderController extends Controller
                 $editedProducts = json_decode($request->editData, true);
                 
                 if (json_last_error() !== JSON_ERROR_NONE) {
-                    \Log::error('JSON decode failed', [
-                        'error' => json_last_error_msg(),
-                        'input' => $request->editData
-                    ]);
                     return response()->json([
                         'message' => 'Invalid product data format',
                         'error' => json_last_error_msg()
+                    ]);
+                }
+                
+                //check the delivery date is in the past
+                $deliveryDate = $request->date;
+                if (strtotime($deliveryDate) < strtotime(today()->toDateString())) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Delivery date cannot be in the past'
                     ]);
                 }
         
@@ -525,10 +527,10 @@ class OrderController extends Controller
                     'status' => $request->status,
                 ];
         
-                \Log::info('10. Creating OrderDeletionRequest', [
-                    'order_id' => $order->id,
-                    'changes' => $requestedChanges
-                ]);
+                // \Log::info('10. Creating OrderDeletionRequest', [
+                //     'order_id' => $order->id,
+                //     'changes' => $requestedChanges
+                // ]);
         
                 $deletionRequest = OrderDeletionRequest::create([
                     'order_id' => $order->id,
@@ -538,10 +540,10 @@ class OrderController extends Controller
                 ]);
         
                 \DB::commit();
-                \Log::info('11. Transaction committed');
-                \Log::info('12. Request created successfully', [
-                    'request_id' => $deletionRequest->id
-                ]);
+                // \Log::info('11. Transaction committed');
+                // \Log::info('12. Request created successfully', [
+                //     'request_id' => $deletionRequest->id
+                // ]);
     
                 return response()->json([
                     'message' => 'Order update submitted for approval',
@@ -550,10 +552,10 @@ class OrderController extends Controller
         
             } catch (\Exception $e) {
                 \DB::rollBack();
-                \Log::error('13. Error in editOrder: ' . $e->getMessage(), [
-                    'exception' => $e,
-                    'trace' => $e->getTraceAsString()
-                ]);
+                // \Log::error('13. Error in editOrder: ' . $e->getMessage(), [
+                //     'exception' => $e,
+                //     'trace' => $e->getTraceAsString()
+                // ]);
                 return response()->json([
                     'message' => 'Failed to submit update request',
                     'error' => config('app.debug') ? $e->getMessage() : null
@@ -604,9 +606,18 @@ class OrderController extends Controller
 
             foreach ($changes['products'] as $product) {
                 
+                //get old quantity
+                
                 $order->products()->attach($product['id'], [
                     'quantity' => $product['quantity']
                 ]);
+                // Update inventory
+                $productModel = Product::find($product['id']);
+                if ($productModel) {
+                    $newInventory = $productModel->quantity - $product['quantity'];
+                    $productModel->quantity = $newInventory;
+                    $productModel->save();
+                }
             }
 
             // 8. Update request status

@@ -546,6 +546,69 @@
        
     });
 
+     //order-product Modal- update product
+        $("#addProductUpdate").click(function () {
+        let productId = $("#prod_id").val();
+        let productName = $("#prod_id").find("option:selected").text(); 
+        let quantity = $("#quantity").val();
+        let price = $("#prod_id").find("option:selected").data('price');
+        console.log({ productId, productName, quantity }); // ✅ Check what you're getting
+        $.ajax({
+                        url: "/orderproduct/checkInvent",
+                        type: "POST",
+                        data: {
+                            productId: productId,
+                            quantity: quantity,
+                            _token: $('input[name="_token"]').val() // important for POST!
+                        },
+                        success: function (response) {
+                            //alert(response.message);
+                            //location.reload(); // Refresh page
+                        if (response.status === 'success') {  
+                            if (productId && quantity > 0) {
+                                let row = `
+                                    <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}" data-discount="" data-promotion="">
+                                        <td>${productId}</td>
+                                        <td>${productName}</td>
+                                        <td>${quantity}</td>
+                                        <td>${price}</td>
+                                        <td class="discount" data-value="0.00">0.00</td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm removeProduct" id="remove">Remove</button>
+                                        </td>
+                                    </tr>
+                                `;
+                                let exists = false;
+                                $("#productTableBody tr").each(function () {
+                                    if ($(this).data("id") == productId) {
+                                        exists = true;
+                                        return false;
+                                    }
+                                });
+                                if (exists) {
+                                    alert("This product is already added.");
+                                    return;
+                                }
+                                $("#productTableBody").append(row);
+                                $("#prod_id").val('');
+                                $("#quantity").val(1);
+                            } else {
+                                alert("Please select a product and enter a valid quantity.");
+                            }
+                                  
+                        }
+                        },
+                        error: function (xhr) {
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                alert(xhr.responseJSON.message);
+                            } else {
+                                alert('An error occurred');
+                            }
+                        }
+                    });
+       
+    });
+
     //load total amount - add new
     $('#amounts').on('click', function () {
         let amount = 0; // Moved outside the loop
@@ -576,42 +639,42 @@
     });
 
 
-        $("#addProductUpdate").click(function () {
-        let productId = $("#prod_id").val();
-        let productName = $("#prod_id").find("option:selected").text(); 
-        let quantity = $("#quantity").val();
-        let price = $("#prod_id").find("option:selected").data('price');   
-        if (productId && quantity > 0) {
-            let row = `
-                <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}" data-discount="" data-promotion="">
-                    <td>${productId}</td>
-                    <td>${productName}</td>
-                    <td>${quantity}</td>
-                    <td>${price}</td>
-                    <td class="discount" data-value="0.00">0.00</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
-                    </td>
-                </tr>
-            `;
-            let exists = false;
-            $("#productTableBody tr").each(function () {
-                if ($(this).data("id") == productId) {
-                    exists = true;
-                    return false;
-                }
-            });
-            if (exists) {
-                alert("This product is already added.");
-                return;
-            }
-            $("#productTableBody").append(row);
-            $("#prod_id").val('');
-            $("#quantity").val(1);
-        } else {
-            alert("Please select a product and enter a valid quantity.");
-        }
-    });
+    //     $("#addProductUpdate").click(function () {
+    //     let productId = $("#prod_id").val();
+    //     let productName = $("#prod_id").find("option:selected").text(); 
+    //     let quantity = $("#quantity").val();
+    //     let price = $("#prod_id").find("option:selected").data('price');   
+    //     if (productId && quantity > 0) {
+    //         let row = `
+    //             <tr data-id="${productId}" data-quantity="${quantity}" data-price="${price}" data-name="${productName}" data-discount="" data-promotion="">
+    //                 <td>${productId}</td>
+    //                 <td>${productName}</td>
+    //                 <td>${quantity}</td>
+    //                 <td>${price}</td>
+    //                 <td class="discount" data-value="0.00">0.00</td>
+    //                 <td>
+    //                     <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>
+    //                 </td>
+    //             </tr>
+    //         `;
+    //         let exists = false;
+    //         $("#productTableBody tr").each(function () {
+    //             if ($(this).data("id") == productId) {
+    //                 exists = true;
+    //                 return false;
+    //             }
+    //         });
+    //         if (exists) {
+    //             alert("This product is already added.");
+    //             return;
+    //         }
+    //         $("#productTableBody").append(row);
+    //         $("#prod_id").val('');
+    //         $("#quantity").val(1);
+    //     } else {
+    //         alert("Please select a product and enter a valid quantity.");
+    //     }
+    // });
 
     $(document).on("click", ".removeProduct", function () {
         $(this).closest("tr").remove();
