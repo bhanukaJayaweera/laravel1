@@ -578,8 +578,8 @@ class OrderController extends Controller
                 throw new \Exception("No order found for this request");
             }
 
-            // 4. Detach existing products
-            $order->products()->detach();
+            // // 4. Detach existing products
+            // $order->products()->detach();
 
             // 5. Process requested changes
             if (!$request->requested_changes) {
@@ -604,21 +604,34 @@ class OrderController extends Controller
                 throw new \Exception("No products data in changes");
             }
 
-            foreach ($changes['products'] as $product) {
-                
-                //get old quantity
-                
-                $order->products()->attach($product['id'], [
-                    'quantity' => $product['quantity']
-                ]);
-                // Update inventory
-                $productModel = Product::find($product['id']);
-                if ($productModel) {
-                    $newInventory = $productModel->quantity - $product['quantity'];
-                    $productModel->quantity = $newInventory;
-                    $productModel->save();
-                }
+    
+        // Get current products with quantities
+        $currentProducts = $order->products->pluck('pivot.quantity', 'id')->toArray();
+
+        // First, detach all current products (we'll reattach the updated ones)
+        $order->products()->detach();
+
+        foreach ($changes['products'] as $product) {
+            $productId = $product['id'];
+            $newQuantity = $product['quantity'];
+
+            // Attach product with new quantity
+            $order->products()->attach($productId, ['quantity' => $newQuantity]);
+
+            // Update inventory
+            $productModel = Product::find($productId);
+            
+            // If product was in the order before, calculate the difference
+            if (isset($currentProducts[$productId])) {
+                $quantityDifference = $currentProducts[$productId] - $newQuantity;
+                $productModel->quantity += $quantityDifference;
+            } else {
+                // Product is new to the order, just subtract the new quantity
+                $productModel->quantity -= $newQuantity;
             }
+            
+            $productModel->save();
+        }
 
             // 8. Update request status
             $request->status = 'update_approved';
