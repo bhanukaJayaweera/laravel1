@@ -18,4 +18,20 @@ class Product extends Model
     {
         return $this->belongsToMany(Order::class, 'orders_products')->withPivot('quantity')->withTimestamps();
     }
+
+     public function prices()
+    {
+        return $this->hasMany(MarketPrice::class);
+    }
+
+    public function marketPrice($marketId = null)
+    {
+        $query = $this->hasOne(MarketPrice::class)->latest('price_date');
+        
+        if ($marketId) {
+            $query->where('market_id', $marketId);
+        }
+        
+        return $query;
+    }
 }
