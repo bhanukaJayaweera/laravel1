@@ -68,30 +68,24 @@ class ImportFruitPrices extends Command
         $this->newLine();
     }
 
-     protected function importFromApi(string $priceDate)
+     protected function importFromDialogApi(string $priceDate)
     {
         // Example API endpoint - replace with actual Sri Lankan fruit price API
-        $apiUrl = 'https://api.example.com/srilanka/fruit-prices';
+        $apiUrl = 'https://api.dialog.lk/foodprices/1.0.0/fruits';
         
-        $this->info('Fetching data from API...');
+        //$this->info('Fetching data from API...');
         
         try {
-            $response = Http::get($apiUrl);
-            
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer YOUR_DIALOG_API_KEY',
+                'Accept' => 'application/json',
+            ])->get($apiUrl);
+
             if ($response->successful()) {
                 $data = $response->json();
-                
-                $this->info('Processing API data...');
-                $bar = $this->output->createProgressBar(count($data['prices']));
-                
-                foreach ($data['prices'] as $record) {
-                    $this->processPriceRecord($record, $priceDate);
-                    $bar->advance();
-                }
-                
-                $bar->finish();
-                $this->newLine();
-            } else {
+                return $this->processDialogData($data['fruits']);
+            }
+            else {
                 $this->error('API request failed: ' . $response->status());
             }
         } catch (\Exception $e) {
