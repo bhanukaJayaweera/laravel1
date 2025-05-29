@@ -44,6 +44,9 @@
                         <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('product.index')}}">
                             <i class="fa fa-box mr-2"></i> Manage Products
                         </a><br><br>
+                          <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('fruit.prices')}}">
+                            <i class="fa fa-box mr-2"></i> Market Prices
+                        </a><br><br>
                     </div>
                     @endcan
 

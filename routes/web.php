@@ -10,7 +10,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
-
+use App\Http\Controllers\MarketPriceController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes

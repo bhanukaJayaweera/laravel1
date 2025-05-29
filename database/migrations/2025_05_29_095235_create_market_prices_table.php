@@ -13,7 +13,7 @@ class CreateMarketpricesTable extends Migration
      */
     public function up()
     {
-        Schema::create('marketprices', function (Blueprint $table) {
+        Schema::create('market_prices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained();
             $table->foreignId('market_id')->constrained();

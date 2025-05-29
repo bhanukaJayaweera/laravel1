@@ -13,8 +13,9 @@ class MarketPriceController extends Controller
     // Show all fruits with their latest prices
     public function index()
     {
-        $products = Product::with(['price'])->get();
-        
+        //$products = Product::with(['price'])->get();
+        // Use:
+        $products = Product::all(); // or select specific columns
         return view('Market.index', compact('products'));
     }
 

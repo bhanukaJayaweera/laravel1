@@ -19,7 +19,7 @@ class Product extends Model
         return $this->belongsToMany(Order::class, 'orders_products')->withPivot('quantity')->withTimestamps();
     }
 
-     public function prices()
+    public function price()
     {
         return $this->hasMany(MarketPrice::class);
     }
@@ -34,4 +34,10 @@ class Product extends Model
         
         return $query;
     }
+
+      public function market()
+    {
+        return $this->hasMany(Market::class);
+    }
+
 }

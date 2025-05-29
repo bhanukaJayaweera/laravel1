@@ -40,13 +40,13 @@
                 @endif -->
                 <div class="card-body">
                     <h5 class="card-title">{{ $product->name }}</h5>
-                    @if($product->prce)
+                    @if($product->marketPrice->price)
                         <p class="card-text">
                             Current Price: Rs. {{ number_format($product->marketPrice->price, 2) }} per {{ $product->marketPrice->unit }}
                             <br>
                             <small class="text-muted">
-                                @ {{ $product->marketPrice->market->name }}, 
-                                {{ $product->marketPrice->market->district }}
+                                @ {{$product->market->name }}, 
+                                {{ $product->market->district }}
                                 ({{ $product->marketPrice->price_date->format('M d, Y') }})
                             </small>
                         </p>
@@ -66,4 +66,3 @@
 </body>
 </x-app-layout>
 </html>
-@endcan
