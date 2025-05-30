@@ -40,16 +40,18 @@
                 @endif -->
                 <div class="card-body">
                     <h5 class="card-title">{{ $product->name }}</h5>
-                    @if($product->marketPrice->price)
+                   @if($product->marketPrice->isNotEmpty())
+                        @foreach($product->marketPrice->take(1) as $price)
                         <p class="card-text">
-                            Current Price: Rs. {{ number_format($product->marketPrice->price, 2) }} per {{ $product->marketPrice->unit }}
+                             Current Price: Rs. {{ number_format($price->price, 2) }} per {{ $price->unit }}
                             <br>
                             <small class="text-muted">
-                                @ {{$product->market->name }}, 
-                                {{ $product->market->district }}
-                                ({{ $product->marketPrice->price_date->format('M d, Y') }})
+                                    @ {{ $price->market->name }}, 
+                                    {{ $price->market->district }}
+                                   ({{ \Carbon\Carbon::parse($price->price_date)->format('Y-m-d') }})
                             </small>
                         </p>
+                        @endforeach
                     @else
                         <p class="card-text text-muted">Price not available</p>
                     @endif

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Market extends Model
 {
-    use SoftDeletes;
+    //use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -26,7 +26,11 @@ class Market extends Model
             ->where('price_date', MarketPrice::latest('price_date')->value('date'));
     }
 
-   
+   public function product()
+    {
+        return $this->hasMany(Product::class);
+    }
+
 
     public function getFullAddressAttribute()
     {

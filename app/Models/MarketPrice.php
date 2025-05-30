@@ -15,6 +15,9 @@ class MarketPrice extends Model
  
     ];
 
+    protected $casts = [
+        'price_date' => 'date', // or 'datetime' if you need time information
+    ];
 
     public function product()
     {
@@ -39,6 +42,6 @@ class MarketPrice extends Model
 
     public function getFormattedPriceAttribute()
     {
-        return 'Rs. ' . number_format($this->price_date, 2) . ' per ' . $this->unit;
+        return $this->price_date->format('Y-m-d');
     }
 }
