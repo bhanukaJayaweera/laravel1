@@ -376,11 +376,33 @@ class OrderController extends Controller
     {
         $requestId = $request->input('requestId'); 
         $customers = Customer::all(); // Fetch all customers
-        $products = Product::all(); // Fetch all customers
+        //$products = Product::all(); // Fetch all customers
         $request = OrderDeletionRequest::find($requestId);
         //$order = Order::findOrFail($id);
-        $order = Order::with(['products' => function($q) {
-            $q->withPivot('quantity');
+        // $order = Order::with(['products' => function($q) {
+        //     $q->withPivot('quantity');
+        // }])->find($id);
+        //load into dropdown
+       $products = Product::with(['marketPrice' => function($query) {
+            $query->where('market_id', 1)
+                ->latest('price_date')
+                ->limit(1);
+        }])->get()->map(function($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+            // 'quantity' => $product->quantity,
+                'price' => $product->marketPrice->first()->price ?? null,
+            ];
+        });
+        // Load order with products AND their latest market price
+        $order = Order::with(['products' => function($query) {
+            $query->withPivot('quantity')
+                ->with(['currentMarketPrice' => function($subQuery) {
+                    $subQuery->where('market_id', 1)
+                            ->latest('price_date')
+                            ->limit(1);
+                }]);
         }])->find($id);
         return response()->json([
             'order' => $order,
@@ -430,8 +452,20 @@ class OrderController extends Controller
     public function newfetch()
     {
         $customers = Customer::all(); // Fetch all customers
-        $products = Product::all(); // Fetch all customers
-       
+       //$products = Product::all(); // Fetch all customers
+      // Get products with their latest market price (market_id = 1)
+        $products = Product::with(['marketPrice' => function($query) {
+            $query->where('market_id', 1)
+                ->latest('price_date')
+                ->limit(1);
+        }])->get()->map(function($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+            // 'quantity' => $product->quantity,
+                'price' => $product->marketPrice->first()->price ?? null,
+            ];
+        });
         return response()->json([
             'customers' => $customers,
             'products' => $products]);

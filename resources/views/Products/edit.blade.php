@@ -48,12 +48,12 @@
             <label class="input-group-text" id="inputGroup-sizing-default">Qty</label>
             <input type="text" name="quantity" value="{{$product->quantity}}" class="form-control">
         </div>
-        <div class="input-group mb-3">
+        <!-- <div class="input-group mb-3">
             <label class="input-group-text" id="inputGroup-sizing-default">Price</label>
             <input type="text" class="form-control" name="price" value="{{$product->price}}" aria-label="Dollar amount (with dot and two decimal places)">
             <span class="input-group-text">$</span>
             <span class="input-group-text">0.00</span>
-        </div>
+        </div> -->
         <div class="input-group mb-3">
             <input type="submit" value="Edit Product" class="btn btn-success"/>
             <a type="button" href="{{route('product.index')}}" class="btn btn-danger">Back</a>

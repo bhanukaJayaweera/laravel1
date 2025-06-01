@@ -30,10 +30,10 @@
             <label class="input-group-text" id="inputGroup-sizing-default">Qty</label>
             <input type="text" name="quantity" class="form-control">
         </div>
-        <div class="input-group mb-3">
+        <!-- <div class="input-group mb-3">
             <label class="input-group-text" id="inputGroup-sizing-default">Price</label>
             <input type="text" name="price" class="form-control">
-        </div>
+        </div> -->
         <div class="input-group mb-3">
             <input type="submit" value="Save product" class="btn btn-success"/>
             <a type="button" href="{{route('product.index')}}" class="btn btn-danger">Back</a>

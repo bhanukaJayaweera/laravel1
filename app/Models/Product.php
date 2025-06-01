@@ -24,11 +24,16 @@ class Product extends Model
         return $this->hasMany(MarketPrice::class);
     }
 
-    public function marketPrice($marketId = null)
-    {
-        $query = $this->hasMany(MarketPrice::class)->latest('price_date');
+    // public function marketPrice($marketId = null)
+    // {
+    //     $query = $this->hasMany(MarketPrice::class)->latest('price_date');
         
-        return $query;
+    //     return $query;
+    // }
+
+    public function marketPrice()
+    {
+        return $this->hasMany(MarketPrice::class);
     }
 
       public function market()
@@ -37,4 +42,10 @@ class Product extends Model
                 ->withPivot('price', 'unit', 'price_date');
     }
 
+    public function currentMarketPrice()
+    {
+        return $this->hasOne(MarketPrice::class)
+                ->where('market_id', 1)
+                ->latest('price_date');
+    }
 }
