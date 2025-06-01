@@ -127,7 +127,8 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Quantity</th>
-                <th>Price</th>
+                <th>Price (Pettah)</th>
+                <th>Unit</th>
                 <th>View</th>
                 <th>Edit</th>
                 <th>Delete</th>
@@ -140,14 +141,14 @@
                     <td>{{$product->id}}</td>
                     <td>{{$product->name}}</td>
                     <td>{{$product->quantity}}</td>
-                    <td>{{$product->price}}</td>        
-            
+                    <td>{{ $product->currentMarketPrice(1)->first()->price ?? 'N/A' }}</td>        
+                    <td>{{ $product->currentMarketPrice(1)->first()->unit ?? 'N/A' }}</td>
         </form>
                     <td>
                         <a class="btn btn-primary" href="{{route('product.view', ['product' => $product])}}">View</a>
                     </td>
                     <td>
-                        <a class="btn btn-success" href="{{route('product.edit', ['product' => $product])}}">Edit</a>
+                        <a class="btn btn-success" href="{{route('product.edit', ['product' => $product] , ['price' => $product->currentMarketPrice(1)->first()->price] )}}">Edit</a>
                     </td>
                     <td>
                         <form action="{{route('product.destroy', ['product'=>$product])}}" method='POST'>

@@ -10,7 +10,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
-
+use App\Http\Controllers\MarketPriceController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -139,5 +139,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/promotion-reject/{id}', [PromotionController::class, 'rejectDelete'])->name('promotion.reject');
     Route::post('/update-approve/{id}', [PromotionController::class, 'approveUpdate']);
     Route::post('/update-reject/{id}', [PromotionController::class, 'rejectUpdate']);
+    
+    //get market prices
+    Route::get('/fruit-prices', [MarketPriceController::class, 'index'])->name('fruit.prices');
+    Route::get('/fruit-prices/market/{market}', [MarketPriceController::class, 'byMarket'])->name('fruit.prices.market');
+    Route::get('/fruit-prices/history/{product}', [MarketPriceController::class, 'history'])->name('fruit.history');
 });
 require __DIR__.'/auth.php';

@@ -776,10 +776,17 @@
                         let dropdown1 = $("#product_id"); // Select dropdown
                         dropdown1.empty(); // Clear existing options
                         dropdown1.append('<option value="">Select Product</option>'); // Default option
-                        // Loop through JSON array and add options
+                         // Loop through JSON array and add options
                         $.each(response.products, function(index, product) {
                             dropdown1.append('<option value="' + product.id + '" data-price="'+product.price+'">' + product.name + '</option>');
                         });
+                        // Loop through JSON array and add options
+                    //    $.each(response.products, function(index, product) {
+                    //     '<option value="' + product.id + '" ' +
+                    //     'data-price="' + (product.price || '') + '">' +
+                    //     product.name + 
+                    //     '</option>'
+                    //  });
                        
                     }
             });
@@ -823,12 +830,13 @@
 
                         $.each(response.order.products, function (index, product) {
                             //Log::info('Product:',$product);
+                            const price = product.current_market_price?.price ?? '0.00';
                             tableBody.append(`
                                 <tr>
                                     <td>${product.id}</td>
                                     <td>${product.name}</td>
                                     <td>${product.pivot.quantity}</td>
-                                    <td>${product.price}</td>
+                                    <td>${price}</td>
                                 </tr>
                             `);
                         });
@@ -887,13 +895,14 @@
                         tableBody.empty(); // Clear existing data
 
                         $.each(response.order.products, function (index, product) {
+                            const price = product.current_market_price?.price ?? '0.00';
                             //Log::info('Product:',$product);
                             tableBody.append(`
-                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}" data-price="${product.price}" data-name="${product.name}" data-discount="" data-promotion="">                               
+                                <tr data-id="${product.id}" data-quantity="${product.pivot.quantity}" data-price="${price}" data-name="${product.name}" data-discount="" data-promotion="">                               
                                     <td>${product.id}</td>
                                     <td>${product.name}</td>
                                     <td>${product.pivot.quantity}</td>
-                                    <td>${product.price}</td>
+                                    <td>${price}</td>
                                     <td class="discount" data-value="0.00">0.00</td>
                                     <td>
                                         <button type="button" class="btn btn-danger btn-sm removeProduct">Remove</button>

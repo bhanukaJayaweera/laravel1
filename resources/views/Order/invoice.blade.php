@@ -37,8 +37,8 @@
         <tr>
             <td>{{ $product->name }}</td>
             <td>{{ $product->pivot->quantity }}</td>
-            <td>{{ $product->price }}</td>
-            <td>{{ number_format($product->pivot->quantity * $product->price, 2) }}</td>
+            <td>{{ $product->currentMarketPrice(1)->first()->price ?? 'N/A' }}</td>
+            <td>{{ number_format($product->pivot->quantity * $product->currentMarketPrice(1)->first()->price, 2) }}</td>
             <td>
                 @if(isset($products[$index]['discount']))
                     {{ number_format((float)$products[$index]['discount'],2)}}
