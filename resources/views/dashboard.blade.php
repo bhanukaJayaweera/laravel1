@@ -45,7 +45,13 @@
                             <i class="fa fa-box mr-2"></i> Manage Products
                         </a><br><br>
                           <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('fruit.prices')}}">
-                            <i class="fa fa-box mr-2"></i> Market Prices
+                            <i class="fa fa-box mr-2"></i> View Market Prices
+                        </a><br><br>
+                         <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('fetchpricesapi')}}">
+                            <i class="fa fa-box mr-2"></i> Get Market Prices - API
+                        </a><br><br>
+                        <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('market.upload')}}">
+                            <i class="fa fa-box mr-2"></i> Get Market Prices - Excel
                         </a><br><br>
                     </div>
                     @endcan

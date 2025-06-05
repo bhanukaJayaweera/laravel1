@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Market;
 use App\Models\MarketPrice;
-
+use App\Services\MarketDataService;  
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\MarketImport;
 
 class MarketPriceController extends Controller
 {
@@ -64,4 +66,55 @@ class MarketPriceController extends Controller
 
         return view('Market.history', compact('product'));
     }
+
+    protected $marketDataService;
+
+    public function __construct(MarketDataService $marketDataService)
+    {
+        $this->marketDataService = $marketDataService;
+    }
+
+    public function fetchPricesAPI(Request $request)
+    {
+        $validated = $request->validate([
+            'markets' => 'required|array',
+            'markets.*' => 'string|max:10',
+            'date' => 'sometimes|date|max:3',
+        ]);
+        
+        $date = $request->input('date', '2025-05-30');
+        
+        $success = $this->marketDataService->fetchAndStorePrices(
+            $validated['markets'],
+            $date
+        );
+        
+        return response()->json([
+            'success' => $success,
+            'message' => $success ? 'Prices fetched and stored' : 'Failed to fetch prices'
+        ], $success ? 200 : 500);
+    }
+
+    
+    public function showUploadForm()
+    {
+        if (auth()->user()->can('handle products')) {
+            return view('Market.upload');
+        }
+    }
+
+    public function fetchPricesExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new MarketImport, $request->file('file'));
+            return back()->with('success', 'Orders imported successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Import failed: ' . $e->getMessage());
+        }
+    }
+    
 }

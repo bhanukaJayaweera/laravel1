@@ -144,5 +144,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/fruit-prices', [MarketPriceController::class, 'index'])->name('fruit.prices');
     Route::get('/fruit-prices/market/{market}', [MarketPriceController::class, 'byMarket'])->name('fruit.prices.market');
     Route::get('/fruit-prices/history/{product}', [MarketPriceController::class, 'history'])->name('fruit.history');
+
+    Route::post('/prices/fetchapi', [MarketPriceController::class, 'fetchPricesAPI'])->name('fetchpricesapi');
+    Route::post('/prices/fetchexcel', [MarketPriceController::class, 'fetchPricesExcel'])->name('fetchpricesexcel');
+    Route::get('/prices/showupload', [MarketPriceController::class, 'showUploadForm'])->name('market.upload');
+
 });
 require __DIR__.'/auth.php';
