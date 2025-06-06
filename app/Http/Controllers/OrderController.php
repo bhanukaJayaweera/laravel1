@@ -456,8 +456,8 @@ class OrderController extends Controller
       // Get products with their latest market price (market_id = 1)
         $products = Product::with(['marketPrice' => function($query) {
             $query->where('market_id', 1)
-                ->latest('price_date')
-                ->limit(1);
+                ->latest('price_date');
+                
         }])->get()->map(function($product) {
             return [
                 'id' => $product->id,

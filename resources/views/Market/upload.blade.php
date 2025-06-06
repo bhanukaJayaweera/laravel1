@@ -59,17 +59,43 @@
             </button>         
         </div>
     @endif
+
+    @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-left:55%">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
     <div class="back">   
     <form action="{{ route('fetchpricesexcel') }}" method="POST" enctype="multipart/form-data" style="margin-left:40%">
         @csrf
-        <input type="file" name="file" required><br><br>
-        <button type="submit" class="btn btn-success">Upload</button>
+         <input type="file" name="file" class="@error('file') is-invalid @enderror" required><br><br>
+         @error('file')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+       <button type="submit" class="btn btn-success" id="uploadButton">
+            <span id="uploadText">Upload</span>
+            <span id="uploadSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+        </button>
     </form>
     <a type="button" href="{{route('dashboard')}}" class="btn btn-danger">Back</a>
     </div>
     <div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $('form').on('submit', function() {
+    $('#uploadText').text('Uploading...');
+    $('#uploadSpinner').removeClass('d-none');
+    $('#uploadButton').prop('disabled', true);
+});
+</script>
 </body>
 </x-app-layout>
 </html>

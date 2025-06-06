@@ -9,6 +9,7 @@ use App\Services\MarketDataService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\MarketImport;
+use Illuminate\Support\Facades\Log; // Import Log facade
 
 class MarketPriceController extends Controller
 {
@@ -17,7 +18,10 @@ class MarketPriceController extends Controller
     {
         //$products = Product::with(['price'])->get();
         // Use:
-    $products = Product::with(['marketPrice.market'])->get();
+    //$products = Product::with(['latestMarketPrice'])->get();
+    $products = Product::with(['marketPrice' => function($query) {
+        $query->latest('price_date');
+    }])->get();
     return view('Market.index', compact('products'));
 
         // public function index(Request $request)
@@ -105,15 +109,19 @@ class MarketPriceController extends Controller
 
     public function fetchPricesExcel(Request $request)
     {
+        Log::info('fetchPricesExcel method called');
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
+            'file' => 'required|mimes:xlsx,xls|max:2048', // limit to 2MB
         ]);
 
+        Log::info('File validation passed');
+        Log::info('File details: ', [$request->file('file')]);
         try {
             Excel::import(new MarketImport, $request->file('file'));
-            return back()->with('success', 'Orders imported successfully!');
+            return back()->with('success', 'Prices imported successfully!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Import failed: ' . $e->getMessage());
+            return back()->with('error', 'Import failed: ' . $e->getMessage())
+                        ->withInput();
         }
     }
     

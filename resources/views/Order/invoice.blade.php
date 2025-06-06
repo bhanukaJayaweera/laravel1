@@ -59,6 +59,12 @@
     </thead>
     <tbody>
         @foreach($products as $product)
+           @php
+                $promotion = $product['promotion'] ?? 'No promotion';
+                $hideRow = ($promotion === 'No promotion' && empty($product['discount']));
+            @endphp
+            
+        @unless($hideRow)
         <tr>
             <td>      
                 @isset($product['promotion'])
@@ -79,6 +85,7 @@
                 @endisset
             </td>
         </tr>
+         @endunless
         @endforeach
     </tbody>
 </table>
