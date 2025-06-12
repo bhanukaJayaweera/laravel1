@@ -11,6 +11,7 @@ use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\MarketPriceController;
+use App\Http\Controllers\StreamlitController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -149,5 +150,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/prices/fetchexcel', [MarketPriceController::class, 'fetchPricesExcel'])->name('fetchpricesexcel');
     Route::get('/prices/showupload', [MarketPriceController::class, 'showUploadForm'])->name('market.upload');
 
+    Route::get('/fruit-classifier', [StreamlitController::class, 'showForm'])->name('fruit.form');
+    Route::post('/fruit-classifier', [StreamlitController::class, 'predict'])->name('fruit.predict');
 });
 require __DIR__.'/auth.php';
