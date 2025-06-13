@@ -27,7 +27,7 @@ class StreamlitController extends Controller
         return back()->with([
             'prediction' => $response->json()['prediction'],
             'confidence' => $response->json()['confidence'],
-             'probabilities' => $response->json()['probabilities']
+            'probabilities' => $response->json()['probabilities']
         ]);
     }
 }
