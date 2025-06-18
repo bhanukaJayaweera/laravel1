@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\MarketImport;
 use Illuminate\Support\Facades\Log; // Import Log facade
+use Illuminate\Support\Facades\Http;
 
 class MarketPriceController extends Controller
 {
@@ -80,23 +81,42 @@ class MarketPriceController extends Controller
 
     public function fetchPricesAPI(Request $request)
     {
-        $validated = $request->validate([
-            'markets' => 'required|array',
-            'markets.*' => 'string|max:10',
-            'date' => 'sometimes|date|max:3',
-        ]);
+        $response = Http::get("")
+
+
+        // $validated = $request->validate([
+        //     'markets' => 'required|array',
+        //     'markets.*' => 'string|max:10',
+        //     'date' => 'sometimes|date|max:3',
+        // ]);
         
-        $date = $request->input('date', '2025-05-30');
+        // $date = $request->input('date', '2025-05-30');
         
-        $success = $this->marketDataService->fetchAndStorePrices(
-            $validated['markets'],
-            $date
-        );
+        // $success = $this->marketDataService->fetchAndStorePrices(
+        //     $validated['markets'],
+        //     $date
+        // );
         
-        return response()->json([
-            'success' => $success,
-            'message' => $success ? 'Prices fetched and stored' : 'Failed to fetch prices'
-        ], $success ? 200 : 500);
+        // return response()->json([
+        //     'success' => $success,
+        //     'message' => $success ? 'Prices fetched and stored' : 'Failed to fetch prices'
+        // ], $success ? 200 : 500);
+
+    //      try {
+    //     $success = $marketService->fetchAndStorePrices([$market->code], now()->format('Y-m-d'));
+        
+    //     return response()->json([
+    //         'success' => $success,
+    //         'message' => $success ? 'Prices updated successfully' : 'Failed to update prices',
+    //         'data' => $success ? $market->fresh()->marketPrices : []
+    //     ]);
+    // } catch (\Exception $e) {
+    //     return response()->json([
+    //         'success' => false,
+    //         'message' => 'Error: ' . $e->getMessage()
+    //     ], 500);
+    // }
+ 
     }
 
     
