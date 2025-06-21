@@ -45,8 +45,28 @@
                             <i class="fa fa-box mr-2"></i> Manage Products
                         </a><br><br>
                           <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('fruit.prices')}}">
-                            <i class="fa fa-box mr-2"></i> Market Prices
+                            <i class="fa fa-box mr-2"></i> View Market Prices
                         </a><br><br>
+                         <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('fetchpricesapi')}}">
+                            <i class="fa fa-box mr-2"></i> Get Market Prices - API
+                        </a><br><br>
+                        <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('market.upload')}}">
+                            <i class="fa fa-box mr-2"></i> Get Market Prices - Excel
+                        </a><br><br>
+                        
+                        <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('fruit.form')}}">
+                            <i class="fa fa-box mr-2"></i> Fruit Image Recognizer
+                        </a><br><br>
+                        <!-- <div class="container">
+                            <h1>Fruit Classifier</h1>
+                            <div class="embed-responsive embed-responsive-16by9">
+                                <iframe 
+                                    src="http://172.16.44.212:8501" 
+                                    class="embed-responsive-item"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div> -->
                     </div>
                     @endcan
 
@@ -58,6 +78,12 @@
                         </h2>
                         <a class="btn btn-danger w-full text-left py-3 flex items-center" href="{{route('customer.index')}}">
                             <i class="fa fa-user mr-2"></i> Manage Customers
+                        </a><br><br>
+                        <a class="btn btn-danger w-full text-left py-3 flex items-center" href="{{route('fetch.question')}}">
+                            <i class="fa fa-user mr-2"></i> Fetch Q and A 
+                        </a><br><br>
+                            <a class="btn btn-danger w-full text-left py-3 flex items-center" href="{{route('show.question')}}">
+                            <i class="fa fa-user mr-2"></i> View Q and A 
                         </a><br><br>
                     </div>
                     @endcan

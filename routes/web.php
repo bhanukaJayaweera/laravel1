@@ -11,6 +11,8 @@ use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\MarketPriceController;
+use App\Http\Controllers\StreamlitController;
+use App\Http\Controllers\QuestionController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -80,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/order/create',[OrderController::class,'create'])->name('order.create');
     Route::post('/order',[OrderController::class,'store'])->name('order.store');
-    Route::post('/importorder', [OrderController::class, 'importorder'])->name('importorder');
+    Route::post('/importorder', [OrderController::class, 'importorder'])->name('importorders');
     Route::get('order/upload', [OrderController::class, 'showUploadForm'])->name('order.upload');
     Route::get('/order/productsearch',[OrderController::class,'showSearch'])->name('order.productsearch');
 
@@ -144,5 +146,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/fruit-prices', [MarketPriceController::class, 'index'])->name('fruit.prices');
     Route::get('/fruit-prices/market/{market}', [MarketPriceController::class, 'byMarket'])->name('fruit.prices.market');
     Route::get('/fruit-prices/history/{product}', [MarketPriceController::class, 'history'])->name('fruit.history');
+
+    Route::post('/prices/fetchapi', [MarketPriceController::class, 'fetchPricesAPI'])->name('fetchpricesapi');
+    Route::post('/prices/fetchexcel', [MarketPriceController::class, 'fetchPricesExcel'])->name('fetchpricesexcel');
+    Route::get('/prices/showupload', [MarketPriceController::class, 'showUploadForm'])->name('market.upload');
+
+    Route::get('/fruit-classifier', [StreamlitController::class, 'showForm'])->name('fruit.form');
+    Route::post('/fruit-classifier', [StreamlitController::class, 'predict'])->name('fruit.predict');
+
+    //fetchInsert
+    Route::get('/fetch', [QuestionController::class, 'fetchInsert'])->name('fetch.question');
+    Route::get('/questions', [QuestionController::class, 'show'])->name('show.question');
+
 });
 require __DIR__.'/auth.php';

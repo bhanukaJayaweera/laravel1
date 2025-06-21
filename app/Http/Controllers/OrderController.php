@@ -183,21 +183,58 @@ class OrderController extends Controller
         }
     }
 
-    public function importorder(Request $request)
-    {
+public function importorder(Request $request)
+{
+    // Custom validation messages
+    $messages = [
+        'file.required' => 'Please select a file to upload.',
+        'file.mimes' => 'Only Excel files (.xlsx, .xls) are allowed.',
+        'file.max' => 'File size should not exceed 5MB.' // Added file size validation
+    ];
+
+    try {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
+            'file' => 'required|mimes:xlsx,xls|max:5120', // 5MB in KB
+        ], $messages);
+
+        // Get the original file name
+        $fileName = $request->file('file')->getClientOriginalName();
+        
+        // Store the file temporarily (optional)
+        $filePath = $request->file('file')->store('temp');
+
+        // Import with potential customizations
+        $import = new OrderImport();
+        Excel::import($import, $request->file('file'));
+
+        // You can access import statistics if your OrderImport class implements WithProgressBar
+        $importedRows = $import->getRowCount(); // Assuming you have this method
+        
+        return back()->with([
+            'success' => 'Orders imported successfully!',
+            'imported_rows' => $importedRows,
+            'file_name' => $fileName
         ]);
 
-        try {
-            Excel::import(new OrderImport, $request->file('file'));
-            return back()->with('success', 'Orders imported successfully!');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Import failed: ' . $e->getMessage());
-        }
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Specifically handle validation exceptions
+        return back()->withErrors($e->validator)->withInput();
+        
+    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        // Handle Excel validation errors (if using WithValidation in OrderImport)
+        $failures = $e->failures();
+        
+        return back()->with([
+            'error' => 'There were errors in your Excel file.',
+            'failures' => $failures
+        ]);
+        
+    } catch (\Exception $e) {
+        // General exception handling
+        \Log::error('Order Import Error: ' . $e->getMessage());
+        return back()->with('error', 'Import failed: ' . $e->getMessage());
     }
-
-
+}
      //orderproduct new 
     public function storeOrder(Request $request) {
     if (auth()->user()->can('handle orders')) {
@@ -456,8 +493,8 @@ class OrderController extends Controller
       // Get products with their latest market price (market_id = 1)
         $products = Product::with(['marketPrice' => function($query) {
             $query->where('market_id', 1)
-                ->latest('price_date')
-                ->limit(1);
+                ->latest('price_date');
+                
         }])->get()->map(function($product) {
             return [
                 'id' => $product->id,

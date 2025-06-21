@@ -30,6 +30,7 @@
             <th>Price</th>
             <th>Sub Total</th>
             <th>Discount</th>
+            <th>After Discount</th>
         </tr>
     </thead>
     <tbody>
@@ -46,11 +47,31 @@
                     0.00
                 @endif
             </td>
+            <td>
+                @if(isset($products[$index]['discount']))
+                    {{ number_format(($product->pivot->quantity * $product->currentMarketPrice(1)->first()->price - (float)$products[$index]['discount']),2)}}
+                @else
+                    {{ number_format($product->pivot->quantity * $product->currentMarketPrice(1)->first()->price, 2) }}
+                @endif
+            </td>
         </tr>
         @endforeach
     </tbody>
 </table>
-<table>
+
+    <div style="text-align: right; margin-top: 30px;">
+        <p><strong>Total Before Discount:</strong> {{ number_format(($totaldiscount+$order->amount),2) }}</p>
+    </div>
+    <div style="text-align: right; margin-top: 30px;">
+        <p><strong>Total Discount:</strong> {{ number_format($totaldiscount,2) }}</p>
+    </div>
+
+    <div style="text-align: right; margin-top: 30px;">
+        <p><strong>Grand Total:</strong> {{ number_format($order->amount,2) }}</p>
+    </div>
+    
+    <hr style="margin-top: 50px;">
+    <table>
     <thead>
         <tr>
             <th>Promotion</th>
@@ -59,6 +80,12 @@
     </thead>
     <tbody>
         @foreach($products as $product)
+           @php
+                $promotion = $product['promotion'] ?? 'No promotion';
+                $hideRow = ($promotion === 'No promotion' && empty($product['discount']));
+            @endphp
+            
+        @unless($hideRow)
         <tr>
             <td>      
                 @isset($product['promotion'])
@@ -79,18 +106,10 @@
                 @endisset
             </td>
         </tr>
+         @endunless
         @endforeach
     </tbody>
-</table>
-    <div style="text-align: right; margin-top: 30px;">
-        <p><strong>Total Discount:</strong> {{ number_format($totaldiscount,2) }}</p>
-    </div>
-
-    <div style="text-align: right; margin-top: 30px;">
-        <p><strong>Grand Total:</strong> {{ number_format($order->amount,2) }}</p>
-    </div>
-    
-    <hr style="margin-top: 50px;">
+    </table>
 
     <table style="width: 100%; margin-top: 80px;">
         <tr>
