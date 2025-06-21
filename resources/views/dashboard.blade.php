@@ -79,6 +79,12 @@
                         <a class="btn btn-danger w-full text-left py-3 flex items-center" href="{{route('customer.index')}}">
                             <i class="fa fa-user mr-2"></i> Manage Customers
                         </a><br><br>
+                        <a class="btn btn-danger w-full text-left py-3 flex items-center" href="{{route('fetch.question')}}">
+                            <i class="fa fa-user mr-2"></i> Fetch Q and A 
+                        </a><br><br>
+                            <a class="btn btn-danger w-full text-left py-3 flex items-center" href="{{route('show.question')}}">
+                            <i class="fa fa-user mr-2"></i> View Q and A 
+                        </a><br><br>
                     </div>
                     @endcan
 

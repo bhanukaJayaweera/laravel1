@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\MarketPriceController;
 use App\Http\Controllers\StreamlitController;
+use App\Http\Controllers\QuestionController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -152,5 +153,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/fruit-classifier', [StreamlitController::class, 'showForm'])->name('fruit.form');
     Route::post('/fruit-classifier', [StreamlitController::class, 'predict'])->name('fruit.predict');
+
+    //fetchInsert
+    Route::get('/fetch', [QuestionController::class, 'fetchInsert'])->name('fetch.question');
+    Route::get('/questions', [QuestionController::class, 'show'])->name('show.question');
+
 });
 require __DIR__.'/auth.php';
