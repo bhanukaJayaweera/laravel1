@@ -81,7 +81,7 @@ class MarketPriceController extends Controller
 
     public function fetchPricesAPI(Request $request)
     {
-        $response = Http::get("")
+    
 
 
         // $validated = $request->validate([

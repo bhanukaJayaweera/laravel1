@@ -14,6 +14,7 @@ class QuestionController extends Controller
             $response = Http::withoutVerifying()->get('https://quizapi.io/api/v1/questions', [
                 'apiKey' => '9hG9f1jXJZSXTsUl6ngIH8txZYbXFaiTtLtEhPLf',
                 'limit' => 100,
+                //'category' => 'computer',
             ]);
 
             // Check if the request was successful
