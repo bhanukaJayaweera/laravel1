@@ -22,7 +22,7 @@ class StreamlitController extends Controller
             'image', 
             file_get_contents($request->file('fruit_image')), 
             $request->file('fruit_image')->getClientOriginalName()
-        )->post('http://127.0.0.1:8000/predict');
+        )->post('http://127.0.0.1:8001/predict');
 
         return back()->with([
             'prediction' => $response->json()['prediction'],
