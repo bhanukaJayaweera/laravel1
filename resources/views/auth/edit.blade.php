@@ -18,6 +18,17 @@
     <title>Document</title>
     <style>
 
+    .password-container {
+        position: relative;
+    }
+    .generate-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+    }
+
     </style>
 </head>
 <body>
@@ -55,7 +66,7 @@
                             <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
 
                             <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $user->email) }}" required autocomplete="email">
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $user->email) }}" required autocomplete="email" >
 
                                 @error('email')
                                     <span class="invalid-feedback" role="alert">
@@ -66,6 +77,25 @@
                         </div>
 
                         <div class="row mb-3">
+                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
+
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input id="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new-password" readonly>
+                                    <button type="button" class="btn btn-success" onclick="generatePassword()">
+                                        {{ __('Reset Password') }}
+                                    </button>
+                                </div>
+                                <small class="text-muted">Leave blank to keep current password</small>
+
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- <div class="row mb-3">
                             <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
 
                             <div class="col-md-6">
@@ -86,7 +116,7 @@
                             <div class="col-md-6">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" autocomplete="new-password">
                             </div>
-                        </div>
+                        </div> -->
 
                         <div class="row mb-3">
                             <div class="col-md-6 offset-md-4">
@@ -112,7 +142,31 @@
         </div>
     </div>
 </div>
+
+<script>
+function generatePassword() {
+    // Generate a random password with 12 characters
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+    let password = '';
+    
+    for (let i = 0; i < 12; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    // Set the password field value
+    document.getElementById('password').value = password;
+    document.getElementById('password-confirm').value = password;
+    
+    // Show the password temporarily (optional)
+    document.getElementById('password').type = 'text';
+    setTimeout(() => {
+        document.getElementById('password').type = 'password';
+    }, 2000);
+}
+</script>
 </body>
 </x-app-layout>
 </html>
+
+
 @endcan
