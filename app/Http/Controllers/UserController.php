@@ -7,8 +7,11 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Promotion;
 use App\Models\OrderDeletionRequest;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log; // Import Log facade
 
 class UserController extends Controller
 {
@@ -63,31 +66,105 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('auth.edit', compact('user'));
+         $roles = Role::all();
+        return view('auth.edit', compact('user','roles'));
     }
 
-    public function update(Request $request, User $user)
+   public function update(Request $request, User $user)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
-            'password' => 'nullable|string|min:8|confirmed',
             'is_active' => 'sometimes|boolean'
+        ], [
+            'name.required' => 'The name field is required.',
+            'email.required' => 'The email field is required.',
+            'email.unique' => 'This email is already taken.',
         ]);
 
-        $data = [
+        $oldData = $user->getOriginal();
+        
+        $user->update([
             'name' => $request->name,
             'email' => $request->email,
             'is_active' => $request->has('is_active')
-        ];
+        ]);
 
-        if ($request->password) {
-            $data['password'] = Hash::make($request->password);
+        // Log the update
+        Log::info('User updated', [
+            'user_id' => $user->id,
+            'updater_id' => auth()->id(),
+            'changes' => $user->getChanges(),
+            'ip' => $request->ip()
+        ]);
+
+        return redirect()->route('users.edit', $user)->with('success', 'User details updated successfully!');
+    }
+
+   public function resetPassword(Request $request, User $user)
+    {
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed',
+        ], [
+            'new_password.required' => 'The password field is required.',
+            'new_password.min' => 'The password must be at least 8 characters.',
+            'new_password.confirmed' => 'The password confirmation does not match.',
+        ]);
+
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        // Log the password reset
+        Log::info('Password reset', [
+            'user_id' => $user->id,
+            'reset_by' => auth()->id(),
+            'ip' => $request->ip()
+        ]);
+
+        return redirect()->route('users.edit', $user)->with('success', 'Password reset successfully!');
+    }
+
+    public function assignRoles(Request $request, User $user)
+    {
+        $request->validate([
+            'roles' => 'sometimes|array',
+            'roles.*' => 'exists:roles,name'
+        ]);
+
+        try {
+            // Get current roles for logging
+            $currentRoles = $user->getRoleNames()->toArray();
+            
+            // Sync roles
+            $user->syncRoles($request->roles ?? []);
+            // $user->syncRoles($request->roles ?? []);
+            // $user->syncPermissions($request->permissions ?? []);
+   
+            // Log the role changes
+            Log::channel('user_activity')->info('User roles updated', [
+                'user_id' => $user->id,
+                'updated_by' => auth()->id(),
+                'old_roles' => $currentRoles,
+                'new_roles' => $request->roles ?? [],
+                'ip' => $request->ip()
+            ]);
+
+            return redirect()
+                ->route('users.edit', $user)
+                ->with('success', 'Roles updated successfully');
+
+        } catch (\Exception $e) {
+            Log::channel('user_activity')->error('Role update failed', [
+                'error' => $e->getMessage(),
+                'user_id' => $user->id,
+                'attempted_roles' => $request->roles
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Failed to update roles: ' . $e->getMessage());
         }
-
-        $user->update($data);
-
-        return redirect()->route('users.index')->with('success', 'User updated successfully!');
     }
 
     public function toggleStatus(User $user)

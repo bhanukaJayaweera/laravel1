@@ -59,8 +59,34 @@
                                 @enderror
                             </div>
                         </div>
+                        <div class="row mb-3">
+                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('New Password') }}</label>
+
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new-password">
+                                    <button type="button" class="btn btn-success" onclick="generatePassword()">
+                                        {{ __('Generate Password') }}
+                                    </button>
+                                </div>
+
+                                @error('new_password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
 
                         <div class="row mb-3">
+                            <label for="password_confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password_confirm" type="password" class="form-control" name="password_confirmation" autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <!-- <div class="row mb-3">
                             <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
 
                             <div class="col-md-6">
@@ -80,7 +106,7 @@
                             <div class="col-md-6">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
                             </div>
-                        </div>
+                        </div> -->
                         <div class="row mb-3">
                             <div class="col-md-6 offset-md-4">
                                 <div class="form-check">
@@ -112,6 +138,29 @@
 
     </div>
 </div>
+<script>
+function generatePassword() {
+    // Generate a random password with 12 characters
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+    let password = '';
+    
+    for (let i = 0; i < 12; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    // Set the password field values
+    document.getElementById('password').value = password;
+    document.getElementById('password_confirm').value = password;
+    
+    // Show the password temporarily (optional)
+    document.getElementById('password').type = 'text';
+    document.getElementById('password_confirm').type = 'text';
+    // setTimeout(() => {
+    //     document.getElementById('new_password').type = 'password';
+    //     document.getElementById('new_password_confirmation').type = 'password';
+    // }, 2000);
+}
+</script>
 </body>
 </x-app-layout>
 </html>
