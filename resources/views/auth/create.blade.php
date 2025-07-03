@@ -64,7 +64,7 @@
 
                             <div class="col-md-6">
                                 <div class="input-group">
-                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new-password">
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new-password" readonly>
                                     <button type="button" class="btn btn-success" onclick="generatePassword()">
                                         {{ __('Generate Password') }}
                                     </button>
@@ -82,7 +82,7 @@
                             <label for="password_confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}</label>
 
                             <div class="col-md-6">
-                                <input id="password_confirm" type="password" class="form-control" name="password_confirmation" autocomplete="new-password">
+                                <input id="password_confirm" type="password" class="form-control" name="password_confirmation" autocomplete="new-password" readonly>
                             </div>
                         </div>
 

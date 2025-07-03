@@ -25,9 +25,9 @@
                             <a class="btn btn-primary w-full text-left py-3 flex items-center" href="{{route('users.index')}}">
                                 <i class="fa fa-user mr-2"></i> Manage Users
                             </a><br><br>
-                            <a class="btn btn-primary w-full text-left py-3 flex items-center" href="{{route('user-role.index')}}">
+                            <!-- <a class="btn btn-primary w-full text-left py-3 flex items-center" href="{{route('user-role.index')}}">
                                 <i class="fas fa-user-tag mr-2"></i> Assign Roles
-                            </a><br><br>
+                            </a><br><br> -->
                             <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('roles.permissions.index')}}">
                                 <i class="fas fa-key mr-2"></i> Manage Permissions
                             </a>
@@ -89,16 +89,17 @@
                     @endcan
 
                     <!-- Order Management Section -->
-                  @can('handle orders')
+                 
                     <div class="bg-purple-50 p-5 rounded-lg border border-purple-100">
                         <h2 class="text-lg font-semibold text-purple-800 mb-4 flex items-center">
                             <i class="fas fa-shopping-cart mr-2"></i> Order Management
                         </h2>
                         <div class="space-y-3">
-                            
+                             @can('handle orders')
                             <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('order.index')}}">
                                 <i class="fas fa-clipboard-list mr-2"></i> Manage Orders
                             </a> <br><br>
+                             @endcan
                             @can('approve orders')
                             <a class="btn btn-primary w-full text-left py-3 flex items-center" href="{{route('order.approvals')}}">
                                 <i class="fas fa-check-circle mr-2"></i> Approve Orders
@@ -106,19 +107,20 @@
                             @endcan
                         </div>
                     </div>
-                   @endcan
+                  
 
                     <!-- Promotion Management Section -->
-                    @can('handle promotions')
+                    
                     <div class="bg-yellow-50 p-5 rounded-lg border border-yellow-100">
                         <h2 class="text-lg font-semibold text-yellow-800 mb-4 flex items-center">
                             <i class="fas fa-percentage mr-2"></i> Promotion Management
                         </h2>
                         <div class="space-y-3">
-                            
+                            @can('handle promotions')
                             <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('Promotion.index')}}">
                                 <i class="fas fa-money-bill-wave mr-2"></i> Manage Promotions
                             </a> 
+                             @endcan
                             <br><br>
                             @can('approve promotions')
                             <a class="btn btn-primary w-full text-left py-3 flex items-center" href="{{route('Promotion.approvals')}}">
@@ -127,7 +129,7 @@
                             @endcan
                         </div>
                     </div>
-                   @endcan
+                  
                 </div>
 
                 <!-- Quick Stats Section (Optional) -->

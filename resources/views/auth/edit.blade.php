@@ -40,6 +40,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
+            <!-- User Details Card -->
             <div class="card">
                 @if(session('success'))
                     <div class="alert alert-success">
@@ -47,7 +48,6 @@
                     </div>
                 @endif
 
-                <!-- Add this to show form errors -->
                 @if($errors->any())
                     <div class="alert alert-danger">
                         <ul>
@@ -57,6 +57,7 @@
                         </ul>
                     </div>
                 @endif
+                
                 <div class="card-header">{{ __('Edit User Details') }}</div>
 
                 <div class="card-body">
@@ -66,10 +67,8 @@
 
                         <div class="row mb-3">
                             <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
-
                             <div class="col-md-6">
                                 <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $user->name) }}" required autocomplete="name" autofocus>
-
                                 @error('name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -80,10 +79,8 @@
 
                         <div class="row mb-3">
                             <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
-
                             <div class="col-md-6">
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $user->email) }}" required autocomplete="email">
-
                                 @error('email')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -103,7 +100,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-0">
+                        <div class="row mb-4">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Update Details') }}
@@ -114,9 +111,9 @@
                 </div>
             </div>
 
+            <!-- Password Reset Card -->
             <div class="card mt-4">
                 <div class="card-header">{{ __('Reset Password') }}</div>
-
                 <div class="card-body">
                     <form method="POST" action="{{ route('users.reset-password', $user) }}">
                         @csrf
@@ -124,15 +121,13 @@
 
                         <div class="row mb-3">
                             <label for="new_password" class="col-md-4 col-form-label text-md-end">{{ __('New Password') }}</label>
-
                             <div class="col-md-6">
                                 <div class="input-group">
-                                    <input id="new_password" type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password" autocomplete="new-password">
+                                    <input id="new_password" type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password" autocomplete="new-password" readonly>
                                     <button type="button" class="btn btn-success" onclick="generatePassword()">
                                         {{ __('Generate Password') }}
                                     </button>
                                 </div>
-
                                 @error('new_password')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -143,13 +138,12 @@
 
                         <div class="row mb-3">
                             <label for="new_password_confirmation" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}</label>
-
                             <div class="col-md-6">
-                                <input id="new_password_confirmation" type="password" class="form-control" name="new_password_confirmation" autocomplete="new-password">
+                                <input id="new_password_confirmation" type="password" class="form-control" name="new_password_confirmation" autocomplete="new-password" readonly>
                             </div>
                         </div>
 
-                        <div class="row mb-0">
+                        <div class="row mb-4">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-warning">
                                     {{ __('Reset Password') }}
@@ -159,52 +153,59 @@
                     </form>
                 </div>            
             </div>
-        </div>
-        <div class="card mt-4">
-            <div class="card-header">{{ __('User Roles') }}</div>
-            <div class="card-body">
-                <form method="POST" action="{{ route('users.assign-roles', $user) }}">
-                    @csrf
-                    @method('PUT')
-                    
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label text-md-end">{{ __('Roles') }}</label>
-                        <div class="col-md-6">
-                            @foreach($roles as $role)
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" 
-                                        name="roles[]" 
-                                        value="{{ $role->name }}"
-                                        id="role_{{ $role->id }}"
-                                        {{ $user->hasRole($role->name) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="role_{{ $role->id }}">
-                                        {{ $role->name }}
-                                    </label>
-                                </div>
-                            @endforeach
-                            
-                            @error('roles')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
 
-                    <div class="row mb-0">
-                        <div class="col-md-6 offset-md-4">
-                            <button type="submit" class="btn btn-info">
-                                {{ __('Update Roles') }}
-                            </button>
+            <!-- User Roles Card -->
+            <div class="card mt-4">
+                <div class="card-header">{{ __('User Roles') }}</div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('users.assign-roles', $user) }}">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label text-md-end">{{ __('Roles') }}</label>
+                            <div class="col-md-6">
+                                @foreach($roles as $role)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                            name="roles[]" 
+                                            value="{{ $role->name }}"
+                                            id="role_{{ $role->id }}"
+                                            {{ $user->hasRole($role->name) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="role_{{ $role->id }}">
+                                            {{ $role->name }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                                
+                                @error('roles')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
                         </div>
-                    </div>
-                </form>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 offset-md-4">
+                                <button type="submit" class="btn btn-info">
+                                    {{ __('Update Roles') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="mt-4 text-center">
+                <a class="btn btn-danger" href="{{route('users.index')}}">
+                    <i class="fa fa-arrow-left"></i> {{ __('Back to Users List') }}
+                </a>
             </div>
         </div>
     </div>
-     <a class="btn btn-danger" href="{{route('users.index')}}"><i class="fa fa-home"></i> Back</a>
 </div>
-
 <script>
 function generatePassword() {
     // Generate a random password with 12 characters
