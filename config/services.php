@@ -34,4 +34,9 @@ return [
         'url' => env('MARKET_DATA_API_URL'),
         'key' => env('MARKET_DATA_API_KEY'),
     ],
+
+    'gpt2' => [
+        'api_url' => env('GPT2_API_URL', 'http://localhost:5000'),
+        'timeout' => env('GPT2_API_TIMEOUT', 30),
+    ],
 ];
