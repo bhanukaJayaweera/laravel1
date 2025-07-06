@@ -173,14 +173,7 @@
                 <label class="input-group-text" id="inputGroup-sizing-default">Usage Limit</label>
                 <input type="text" name="usage_limit" id="usage_limit" class="form-control">
             </div>
-            <!-- <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Payment Type</label>
-                <select class="form-select" name="payment_type" id="payment_type" required>
-                    <option value="">-- Choose a Type --</option>
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                </select>
-            </div> -->
+
 
              <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Active</label>
@@ -263,7 +256,7 @@
                 <label class="input-group-text" id="inputGroup-sizing-default">Usage Limit</label>
                 <input type="text" name="usage_limit" id="usage_limit" class="form-control">
             </div>
-            <div class="input-group mb-3">
+            <!-- <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Active</label>
                 <div style="padding: 5px">
                     @php
@@ -282,15 +275,8 @@
                         </div>
                     @endforeach
                 </div>
-            </div>
-            <!-- <div class="input-group mb-3">
-                <label class="input-group-text" id="inputGroup-sizing-default">Payment Type</label>
-                <select class="form-select" name="payment_type" id="payment_types" required>
-                    <option value="">-- Choose a Type --</option>
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                </select>
             </div> -->
+  
            
                                 
             </div>
@@ -346,20 +332,17 @@
                     <td>{{$promotion->start_date}}</td>     
                     <td>{{$promotion->end_date}}</td>    
                     <td>{{$promotion->usage_limit}}</td>    
-                    <td>
-                    @php
-                        $statusClass = match($promotion->is_active) {
-                            'yes' => 'badge bg-warning text-dark',
-                            'no' => 'badge bg-primary',
-                            default => 'badge bg-secondary',
-                        };
-                    @endphp
+                   <td>
+                        <!-- @php
+                            
+                            $promotion->is_active == 'yes' ? 'badge bg-warning text-dark' : 'badge bg-primary';
+                            $promotion->is_active == 'yes' ? 'Yes' : 'No';
+                        @endphp -->
 
-                    <span class="{{ $statusClass }}">
-                        {{ ucfirst($promotion->is_active) }}
-                    </span>
-
-                    </td>  
+                        <span class="{{ $promotion->is_active == 'yes' ? 'badge bg-warning text-dark' : 'badge bg-primary' }}">
+                            {{ $promotion->is_active == 'yes' ? 'Yes' : 'No' }}
+                        </span>
+                    </td>
                
         </form>   
        

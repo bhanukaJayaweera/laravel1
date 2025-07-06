@@ -154,10 +154,15 @@ class PromotionController extends Controller
             'discount_percentage'=> 'required',
             'start_date'=> 'required|date',
             'end_date'=> 'required|date',
-            'is_active'=> 'required',
             'usage_limit' => 'required|regex:/^\d+(\.\d{1,2})?$/',
         ]);
         Log::info('Validated Promotion Data:', $data);
+        $now = now();
+        $start = $request->input('start_date'); 
+        $end = $request->input('end_date'); 
+          // Set is_active based on date range
+        $data['is_active'] = ($now >= $start && $now <= $end) ? 'yes' : 'no';
+        
         $promotion = Promotion::create($data);
         Log::info(' Created:', ['id' => $promotion->id]);
         
