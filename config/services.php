@@ -36,7 +36,7 @@ return [
     ],
 
     'gpt2' => [
-        'api_url' => env('GPT2_API_URL', 'http://localhost:5000'),
+        'api_url' => env('GPT2_API_URL', 'http://127.0.0.1:5000'),
         'timeout' => env('GPT2_API_TIMEOUT', 30),
     ],
 ];

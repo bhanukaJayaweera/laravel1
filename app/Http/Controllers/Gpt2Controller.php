@@ -22,24 +22,25 @@ class Gpt2Controller extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
-            'prompt' => 'required|string',
-            'max_length' => 'sometimes|integer|min:10|max:500',
+            'prompt' => 'required|string|max:1000',
+            'max_length' => 'sometimes|integer|min:20|max:500',
             'temperature' => 'sometimes|numeric|min:0.1|max:1.0',
             'top_k' => 'sometimes|integer|min:1|max:100',
             'top_p' => 'sometimes|numeric|min:0.1|max:1.0',
-            'num_return_sequences' => 'sometimes|integer|min:1|max:5',
         ]);
 
         $response = $this->gpt2Service->generateText(
             $validated['prompt'],
-            $request->only(['max_length', 'temperature', 'top_k', 'top_p', 'num_return_sequences'])
+            $request->only(['max_length', 'temperature', 'top_k', 'top_p'])
         );
 
         if (isset($response['error'])) {
-            return response()->json($response, 500);
+            return response()->json(['error' => $response['error']], 500);
         }
 
-        return response()->json($response);
+        return response()->json([
+            'response' => $response['results'][0]['text'] ?? 'No response generated'
+        ]);
     }
 
     public function batchGenerate(Request $request)

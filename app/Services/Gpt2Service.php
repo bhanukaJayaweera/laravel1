@@ -13,7 +13,7 @@ class Gpt2Service
 
     public function __construct()
     {
-        $this->apiUrl = config('services.gpt2.api_url', 'http://localhost:5000');
+        $this->apiUrl = config('services.gpt2.api_url', 'http://127.0.0.1:5000');
         $this->timeout = config('services.gpt2.timeout', 30);
     }
 
