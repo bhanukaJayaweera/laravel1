@@ -164,7 +164,7 @@ Route::middleware(['auth'])->group(function () {
     //gpt
     Route::get('/gpt2', [Gpt2Controller::class, 'showForm'])->name('gpt2.form');
     Route::post('/generate', [Gpt2Controller::class, 'generate'])->name('gpt2.generate');
-    Route::post('/batch-generate', [Gpt2Controller::class, 'batchGenerate']);
+    Route::post('/batch-generate', [Gpt2Controller::class, 'batchGenerate'])->name('gpt2.batch-generate');
     Route::get('/health', [Gpt2Controller::class, 'health']);
     
 

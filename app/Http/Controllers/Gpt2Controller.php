@@ -45,18 +45,23 @@ class Gpt2Controller extends Controller
 
     public function batchGenerate(Request $request)
     {
-        $validated = $request->validate([
-            'prompts' => 'required|array',
-            'prompts.*' => 'string|min:1',
-        ]);
+           $validated = $request->validate([
+                'prompts' => 'required|array',
+                'prompts.*' => 'string|min:1|max:1000',
+                'max_length' => 'sometimes|integer|min:20|max:500',
+                'temperature' => 'sometimes|numeric|min:0.1|max:1.0',
+            ]);
 
-        $response = $this->gpt2Service->batchGenerate($validated['prompts']);
+            $response = $this->gpt2Service->batchGenerate(
+                $validated['prompts'],
+                $request->only(['max_length', 'temperature'])
+            );
 
-        if (isset($response['error'])) {
-            return response()->json($response, 500);
-        }
+            if (isset($response['error'])) {
+                return response()->json(['error' => $response['error']], 500);
+            }
 
-        return response()->json($response);
+            return response()->json(['results' => $response['results'] ?? []]);
     }
 
     public function health()
