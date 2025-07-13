@@ -244,11 +244,24 @@ public function importorder(Request $request)
             return back()->with('error', 'No products selected!');
         }  
         $data = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
+            'customer_id' => 'nullable|exists:customers,id',
+            'customer_name' => 'nullable|string|max:255',
             'date'=> 'required|date',
-            'payment_type'=> 'required',
+            'payment_type'=> 'required|in:cash,card',
             'amount' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+        // ], [
+        //     'customer_id.required_without' => 'Please select an existing customer or enter a new customer name',
+        //     'customer_name.required_without' => 'Please enter a customer name or select an existing customer',
         ]);
+
+            // Handle customer - create new if needed
+        if ($request->has('customer_name') && !empty($request->customer_name)) {
+            $customer = Customer::create([
+                'name' => $request->customer_name,
+                // Add other default customer fields if needed
+            ]);
+            $data['customer_id'] = $customer->id;
+        }
         //check the delivery date is in the past
         $deliveryDate = $request->input('date');
         if (strtotime($deliveryDate) < strtotime(today()->toDateString())) {

@@ -312,13 +312,41 @@
                 <label class="input-group-text">Cashier Name</label>
                 <input type="text" name="cashier_name" id="cashier_name" class="form-control" value="{{ auth()->check() ? auth()->user()->name : 'Guest' }}" readonly>
             </div> 
-            <div class="input-group mb-3">
+            <!-- <div class="input-group mb-3">
                 <label class="input-group-text" id="inputGroup-sizing-default">Customer</label>
-                <select class="form-select" name="customer_id" id="cus_id" required>
+                <select class="form-select" name="customer_id" id="cus_id">
                     <option value=""></option>
                    
                 </select>
-            </div>
+            </div> -->
+
+             <!-- Customer Selection - Choose between dropdown or input -->
+                    <div class="mb-3">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input customer-select-type" type="radio" name="customer_select_type" id="existingCustomer" value="existing" checked>
+                            <label class="form-check-label" for="existingCustomer">Select Existing Customer</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input customer-select-type" type="radio" name="customer_select_type" id="newCustomer" value="new">
+                            <label class="form-check-label" for="newCustomer">New Customer</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Existing Customer Dropdown -->
+                    <div class="input-group mb-3" id="existing-customer-group">
+                        <label class="input-group-text">Customer</label>
+                        <select class="form-select" name="customer_id" id="cus_id">
+                            <option value="">-- Select Customer --</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                    
+                    <!-- New Customer Input -->
+                    <div class="input-group mb-3 d-none" id="new-customer-group">
+                        <label class="input-group-text">Customer Name</label>
+                        <input type="text" name="customer_name" id="customer_name" class="form-control" placeholder="Enter customer name">
+                    </div>
+                    
             <!-- <form id="productForm"> -->
                 <div class="input-group mb-3">
                     <label class="input-group-text" id="inputGroup-sizing-default">Product</label>
@@ -1395,6 +1423,48 @@
     //                     },
     //                 });
     // });
+});
+// Toggle between existing customer dropdown and new customer input
+document.querySelectorAll('.customer-select-type').forEach(radio => {
+    radio.addEventListener('change', function() {
+        if (this.value === 'existing') {
+            document.getElementById('existing-customer-group').classList.remove('d-none');
+            document.getElementById('new-customer-group').classList.add('d-none');
+            document.getElementById('cus_id').required = true;
+            document.getElementById('customer_name').required = false;
+        } else {
+            document.getElementById('existing-customer-group').classList.add('d-none');
+            document.getElementById('new-customer-group').classList.remove('d-none');
+            document.getElementById('cus_id').required = false;
+            document.getElementById('customer_name').required = true;
+        }
+    });
+});
+
+// Handle form submission
+document.getElementById('orderProductForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    let formData = new FormData(this);
+    
+    // If new customer is selected, use the new customer name
+    if (document.getElementById('newCustomer').checked) {
+        formData.append('customer_name', document.getElementById('customer_name').value);
+        formData.delete('customer_id'); // Remove the customer_id if new customer is selected
+    }
+    
+    // Add your AJAX call here to submit the form data
+    // Example:
+    /*
+    fetch('/your-endpoint', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Handle response
+    });
+    */
 });
 </script>
 
