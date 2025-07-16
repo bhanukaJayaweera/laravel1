@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log; // Import Log facade
+use Mckenziearts\Notify\Notification;
 
 class UserController extends Controller
 {
@@ -55,7 +56,19 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully!');
+        // // Success notification
+        // notify()->success('Your action was successful!', 'Success');
+        // return redirect()->route('users.index');
+
+        try {
+        // Your logic here
+            notify()->success('User created successfully!');
+            return redirect()->route('users.index');
+        } catch (Exception $e) {
+            notify()->error('Failed to create user: ' . $e->getMessage());
+            return back()->withInput();
+        }
+        
     }
 
     public function index()

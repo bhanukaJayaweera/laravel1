@@ -330,17 +330,46 @@
                             <input class="form-check-input customer-select-type" type="radio" name="customer_select_type" id="newCustomer" value="new">
                             <label class="form-check-label" for="newCustomer">New Customer</label>
                         </div>
+                         <div class="form-check form-check-inline">
+                            <input class="form-check-input customer-select-type" type="radio" name="customer_select_type" id="loyaltyCustomer" value="loyalty">
+                            <label class="form-check-label" for="loyaltyCustomer">Loyalty Member</label>
+                        </div>
                     </div>
                     
+                     <!-- <div class="input-group mb-3" id="loyalty-customer-group">
+                        <label class="input-group-text" id="inputGroup-sizing-default">Phone Number</label>
+                        <input type="number" name="phone_search" id="phone_search" class="form-control" placeholder="Enter phone number">
+                         <button type="button" id="checkLoyalty" class="btn btn-success">Check Loyalty</button>
+                    </div>
+                    
+                    Existing Customer Dropdown -->
+                    <!-- <div class="input-group mb-3" id="existing-customer-group">
+                        <label class="input-group-text">Customer</label>
+                        <select class="form-select" name="customer_id" id="cus_id">
+                            <option value="">-- Select Customer --</option>
+                            
+                        </select>
+                    </div> -->
+                    
+                    <div class="input-group mb-3" id="loyalty-customer-group">
+                        <label class="input-group-text">Phone Number</label>
+                        <input type="tel" name="phone_search" id="phone_search" class="form-control" 
+                            placeholder="Enter phone number" pattern="[0-9]{10,15}">
+                        <button type="button" id="checkLoyalty" class="btn btn-success">
+                            <span id="checkLoyaltyText">Check Loyalty</span>
+                            <span id="checkLoyaltySpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>
+                    </div>
+
                     <!-- Existing Customer Dropdown -->
-                    <div class="input-group mb-3" id="existing-customer-group">
+                    <div class="input-group mb-3 d-none" id="existing-customer-group">
                         <label class="input-group-text">Customer</label>
                         <select class="form-select" name="customer_id" id="cus_id">
                             <option value="">-- Select Customer --</option>
                             <!-- Options will be populated dynamically -->
                         </select>
+                        <button type="button" id="clearCustomer" class="btn btn-outline-secondary">Clear</button>
                     </div>
-                    
                     <!-- New Customer Input -->
                     <div class="input-group mb-3 d-none" id="new-customer-group">
                         <label class="input-group-text">Customer Name</label>
@@ -354,10 +383,10 @@
                         <option value=""></option>               
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" id="quantitys" class="form-control" class="form-control">
-                </div>    
+                  <div class="mb-3">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" name="quantity" id="quantitys" class="form-control" class="form-control">
+                    </div>  
                 <button type="button" id="addProduct" class="btn btn-primary">Add to Table</button>
             <!-- </form> -->
                 
@@ -1430,11 +1459,20 @@ document.querySelectorAll('.customer-select-type').forEach(radio => {
         if (this.value === 'existing') {
             document.getElementById('existing-customer-group').classList.remove('d-none');
             document.getElementById('new-customer-group').classList.add('d-none');
+            document.getElementById('loyalty-customer-group').classList.add('d-none');
             document.getElementById('cus_id').required = true;
             document.getElementById('customer_name').required = false;
-        } else {
-            document.getElementById('existing-customer-group').classList.add('d-none');
+        }else if (this.value === 'loyalty') {
+            document.getElementById('loyalty-customer-group').classList.remove('d-none');
+            document.getElementById('new-customer-group').classList.add('d-none');
+             document.getElementById('existing-customer-group').classList.add('d-none');
+            document.getElementById('phone_search').required = true;
+            //document.getElementById('customer_name').required = false;
+        }
+        else{         
             document.getElementById('new-customer-group').classList.remove('d-none');
+            document.getElementById('existing-customer-group').classList.add('d-none');
+             document.getElementById('loyalty-customer-group').classList.add('d-none');
             document.getElementById('cus_id').required = false;
             document.getElementById('customer_name').required = true;
         }
@@ -1453,6 +1491,112 @@ document.getElementById('orderProductForm').addEventListener('submit', function(
         formData.delete('customer_id'); // Remove the customer_id if new customer is selected
     }
     
+});
+    //  $('#checkLoyalty').click(function (e) {
+    //         e.preventDefault();      
+    //          let phone = $("#phone_search").val().trim();
+    
+    //         // Basic validation
+    //         if (!phone || phone.length < 9) {
+    //             alert('Please enter a valid phone number (at least 9 digits)');
+    //             return;
+    //         }
+    //           $.ajax({
+    //                     url: "/orderproduct/checkloyalty",
+    //                     type: "POST",
+    //                     data: {
+    //                         phone: phone,
+    //                         _token: '{{ csrf_token() }}' // Add CSRF token for Laravel
+    //                     },
+    //                     success: function (response) {
+    //                         $("#cus_id").val(response.customer.name);
+    //                         //$("#cus_id").prop("disabled", true);
+    //                         document.getElementById('existing-customer-group').classList.remove('d-none');
+                    
+    //                     },
+    //                     error: function (xhr) {
+    //                         if (xhr.responseJSON && xhr.responseJSON.message) {
+    //                             alert(xhr.responseJSON.message);
+    //                         } else {
+    //                             alert('An error occurred while getting details');
+    //                         }
+    //                     }
+
+    //             });   
+
+    //     });
+
+    function resetButtonState() {
+        $('#checkLoyaltyText').removeClass('d-none');
+        $('#checkLoyaltySpinner').addClass('d-none');
+        $('#checkLoyalty').prop('disabled', false);
+    }
+
+    $('#checkLoyalty').click(function (e) {
+        e.preventDefault();
+        
+        let phone = $("#phone_search").val().trim();
+        
+       // Instead of alert(), show inline error
+        if (!phone || phone.length < 9) {
+            $('#phone_search').addClass('is-invalid');
+            //$('#phoneError').text('Please enter a valid phone number (at least 10 digits)').removeClass('d-none');
+            alert('Please enter a valid phone number (at least 10 digits)');
+            resetButtonState();
+            return;
+        }
+                
+        // Show loading state
+        $('#checkLoyaltyText').addClass('d-none');
+        $('#checkLoyaltySpinner').removeClass('d-none');
+        $('#checkLoyalty').prop('disabled', true);
+        
+        $.ajax({
+            url: "/orderproduct/checkloyalty",
+            type: "POST",
+            data: {
+                phone: phone,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    // Populate dropdown with customer data
+                    $('#cus_id').html(`
+                        <option value="${response.customer.id}" selected>
+                            ${response.customer.name} (${response.customer.phone})
+                        </option>
+                    `);
+                    $('#existing-customer-group').removeClass('d-none');
+                    
+                    // Optionally auto-fill other fields if needed
+                    // $('#email').val(response.customer.email);
+                } 
+            },
+            error: function (xhr) {
+                let message = xhr.responseJSON && xhr.responseJSON.message 
+                    ? xhr.responseJSON.message 
+                    : 'An error occurred while getting details';
+                    
+                // Use a better notification system than alert()
+                toastr.error(message);
+            },
+            not_found: function (response) {
+                alert(response.message);
+            },
+            complete: function() {
+                // Reset button state
+               resetButtonState();
+            }
+        });   
+    });
+
+// Clear customer selection
+$('#clearCustomer').click(function() {
+    $('#cus_id').val('');
+    $('#phone_search').val('');
+    $('#existing-customer-group').addClass('d-none');
+});
+
     // Add your AJAX call here to submit the form data
     // Example:
     /*
@@ -1465,7 +1609,7 @@ document.getElementById('orderProductForm').addEventListener('submit', function(
         // Handle response
     });
     */
-});
+
 </script>
 
 

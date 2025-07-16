@@ -837,6 +837,58 @@ public function importorder(Request $request)
                 ], 404);
             }
         }
+
+        
+
+        // public function checkLoyalty(Request $request)
+        // {
+        //     try {
+        //         $customer = Customer::where('phone', $request->phone)->first();
+        //         return response()->json([
+        //             'customer' => $customer,
+        //             'status' => 'success'
+        //         ]);
+        //     } catch (\Exception $e) {
+        //         return response()->json([
+        //             'message' => 'Customer not found',
+        //             'status' => 'error'
+        //         ], 404);
+        //     }
+        // }
+
+       // More robust error handling
+        public function checkLoyalty(Request $request)
+        {
+            $validated = $request->validate([
+                'phone' => 'required|numeric|digits_between:9,15'
+            ]);
+
+            try {
+                $customer = Customer::where('phone', $validated['phone'])
+                    ->where('loyalty', 'yes')
+                    ->first(['id', 'name', 'phone', 'email']); // Only select needed fields
+                    
+                if (!$customer) {
+                    return response()->json([
+                        'status' => 'not_found',
+                        'message' => 'No loyal customer found with this number',
+                        'suggest_create' => true // Flag to suggest creation
+                    ], 404);
+                }
+
+                return response()->json([
+                    'status' => 'success',
+                    'customer' => $customer
+                ]);
+                
+            } catch (\Exception $e) {
+                Log::error('Loyalty check failed: '.$e->getMessage());
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Service unavailable. Please try again later.'
+                ], 500);
+            }
+        }
     //  public function getCustomer($customerId){
     //     $customer = Customer::findOrFail($customerId);
     //     return view('Order.index', compact('customer'));

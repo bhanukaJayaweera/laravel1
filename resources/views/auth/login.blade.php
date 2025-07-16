@@ -1,3 +1,7 @@
+<head>
+    <!-- Include the CSS -->
+    <link rel="stylesheet" href="{{ asset('vendor/notify/css/notify.css') }}">
+
 <style>
     body {
         background-color: #f8f9fa;
@@ -156,7 +160,10 @@
         }
     }
 </style>
+</head>
 <body>
+    <!-- Notification container -->
+    <div class="notify-alerts"></div>
    <div class="login-container">
         <div class="logo">
            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -213,4 +220,6 @@
             </div>
         </form>
     </div>
+     <!-- Include the JS -->
+    <script src="{{ asset('vendor/notify/js/notify.js') }}"></script>
 </body>
