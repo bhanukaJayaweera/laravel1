@@ -3,16 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Services\Gpt2Service;
+use App\Services\RestaurantReviewService;
 use Illuminate\Http\Request;
 
 class Gpt2Controller extends Controller
 {
-    protected Gpt2Service $gpt2Service;
+ 
+    protected RestaurantReviewService $reviewService;
 
-    public function __construct(Gpt2Service $gpt2Service)
+    //local AI agent
+    public function __construct(RestaurantReviewService $reviewService)
     {
-        $this->gpt2Service = $gpt2Service;
+        $this->reviewService = $reviewService;
     }
+    public function submitQuery()
+    {
+        return view('gpt2.review');
+    }
+
+    public function ask(Request $request)
+    {
+        $request->validate([
+            'question' => 'required|string|max:500'
+        ]);
+
+        $includeReviews = $request->boolean('include_reviews', false);
+
+        $response = $this->reviewService->askQuestion(
+            $request->input('question'),
+            $includeReviews
+        );
+
+        if (isset($response['error'])) {
+            return response()->json($response, 502);
+        }
+
+        return response()->json($response);
+    }
+
+    public function healthCheck()
+    {
+        $isHealthy = $this->reviewService->checkHealth();
+        
+        return response()->json([
+            'status' => $isHealthy ? 'connected' : 'disconnected',
+            'api_url' => env('REVIEW_API_URL')
+        ]);
+    }
+
+    //GPT2 solution
+    protected Gpt2Service $gpt2Service;
+    // public function __construct(Gpt2Service $gpt2Service)
+    // {
+    //     $this->gpt2Service = $gpt2Service;
+    // }
 
     public function showForm()
     {

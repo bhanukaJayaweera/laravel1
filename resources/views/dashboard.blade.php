@@ -60,6 +60,9 @@
                          <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('gpt2.form')}}">
                             <i class="fa fa-box mr-2"></i> GPT2 Text Generater
                         </a><br><br>
+                        <a class="btn btn-success w-full text-left py-3 flex items-center" href="{{route('review')}}">
+                            <i class="fa fa-box mr-2"></i> Restaurant Review Viewer
+                        </a><br><br>
                         <!-- <div class="container">
                             <h1>Fruit Classifier</h1>
                             <div class="embed-responsive embed-responsive-16by9">
