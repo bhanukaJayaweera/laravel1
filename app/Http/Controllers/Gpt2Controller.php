@@ -21,7 +21,7 @@ class Gpt2Controller extends Controller
         return view('gpt2.review');
     }
 
-    public function ask(Request $request)
+   public function ask(Request $request)
     {
         $request->validate([
             'question' => 'required|string|max:500'
@@ -29,18 +29,24 @@ class Gpt2Controller extends Controller
 
         $includeReviews = $request->boolean('include_reviews', false);
 
-        $response = $this->reviewService->askQuestion(
-            $request->input('question'),
-            $includeReviews
-        );
+        try {
+            $response = $this->reviewService->askQuestion(
+                $request->input('question'),
+                $includeReviews
+            );
 
-        if (isset($response['error'])) {
-            return response()->json($response, 502);
+            \Log::info('API Response:', $response); // Add this line
+
+            if (isset($response['error'])) {
+                return response()->json($response, 502);
+            }
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            \Log::error('Controller Error:', ['error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return response()->json($response);
     }
-
     public function healthCheck()
     {
         $isHealthy = $this->reviewService->checkHealth();

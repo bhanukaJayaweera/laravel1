@@ -169,7 +169,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/health', [Gpt2Controller::class, 'health']);
 
     Route::get('/review', [Gpt2Controller::class, 'submitQuery'])->name('review');
-    Route::get('/ask', [Gpt2Controller::class, 'ask']);
+    Route::post('/ask', [Gpt2Controller::class, 'ask'])->name('ask');
     Route::get('/healthCheck', [Gpt2Controller::class, 'healthCheck']);
     
 

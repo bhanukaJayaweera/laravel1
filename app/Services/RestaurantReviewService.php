@@ -14,7 +14,7 @@ class RestaurantReviewService
     public function __construct()
     {
         $this->client = new Client();
-        $this->apiUrl = env('REVIEW_API_URL', 'http://localhost:8000');
+        $this->apiUrl = env('REVIEW_API_URL', 'http://localhost:8001');
     }
 
     public function askQuestion(string $question, bool $includeReviews = false): array
